@@ -92,4 +92,4 @@ This is a demo application showcasing ColdFusion best practices for enterprise a
 
 ## 📄 License
 
-[Add your license information here]
+[MIT](https://opensource.org/licenses/MIT)

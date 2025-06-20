@@ -1,11 +1,29 @@
 component extends="coldbox.system.EventHandler" {
 
 	/**
-	 * Default Action
+	 * Default Action - ServePoint Home Page
 	 */
 	function index( event, rc, prc ){
-		prc.welcomeMessage = "Welcome to ColdBox!";
+		prc.welcomeMessage = "Welcome to ServePoint";
+		prc.projectDescription = "Social Services Case Management System";
+		prc.projectFeatures = [
+			"Case intake and management",
+			"Document upload and storage", 
+			"Staff communication tools",
+			"Audit trails and reporting",
+			"Role-based access controls"
+		];
+		prc.targetAudience = "US Federal Government and public-sector agencies";
 		event.setView( "main/index" );
+	}
+
+	/**
+	 * Under Construction Page
+	 */
+	function underConstruction( event, rc, prc ){
+		prc.pageTitle = "Under Construction";
+		prc.message = "This feature is currently under development.";
+		event.setView( "main/underConstruction" );
 	}
 
 	/**

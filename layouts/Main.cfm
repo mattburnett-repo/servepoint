@@ -23,7 +23,7 @@
 	</style>
 
 	<!--- Title --->
-	<title>Welcome to Coldbox!</title>
+	<title>Welcome to ServePoint!</title>
 </head>
 <body
 	data-spy="scroll"
@@ -38,7 +38,7 @@
 			<div class="container-fluid">
 				<!---Brand --->
 				<a class="navbar-brand" href="#event.buildLink( 'main' )#">
-					<strong>Welcome</strong>
+					<strong>ServePoint</strong>
 				</a>
 
 				<!--- Mobile Toggler --->
@@ -71,25 +71,27 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a href="https://coldbox.org" class="dropdown-item" target="_blank">
-										<i class="bi bi-journal-text"></i> Official Site
+									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+										<i class="bi bi-info-circle"></i> System Overview
 									</a>
 								</li>
 								<li>
-									<a href="https://ortussolutions.atlassian.net/browse/COLDBOX" class="dropdown-item" target="_blank">
-										<i class="bi bi-bug"></i> Report a Bug
+									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+										<i class="bi bi-gear"></i> Features
 									</a>
 								</li>
 								<li>
-									<a href="http://patreon.com/ortussolutions" class="dropdown-item" target="_blank">
-										<i class="bi bi-star"></i> Sponsor Us
+									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+										<i class="bi bi-shield-check"></i> Security & Privacy
 									</a>
 								</li>
 								<li>
 									<hr class="dropdown-divider">
 								</li>
-								<li class="p-2">
-									<img class="rounded mx-auto block" width="150" src="includes/images/ColdBoxLogo2015_300.png" alt="logo"/>
+								<li>
+									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+										<i class="bi bi-envelope"></i> Contact Support
+									</a>
 								</li>
 							</ul>
 						</li>
@@ -110,16 +112,24 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a class="dropdown-item" href="https://www.ortussolutions.com/blog" target="_blank">Blog</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-book"></i> User Guide
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://www.cfcasts.com/" target="_blank">CFCasts</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-mortarboard"></i> Training Videos
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://www.ortussolutions.com/services/training" target="_blank">Courses</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-lightbulb"></i> Best Practices
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://coldbox.ortusbooks.com" target="_blank">Documentation</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-question-circle"></i> FAQ
+									</a>
 								</li>
 							</ul>
 						</li>
@@ -140,36 +150,33 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a class="dropdown-item" href="https://boxteam.ortussolutions.com">Slack</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-headset"></i> Help Desk
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://community.ortussolutions.com/c/communities/coldbox/13">Mailing List</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-ticket"></i> Submit Ticket
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://www.coldbox.org/support/overview">Community Support</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-exclamation-triangle"></i> Emergency Contact
+									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="https://www.ortussolutions.com/services">Professional Support</a>
+									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+										<i class="bi bi-activity"></i> System Status
+									</a>
 								</li>
 							</ul>
 						</li>
 					</ul>
 
 					<form class="ms-auto d-flex">
-						<iframe
-							src="https://ghbtns.com/github-btn.html?user=coldbox&repo=coldbox-platform&type=star&count=true&size=large"
-							frameborder="0"
-							scrolling="0"
-							width="150"
-							height="30"
-							title="GitHub"></iframe>
-							<iframe
-								src="https://ghbtns.com/github-btn.html?user=coldbox&repo=coldbox-platform&type=watch&count=true&size=large&v=2"
-								frameborder="0"
-								scrolling="0"
-								width="150"
-								height="30"
-								title="GitHub"></iframe>
+						<a href="https://github.com/mattburnett-repo/servepoint.git" class="btn btn-outline-light btn-sm" target="_blank">
+							<i class="bi bi-github"></i> View the code on GitHub
+						</a>
 					</form>
 
 				</div>
