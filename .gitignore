@@ -25,5 +25,7 @@ yarn-error.log
 effective-pom.xml
 /coldbox/**
 /testbox/**
+/logbox/**
+/wirebox/**
 /modules/**
 /lib/java/**
