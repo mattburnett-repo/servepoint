@@ -1,9 +1,31 @@
-# Framework stuff
-coldbox
-modules
-modules_app
-testbox
+# General Ignores + IDE
+.DS_Store
+settings.xml
+WEB-INF
+.effective-pom.xml
 
-# Other un-neededs
-log
-tmp
+# Engines + Database + CBFS + Secrets
+.tmp/**
+.env
+.engine/**
+.cbfs/**
+docker/.db/**
+grapher/**
+
+# logs + tests
+logs/**
+tests/results/**
+
+# npm
+**/node_modules/*
+npm-debug.log
+yarn-error.log
+
+## Ignored Dependencies
+effective-pom.xml
+/coldbox/**
+/testbox/**
+/logbox/**
+/wirebox/**
+/modules/**
+/lib/java/**

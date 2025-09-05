@@ -10,7 +10,11 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 ## 🏗️ Architecture
 
+<<<<<<< HEAD
 - **Platform**: Adobe ColdFusion 2021/2023 and/or Lucee 5.x
+=======
+- **Platform**: Adobe ColdFusion 2021/2023
+>>>>>>> 116e981db90aa3114762334c02f96c0f50269942
 - **Framework**: ColdBox HMVC
 - **Data Layer**: ColdFusion ORM (Hibernate)
 - **Testing**: TestBox
@@ -46,8 +50,12 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 ```
 ServePoint/
+<<<<<<< HEAD
 ├── design/           # Design docs, UML artifacts
 ├── handlers/         # Controllers
+=======
+├── handlers/          # Controllers
+>>>>>>> 116e981db90aa3114762334c02f96c0f50269942
 ├── models/           # ORM entities and services
 ├── views/            # Presentation templates
 ├── layouts/          # Page layouts
@@ -87,10 +95,13 @@ box cflint run
 
 For comprehensive design specifications, architecture decisions, and implementation details, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
 
+<<<<<<< HEAD
 ## UML
 
 UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
 
+=======
+>>>>>>> 116e981db90aa3114762334c02f96c0f50269942
 ## 🤝 Contributing
 
 This is a demo application showcasing ColdFusion best practices for enterprise and government clients.
