@@ -1,0 +1,9 @@
+# Framework stuff
+coldbox
+modules
+modules_app
+testbox
+
+# Other un-neededs
+log
+tmp
