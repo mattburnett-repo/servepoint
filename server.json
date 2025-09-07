@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
     "name":"ServePoint",
     "app":{
         "cfengine":"lucee@5.4.8+2",
@@ -13,17 +12,10 @@
             "password":""
         }
     },
-=======
->>>>>>> 116e981db90aa3114762334c02f96c0f50269942
     "web":{
         "rewrites":{
             "enable":"true"
         }
-<<<<<<< HEAD
     },
     "reload":true
 }
-=======
-    }
-}
->>>>>>> 116e981db90aa3114762334c02f96c0f50269942
