@@ -1,13 +1,22 @@
 {
     "name":"ServePoint",
     "app":{
-        "cfengine":"lucee@5.4.8+2",
+        "cfengine":"adobe@2025.0.0",
         "libDirs":"lib/java"
+    },
+    "jvm":{
+        "javaHome":"/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home",
+        "args":[
+            "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+        ]
     },
     "web":{
         "rewrites":{
             "enable":"true"
         }
+    },
+    "env":{
+        "LUCEE_EXTENSIONS":"D062D72F-F8A2-46F0-8CBC91325B2F067B;version=6.5.2"
     },
     "reload":true
 }
