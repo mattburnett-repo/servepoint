@@ -1,6 +1,6 @@
 # ServePoint
 
-A professional, enterprise-grade ColdFusion demo application showcasing modern architecture, integration, security, privacy, and deployment best practices—targeted at clients such as the US Federal Government and mission-driven public-sector agencies.
+A Work-In-Progress enterprise-grade ColdFusion demo application showcasing modern architecture, integration, security, privacy, and deployment best practices—targeted at clients such as the US Federal Government and mission-driven public-sector agencies.
 
 ## 🎯 Project Overview
 
@@ -31,16 +31,25 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
    git clone <repository-url>
    cd ServePoint
    ```
-
-2. **Start the application with Docker**
+2. **Start your database server**
+<!-- 2. **Start the application with Docker**
    ```bash
    cd docker
    docker-compose up
+   ``` -->
+3. **Start the application with CommandBox (within the 'ServePoint' directory/folder)**
+
+   ```bash
+
+   box server start
    ```
 
-3. **Access the application**
+   After a short startup process, the app should appear in a browser at
+   '127.0.0.1:randomPortNumber'
+
+<!-- 4. **Access the application**
    - Application: http://localhost:8080
-   - Admin: http://localhost:8080/admin
+   - Admin: http://localhost:8080/admin -->
 
 ## 📁 Project Structure
 
@@ -61,16 +70,19 @@ ServePoint/
 ## 🔧 Development
 
 ### Running Tests
+
 ```bash
 box testbox run
 ```
 
 ### Code Formatting
+
 ```bash
 box cfformat run
 ```
 
 ### Linting
+
 ```bash
 box cflint run
 ```
@@ -90,10 +102,6 @@ For comprehensive design specifications, architecture decisions, and implementat
 ## UML
 
 UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
-
-## 🤝 Contributing
-
-This is a demo application showcasing ColdFusion best practices for enterprise and government clients.
 
 ## 📄 License
 
