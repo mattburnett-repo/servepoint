@@ -4,14 +4,6 @@
         "cfengine":"lucee@5.4.8+2",
         "libDirs":"lib/java"
     },
-    "datasources":{
-        "servepoint":{
-            "class":"org.postgresql.Driver",
-            "connectionString":"jdbc:postgresql://localhost:5432/postgres",
-            "username":"joeuser",
-            "password":""
-        }
-    },
     "web":{
         "rewrites":{
             "enable":"true"
