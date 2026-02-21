@@ -10,19 +10,20 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 ## 🏗️ Architecture
 
-- **Platform**: Adobe ColdFusion 2021/2023 and/or Lucee 5.x
+- **Platform**: Adobe ColdFusion 2025. Tested with Lucee 6, but not guaranteed.
 - **Framework**: ColdBox HMVC
 - **Data Layer**: ColdFusion ORM (Hibernate)
-- **Testing**: TestBox
-- **Containerization**: Docker
-- **Frontend**: Progressive Enhancement (Vue.js ready)
+<!-- - **Testing**: TestBox
+- **Containerization**: Docker -->
+- **Frontend**: Progressive Enhancement (React/Vue.js ready)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - [CommandBox](https://www.ortussolutions.com/products/commandbox)
-- [Docker](https://www.docker.com/) and Docker Compose
+- Java SE 17
+<!-- - [Docker](https://www.docker.com/) and Docker Compose -->
 
 ### Installation
 
@@ -31,7 +32,7 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
    git clone <repository-url>
    cd ServePoint
    ```
-2. **Start your database server**
+2. **Start your database server (project uses Postgresql as-is)**
 <!-- 2. **Start the application with Docker**
    ```bash
    cd docker
@@ -99,7 +100,11 @@ box cflint run
 
 For comprehensive design specifications, architecture decisions, and implementation details, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
 
-## UML
+## 📚 Development Notes
+
+Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
+
+## 📚 UML
 
 UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
 
