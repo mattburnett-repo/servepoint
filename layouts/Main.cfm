@@ -22,6 +22,9 @@
 		.text-blue { color:##379BC1; }
 	</style>
 
+	<!--- Favicon (shield-check, matches index iconography) --->
+	<link rel="icon" type="image/svg+xml" href="#event.getHTMLBaseURL()#favicon.svg" />
+
 	<!--- Title --->
 	<title>Welcome to ServePoint!</title>
 </head>
