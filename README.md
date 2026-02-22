@@ -8,6 +8,8 @@ ServePoint is a **Social Services Case Management System** designed for managing
 
 For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
 
+For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
+
 ## 🏗️ Architecture
 
 - **Platform**: Adobe ColdFusion 2025. Tested with Lucee 6, but not guaranteed.
@@ -16,6 +18,63 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 <!-- - **Testing**: TestBox
 - **Containerization**: Docker -->
 - **Frontend**: Progressive Enhancement (React/Vue.js ready)
+
+<!-- ## 📁 Project Structure
+
+```
+ServePoint/
+├── design/           # Design docs, UML artifacts
+├── handlers/         # Controllers
+├── models/           # ORM entities and services
+├── views/            # Presentation templates
+├── layouts/          # Page layouts
+├── interceptors/     # Cross-cutting concerns
+├── modules/          # Modular functionality
+├── tests/            # TestBox tests
+├── docker/           # Docker configuration
+└── config/           # Application configuration
+``` -->
+
+<!-- ## 🔧 Development
+
+### Running Tests
+
+```bash
+box testbox run
+```
+
+### Code Formatting
+
+```bash
+box cfformat run
+```
+
+### Linting
+
+```bash
+box cflint run
+
+``` -->
+
+<!-- ## 🔒 Security & Privacy
+
+- Role-based access controls
+- Data encryption at rest and in transit
+- Secure session management
+- Comprehensive audit logging
+- Compliance with privacy regulations (GDPR, HIPAA, CCPA) -->
+
+## 📚 Documentation
+
+For comprehensive design specifications, architecture decisions, and implementation details, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
+
+## 📚 Development Notes
+
+Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
+
+## 📚 UML
+
+UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
 
 ## 🚀 Quick Start
 
@@ -52,62 +111,12 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
    - Application: http://localhost:8080
    - Admin: http://localhost:8080/admin -->
 
-## 📁 Project Structure
-
-```
-ServePoint/
-├── design/           # Design docs, UML artifacts
-├── handlers/         # Controllers
-├── models/           # ORM entities and services
-├── views/            # Presentation templates
-├── layouts/          # Page layouts
-├── interceptors/     # Cross-cutting concerns
-├── modules/          # Modular functionality
-├── tests/            # TestBox tests
-├── docker/           # Docker configuration
-└── config/           # Application configuration
-```
-
-## 🔧 Development
-
-### Running Tests
-
-```bash
-box testbox run
-```
-
-### Code Formatting
-
-```bash
-box cfformat run
-```
-
-### Linting
-
-```bash
-box cflint run
-```
-
-## 🔒 Security & Privacy
-
-- Role-based access controls
-- Data encryption at rest and in transit
-- Secure session management
-- Comprehensive audit logging
-- Compliance with privacy regulations (GDPR, HIPAA, CCPA)
-
-## 📚 Documentation
-
-For comprehensive design specifications, architecture decisions, and implementation details, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
-
-## 📚 Development Notes
-
-Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
-
-## 📚 UML
-
-UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
+-
 
 ## 📄 License
 
 [MIT](https://opensource.org/licenses/MIT)
+
+```
+
+```
