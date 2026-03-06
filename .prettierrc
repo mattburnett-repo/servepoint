@@ -1,4 +1,5 @@
-# Prettier config (YAML) - minimal valid config so the extension can parse it
-printWidth: 80
-singleQuote: false
-tabWidth: 2
+{
+  "printWidth": 80,
+  "singleQuote": false,
+  "tabWidth": 2
+}

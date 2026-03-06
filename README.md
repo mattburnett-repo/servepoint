@@ -10,7 +10,7 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 ## 🏗️ Architecture
 
-- **Platform**: Adobe ColdFusion 2025. Tested with Lucee 6, but not guaranteed.
+- **Platform**: Adobe ColdFusion 2025. Lucee 6 compatability is not guaranteed.
 - **Framework**: ColdBox HMVC
 - **Data Layer**: ColdFusion ORM (Hibernate)
 <!-- - **Testing**: TestBox
