@@ -19,6 +19,14 @@
     }
   },
   "datasources": {
+    "servepoint": {
+      "dbdriver": "PostgreSql",
+      "host": "localhost",
+      "port": "5432",
+      "database": "postgres",
+      "username": "joeuser",
+      "password": ""
+    },
     "${DB_DATABASE}": {
       "bundleName": "${DB_BUNDLENAME}",
       "bundleVersion": "${DB_BUNDLEVERSION}",

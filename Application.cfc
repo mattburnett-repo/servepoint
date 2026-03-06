@@ -9,18 +9,10 @@ component {
     this.timezone = "UTC";
     this.whiteSpaceManagement = "smart";
 
-    // Datasource defined for cborm to use
-    this.datasources["servepoint"] = {
-        class: "org.postgresql.Driver",
-        bundleName: "org.postgresql.jdbc",
-        bundleVersion: "42.7.7",
-        connectionString: "jdbc:postgresql://localhost:5432/postgres",
-        username: "joeuser",
-        password: ""
-    };
-
+    // Datasource "servepoint" is defined in .cfconfig.json (server-level)
     this.ormEnabled = true;
-    this.datasource = "servepoint"; // just to satisfy Lucee
+    this.datasource = "servepoint";
+    
     this.ormSettings = {
         cfclocation = ["models"],
         dbcreate = "update",
@@ -58,8 +50,13 @@ component {
             COLDBOX_APP_MAPPING
         );
         application.cbBootstrap.loadColdbox();
-        return true;
-    }
+
+        // Fail fast: initialize ORM at startup; if DB is down, app won't start
+        if ( getApplicationMetadata().ormEnabled ) {
+            ormGetSessionFactory();
+        }
+            return true;
+        }
 
     public boolean function onRequestStart(string targetPage){
         application.cbBootstrap.onRequestStart(arguments.targetPage);
@@ -113,15 +110,15 @@ component {
             abort;
         }
 
-        // WriteDump(var=ex, format="text");
-
         var isDatabaseError = (
-            findNoCase( "database", exType )            ||
-            findNoCase( "jdbc", exType )                ||
-            findNoCase( "sql", exType )                 ||
-            findNoCase( "postgres", exMsg )             ||
-            findNoCase( "connection refused", exMsg )   ||
-            findNoCase( "database", exDetail )
+            findNoCase( "database", exType )             ||
+            findNoCase( "jdbc", exType )                 ||
+            findNoCase( "sql", exType )                  ||
+            findNoCase( "postgres", exMsg )              ||
+            findNoCase( "connection refused", exMsg )    ||
+            findNoCase( "database", exDetail )           ||
+            findNoCase( "connection refused", exDetail ) ||
+            findNoCase( "postgres", exDetail )
         );
 
         // Choose appropriate HTTP status
@@ -146,8 +143,19 @@ component {
         variables.errorEventName = arguments.eventName;
         variables.errorStackTrace = isNull( ex.stackTrace ) ? "" : ex.stackTrace;
         variables.errorTagContext = isNull( ex.tagContext ) ? [] : ex.tagContext;
+        variables.errorRootCauseMessage = "";
+        variables.errorRootCauseDetail  = "";
         try {
             variables.errorExceptionJson = serializeJSON( ex );
+            // Parse back so we can read RootCause reliably (live exception may be Java object)
+            var exStruct = deserializeJSON( variables.errorExceptionJson );
+            if ( structKeyExists( exStruct, "RootCause" ) && isStruct( exStruct.RootCause ) ) {
+                var rc = exStruct.RootCause;
+                if ( structKeyExists( rc, "Message" ) && len( trim( rc.Message ) ) )
+                    variables.errorRootCauseMessage = trim( rc.Message );
+                if ( structKeyExists( rc, "Detail" ) && len( trim( rc.Detail ) ) )
+                    variables.errorRootCauseDetail = trim( rc.Detail );
+            }
         } catch ( any e ) {
             variables.errorExceptionJson = "{ ""serializeError"": ""Could not serialize exception"" }";
         }
