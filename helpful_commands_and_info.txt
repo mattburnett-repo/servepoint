@@ -1,0 +1,9 @@
+box server info
+box server info --JSON
+box server info --verbose
+box server info property=serverHomeDirectory\
+
+-- To find logs (has application and exception logs):
+<serverHomeDirectory>/WEB-INF/cfusion/logs/
+
+box server forget --force

@@ -15,5 +15,14 @@
             "enable":"true"
         }
     },
-    "reload":true
+    "reload":true,
+    "cfconfig":{
+        "file":".cfconfig.json"
+    },
+    "scripts":{
+        "onServerInitialInstall":[
+            "cfpm install orm",
+            "cfpm install postgresql"
+        ]
+    }
 }

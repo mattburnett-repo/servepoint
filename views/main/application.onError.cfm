@@ -68,11 +68,24 @@
                                         <p class="mb-1"><strong>Stack trace:</strong></p>
                                         <pre class="mb-2 p-2 bg-white border rounded overflow-auto small" style="max-height: 12em;">#encodeForHTML( errorStackTrace )#</pre>
                                     </cfif>
+                                    <cfif structKeyExists( variables, "errorRootCauseMessage" ) AND len( trim( errorRootCauseMessage ) )>
+                                        <p class="mb-1"><strong>Root cause – Message:</strong> #encodeForHTML( errorRootCauseMessage )#</p>
+                                    </cfif>
+                                    <cfif structKeyExists( variables, "errorRootCauseDetail" ) AND len( trim( errorRootCauseDetail ) )>
+                                        <p class="mb-1"><strong>Root cause – Detail:</strong></p>
+                                        <pre class="mb-2 p-2 bg-white border rounded overflow-auto" style="max-height: 10em;">#encodeForHTML( errorRootCauseDetail )#</pre>
+                                    </cfif>
+                                    <!--- Tag context only when error originates in a file (template stack present) --->
                                     <cfif structKeyExists( variables, "errorTagContext" ) AND isArray( errorTagContext ) AND arrayLen( errorTagContext ) GT 0>
                                         <p class="mb-1"><strong>Tag context:</strong></p>
                                         <ul class="mb-2 ps-3">
                                             <cfloop array="#errorTagContext#" index="ctx">
-                                                <li>#encodeForHTML( structKeyExists( ctx, "template" ) ? ctx.template : "" )# (line #encodeForHTML( structKeyExists( ctx, "line" ) ? ctx.line : "?" )#)</li>
+                                                <cfset tagId = ( structKeyExists( ctx, "ID" ) && len( trim( ctx.ID ) ) ) ? ctx.ID : ( structKeyExists( ctx, "id" ) && len( trim( ctx.id ) ) ? ctx.id : "" )>
+                                                <cfset templatePath = structKeyExists( ctx, "template" ) ? ctx.template : "">
+                                                <cfset lineNum = structKeyExists( ctx, "line" ) ? ctx.line : "?">
+                                                <li>
+                                                    <cfif len( tagId )><strong>#encodeForHTML( tagId )#</strong><cfif len( templatePath )> – </cfif></cfif><cfif len( templatePath )>#encodeForHTML( templatePath )# (line #encodeForHTML( lineNum )#)</cfif>
+                                                </li>
                                             </cfloop>
                                         </ul>
                                     </cfif>

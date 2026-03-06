@@ -31,4 +31,4 @@ effective-pom.xml
 /lib/java/**
 
 # files
-helpful_commands_and_info.txt
+exceptionJSON_example.json
