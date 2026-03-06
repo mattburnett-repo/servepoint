@@ -29,3 +29,6 @@ effective-pom.xml
 /wirebox/**
 /modules/**
 /lib/java/**
+
+# files
+helpful_commands_and_info.txt

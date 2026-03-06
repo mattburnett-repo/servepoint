@@ -192,20 +192,21 @@
 		#view()#
 	</main>
 
-	<!--- Footer --->
-	<footer class="w-100 bottom-0 position-fixed border-top py-3 mt-5 bg-light">
-		<div class="container">
-			<p class="float-end">
-				<a href="##" class="btn btn-info rounded-circle shadow" role="button">
-					<i class="bi bi-arrow-bar-up"></i> <span class="visually-hidden">Top</span>
-				</a>
-			</p>
-			<p>
-				<a href="https://github.com/ColdBox/coldbox-platform/stargazers">ColdBox Platform</a> is a copyright-trademark software by
-				<a href="https://www.ortussolutions.com">Ortus Solutions, Corp</a>
-			</p>
-		</div>
-	</footer>
+	<!--- Footer   
+  <footer class="w-100 bottom-0 position-fixed border-top py-3 mt-5 bg-light">
+    <div class="container">
+      <p class="float-end">
+        <a href="##" class="btn btn-info rounded-circle shadow" role="button">
+          <i class="bi bi-arrow-bar-up"></i> <span class="visually-hidden">Top</span>
+        </a>
+      </p>
+      <p>
+        <a href="https://github.com/ColdBox/coldbox-platform/stargazers">ColdBox Platform</a> is a copyright-trademark software by
+        <a href="https://www.ortussolutions.com">Ortus Solutions, Corp</a>
+      </p>
+    </div>
+  </footer>
+  --->
 
 	<!---
 		JavaScript
@@ -213,7 +214,7 @@
 		- Popper
 		- Alpine.js
 	--->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
 	<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>

@@ -1,7 +1,7 @@
 {
     "name":"ServePoint",
     "app":{
-        "cfengine":"adobe@2025.0.0",
+        "cfengine":"adobe@2025",
         "libDirs":"lib/java"
     },
     "jvm":{
@@ -14,9 +14,6 @@
         "rewrites":{
             "enable":"true"
         }
-    },
-    "env":{
-        "LUCEE_EXTENSIONS":"D062D72F-F8A2-46F0-8CBC91325B2F067B;version=6.5.2"
     },
     "reload":true
 }
