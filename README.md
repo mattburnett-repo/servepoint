@@ -72,9 +72,11 @@ For comprehensive design specifications, architecture decisions, and implementat
 
 Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
 
-## 📚 UML
+## 📚 Diagramming
 
-UML use for this project is mostly exploratory. UML files/artifacts are found in the [design](/design) folder.
+UML use for this project is mostly exploratory. UML files/artifacts are found in the [design/uml](/design/uml) folder.
+
+Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mermaid) folder.
 
 ## 🚀 Quick Start
 
