@@ -51,6 +51,9 @@
                             <h5 class="text-secondary mb-3">Error details</h5>
                             <div class="card bg-light">
                                 <div class="card-body small font-monospace">
+                                    <cfif structKeyExists( variables, "errorTemplate" ) AND len( trim( errorTemplate ) )>
+                                        <p class="mb-1"><strong>Template:</strong> #encodeForHTML( errorTemplate )#<cfif structKeyExists( variables, "errorLine" ) AND len( trim( errorLine ) )> (line #encodeForHTML( errorLine )#)</cfif></p>
+                                    </cfif>
                                     <cfif structKeyExists( variables, "errorEventName" ) AND len( trim( errorEventName ) )>
                                         <p class="mb-1"><strong>Event:</strong> #encodeForHTML( errorEventName )#</p>
                                     </cfif>
