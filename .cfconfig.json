@@ -23,25 +23,9 @@
       "dbdriver": "PostgreSql",
       "host": "localhost",
       "port": "5432",
-      "database": "postgres",
-      "username": "joeuser",
-      "password": ""
-    },
-    "${DB_DATABASE}": {
-      "bundleName": "${DB_BUNDLENAME}",
-      "bundleVersion": "${DB_BUNDLEVERSION}",
-      "class": "${DB_CLASS}",
-      "connectionLimit": "100",
-      "connectionTimeout": "1",
-      "custom": "useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC&useLegacyDatetimeCode=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true",
-      "database": "${DB_DATABASE}",
-      "dbdriver": "${DB_DRIVER:MySQL}",
-      "dsn": "jdbc:mysql://{host}:{port}/{database}",
-      "host": "${DB_HOST:127.0.0.1}",
-      "password": "${DB_PASSWORD}",
-      "port": "${DB_PORT:3306}",
-      "username": "${DB_USER:root}",
-      "storage": "false"
+      "database": "servepoint",
+      "username": "servepointAdmin",
+      "password": "admin"
     }
   },
   "whitespaceManagement": "white-space-pref"

@@ -18,3 +18,8 @@ To switch engine versions, edit `server.json`: set `app.cfengine` to `adobe@2025
   - **Cause**: CF 2025's `ApplicationSettings.loadAppDatasources()` calls `ServiceFactory.getGraphQLClientService()` when resolving application scope; if the optional graphqlclient package is not installed, it throws.
   - This app does not use GraphQL; it appears that the error originates within ColdFusion 2025 itself.
   - **Workaround**: In `Application.cfc` `onError()`, we detect this exception and issue a 302 redirect to the same URL. The second request succeeds because the application scope is already resolved. See [GitHub issue #10](https://github.com/mattburnett-repo/servepoint/issues/10).
+
+- **cfpm install: caching and orm packages cannot be installed by the server (FALSE POSITIVE)**:
+  - When running `cfpm install` (e.g. `cfpm install postgresql`), packages are downloaded (e.g. orm, hibernate-testing) but installation fails with: `caching package cannot be installed by the server. Please check the server logs and try installing again.` and `orm package cannot be installed by the server. Please check the server logs and try installing again.`
+  - Check server logs for details and retry if needed.
+  - **The app actually does install the packages. Not sure why this error is reported.**

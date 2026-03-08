@@ -1,10 +1,10 @@
 component {
 
     /**
-     * Define all valid document file types as a static struct.
+     * Define all valid document file types as a struct.
      * This provides easy access by key and is highly maintainable.
      */
-    static final property name="FILE_TYPES" type="struct" default={
+    property name="FILE_TYPES" type="struct" default={
         "PDF": "pdf",
         "DOCX": "docx",
         "PNG": "png",

@@ -43,6 +43,13 @@ component {
 
     public boolean function onApplicationStart(){
         setting requestTimeout = "300";
+
+        // Ensure logs directory exists for LogBox file appenders
+        var logsPath = getDirectoryFromPath(getCurrentTemplatePath()) & "logs";
+        if ( !directoryExists(logsPath) ) {
+            directoryCreate(logsPath);
+        }
+
         application.cbBootstrap = new coldbox.system.Bootstrap(
             COLDBOX_CONFIG_FILE,
             COLDBOX_APP_ROOT_PATH,
@@ -55,8 +62,15 @@ component {
         if ( getApplicationMetadata().ormEnabled ) {
             ormGetSessionFactory();
         }
-            return true;
+
+        try {
+            application.cbController.getLogBox().getLogger("app.startup").info("Application started: ServePoint");
+        } catch ( any e ) {
+            // LogBox not yet available or misconfigured; ignore
         }
+
+        return true;
+    }
 
     public boolean function onRequestStart(string targetPage){
         application.cbBootstrap.onRequestStart(arguments.targetPage);
@@ -64,6 +78,13 @@ component {
     }
 
     public void function onApplicationEnd(struct appScope){
+        if ( structKeyExists(arguments.appScope, "cbController") && !isNull(arguments.appScope.cbController) ) {
+            try {
+                arguments.appScope.cbController.getLogBox().getLogger("app.shutdown").info("Application shutting down.");
+            } catch ( any e ) {
+                // ignore
+            }
+        }
         arguments.appScope.cbBootstrap.onApplicationEnd(arguments.appScope);
     }
 
@@ -145,6 +166,8 @@ component {
         variables.errorTagContext = isNull( ex.tagContext ) ? [] : ex.tagContext;
         variables.errorRootCauseMessage = "";
         variables.errorRootCauseDetail  = "";
+        variables.errorTemplate = "";
+        variables.errorLine = "";
         try {
             variables.errorExceptionJson = serializeJSON( ex );
             // Parse back so we can read RootCause reliably (live exception may be Java object)
@@ -155,19 +178,65 @@ component {
                     variables.errorRootCauseMessage = trim( rc.Message );
                 if ( structKeyExists( rc, "Detail" ) && len( trim( rc.Detail ) ) )
                     variables.errorRootCauseDetail = trim( rc.Detail );
+                // When error originates in a CFC (e.g. ORM parse), tag context is often only on RootCause
+                if ( arrayLen( variables.errorTagContext ) == 0 && structKeyExists( rc, "TagContext" ) && isArray( rc.TagContext ) )
+                    variables.errorTagContext = rc.TagContext;
             }
         } catch ( any e ) {
             variables.errorExceptionJson = "{ ""serializeError"": ""Could not serialize exception"" }";
+        }
+        // Normalize tag context to lowercase keys (CF/Java may provide TEMPLATE, LINE) so the view can display template/line
+        var normalized = [];
+        for ( var ctx in variables.errorTagContext ) {
+            var t = {};
+            if ( isStruct( ctx ) ) {
+                t.template = structKeyExists( ctx, "TEMPLATE" ) ? ctx.TEMPLATE : ( structKeyExists( ctx, "template" ) ? ctx.template : "" );
+                t.line    = structKeyExists( ctx, "LINE" ) ? ctx.LINE : ( structKeyExists( ctx, "line" ) ? ctx.line : "" );
+                t.id      = structKeyExists( ctx, "ID" ) ? ctx.ID : ( structKeyExists( ctx, "id" ) ? ctx.id : "" );
+            }
+            arrayAppend( normalized, t );
+        }
+        variables.errorTagContext = normalized;
+        if ( arrayLen( variables.errorTagContext ) > 0 && len( trim( variables.errorTagContext[1].template ) ) ) {
+            variables.errorTemplate = trim( variables.errorTagContext[1].template );
+            variables.errorLine = variables.errorTagContext[1].line;
         }
 
         // Render the shared error view. Use this for cases where the error happens on startup, before ColdBox is loaded.
         include "/views/main/application.onError.cfm";
 
-        // Log full exception details for diagnostics
-        writeLog(
-            type = "error",
-            text = "Application.onError for event '" & eventName & "': " & serializeJSON( ex )
-        );
+        // Log via LogBox when available (app.events file). When ColdBox didn't start (e.g. DB down), bootstrap LogBox standalone so startup errors still go to servepoint-app-events.log. Pass minimal extraInfo (no stackTrace).
+        var errorExtra = { type = exType, message = exMsg, detail = exDetail, eventName = arguments.eventName };
+        if ( structKeyExists(variables, "errorTemplate") && len(trim(variables.errorTemplate)) ) {
+            errorExtra.template = variables.errorTemplate;
+            if ( structKeyExists(variables, "errorLine") )
+                errorExtra.line = variables.errorLine;
+        }
+        if ( structKeyExists(application, "cbController") && !isNull(application.cbController) ) {
+            try {
+                var errLog = application.cbController.getLogBox().getLogger("app.error");
+                errLog.error("Application.onError for event '#arguments.eventName#': #exMsg# #exDetail#", errorExtra);
+            } catch ( any e ) {
+                writeLog(type = "error", text = "Application.onError for event '" & eventName & "': " & serializeJSON( errorExtra ));
+            }
+        } else {
+            try {
+                var logsPath = getDirectoryFromPath(getCurrentTemplatePath()) & "logs";
+                if ( !directoryExists(logsPath) ) {
+                    directoryCreate(logsPath);
+                }
+                if ( !structKeyExists(application, "standaloneLogBox") || isNull(application.standaloneLogBox) ) {
+                    application.standaloneLogBox = new logbox.system.logging.LogBox("config.LogBox");
+                }
+                application.standaloneLogBox.getLogger("app.error").error("Application.onError for event '#arguments.eventName#': #exMsg# #exDetail#", errorExtra);
+            } catch ( any e ) {
+                writeLog(type = "error", text = "Application.onError for event '" & eventName & "': " & serializeJSON( errorExtra ));
+            } finally {
+                if ( structKeyExists(application, "standaloneLogBox") ) {
+                    structDelete(application, "standaloneLogBox");
+                }
+            }
+        }
 
         abort;
     }
