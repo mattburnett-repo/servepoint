@@ -1,16 +1,11 @@
 component {
 
+    property name="STATUSES" type="struct";
+
     /**
-     * Define all valid statuses as a static struct.
-     * This provides easy access by key and is highly maintainable.
-     *
-     * Example:
-     * someVar = Case_Status.STATUSES.IN_PROGRESS
-     *
-     * Get an array of all status values:
-     *    allStatuses = Case_Status.getValues();
+     * Define all valid statuses. Set in pseudo-constructor for Adobe CF compatibility (no static final).
      */
-    static final property name="STATUSES" type="struct" default={
+    this.STATUSES = {
         "NEW": "New",
         "IN_PROGRESS": "In Progress",
         "PENDING_APPROVAL": "Pending Approval",

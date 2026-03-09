@@ -1,10 +1,11 @@
 component {
 
+    property name="FILE_TYPES" type="struct";
+
     /**
-     * Define all valid document file types as a struct.
-     * This provides easy access by key and is highly maintainable.
+     * Define all valid document file types. Set in pseudo-constructor for Adobe CF compatibility (no static final).
      */
-    property name="FILE_TYPES" type="struct" default={
+    this.FILE_TYPES = {
         "PDF": "pdf",
         "DOCX": "docx",
         "PNG": "png",
