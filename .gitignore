@@ -7,6 +7,7 @@ WEB-INF
 # Engines + Database + CBFS + Secrets
 .tmp/**
 .env
+.env.dev 
 .engine/**
 .cbfs/**
 docker/.db/**

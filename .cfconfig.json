@@ -20,12 +20,12 @@
   },
   "datasources": {
     "servepoint": {
-      "dbdriver": "PostgreSql",
-      "host": "localhost",
-      "port": "5432",
-      "database": "servepoint",
-      "username": "servepointAdmin",
-      "password": "admin"
+      "dbdriver": "${DB_DRIVER}",
+      "host": "${DB_HOST}",
+      "port": "${DB_PORT}",
+      "database": "${DB_DATABASE}",
+      "username": "${DB_USERNAME}",
+      "password": "${DB_PASSWORD}"
     }
   },
   "whitespaceManagement": "white-space-pref"
