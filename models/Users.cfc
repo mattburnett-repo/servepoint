@@ -15,7 +15,7 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="users" {
     // Relationships
     property name="cases"       fieldtype="one-to-many" cfc="Cases" fkcolumn="creator_id";
     property name="assignedTo"  fieldtype="one-to-many" cfc="Cases" fkcolumn="assigned_to_id";
-    property name="logEntries"  fieldtype="one-to-many" cfc="LogEntry" fkcolumn="creator_id";
+    property name="logEntries"  fieldtype="one-to-many" cfc="LogEntry" fkcolumn="user_id";
 
     /**
      * ColdBox ORM lifecycle method to validate the data before saving.

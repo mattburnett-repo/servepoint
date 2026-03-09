@@ -1,6 +1,6 @@
 component persistent="true" extends="cborm.models.ActiveEntity" table="documents" {
-    // Inject the Document_FileType component from the constants folder
-    property name="Document_FileType" inject="constants.Document_FileType";
+    // Inject the Document_File_Type component from the constants folder
+    property name="Document_File_Type" inject="constants.Document_File_Type";
 
     // Primary Key
     property name="documentId" fieldtype="id" column="document_id" generator="identity";
@@ -19,8 +19,8 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="documents
      * ColdBox ORM lifecycle method to validate the data before saving.
      */
     public void function validate() {
-        // Get the valid file types from the Document_FileType component
-        var validFileTypes = this.Document_FileType.getValues();
+        // Get the valid file types from the Document_File_Type component
+        var validFileTypes = this.Document_File_Type.getValues();
 
         // Check if the current document's file type is NOT in the list of valid types.
         if ( !arrayFind( validFileTypes, this.fileType ) ) {

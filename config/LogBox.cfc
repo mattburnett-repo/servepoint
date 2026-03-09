@@ -11,7 +11,7 @@ component {
         logBox = {
             appenders : {
                 appevents : {
-                    class      : "logbox.system.logging.appenders.FileAppender",
+                    class      : "coldbox.system.logging.appenders.FileAppender",
                     levelMin   : "FATAL",
                     levelMax   : "INFO",
                     properties : {
@@ -21,7 +21,7 @@ component {
                     }
                 },
                 console : {
-                    class : "logbox.system.logging.appenders.ConsoleAppender"
+                    class : "coldbox.system.logging.appenders.ConsoleAppender"
                 }
             },
             root : {

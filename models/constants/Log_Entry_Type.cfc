@@ -1,10 +1,11 @@
 component {
 
+    property name="TYPES" type="struct";
+
     /**
-     * Define all valid log entry types as a static struct.
-     * This provides easy access by key and is highly maintainable.
+     * Define all valid log entry types. Set in pseudo-constructor for Adobe CF compatibility (no static final).
      */
-    static final property name="TYPES" type="struct" default={
+    this.TYPES = {
         "LOGIN": "Login",
         "CASE_UPDATE": "Case Update",
         "DOCUMENT_UPLOAD": "Document Upload",
