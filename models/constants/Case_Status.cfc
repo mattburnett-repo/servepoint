@@ -17,7 +17,11 @@ component {
      * @returns array An array of all the status values.
      */
     public array function getValues() {
-        return structValues( this.STATUSES );
+        var values = [];
+        for ( var key in this.STATUSES ) {
+            arrayAppend( values, this.STATUSES[ key ] );
+        }
+        return values;
     }
 
 }

@@ -23,6 +23,16 @@ This app uses:
 
 When you run the app via Docker (`docker compose --env-file .env -f docker/docker-compose.yml up`), those `.env` values are injected into the containers and used by CF/ColdBox; you should not commit `.env` to version control.
 
+### Database seeding (`SERVEPOINT_AUTO_SEED`)
+
+- On application startup, the ORM can automatically seed the database with an administrator user and sample demo data.
+- This is controlled by the `SERVEPOINT_AUTO_SEED` environment variable:
+  - If **unset or blank**, seeding **runs by default**.
+  - If set to `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
+  - Any other value disables automatic seeding.
+- For Docker workflows, add `SERVEPOINT_AUTO_SEED` to your `.env` file so it is injected into the container.
+- For local CommandBox workflows, set `SERVEPOINT_AUTO_SEED` in your shell environment before running `box server start`.
+
 ## Known issues
 
 - **"graphqlclient not found" with CF 2025**:
