@@ -14,6 +14,17 @@ component {
 	this.whiteSpaceManagement = "smart";
 	this.enableNullSupport    = shouldEnableFullNullSupport();
 
+	// Mirror ORM configuration from the main application so tests can use entities and SeedService.
+	// NOTE: This Application.cfc runs under the /tests app root, so we must point ORM to the parent /models folder.
+	this.ormEnabled = true;
+	this.datasource = "servepoint";
+	this.ormSettings = {
+		// Resolve ../models relative to the /tests directory (gives /app/models inside the container)
+		cfclocation = [ expandPath( "../models" ) ],
+		dbcreate    = "update",
+		logSQL      = true
+	};
+
 	/**
 	 * --------------------------------------------------------------------------
 	 * Location Mappings

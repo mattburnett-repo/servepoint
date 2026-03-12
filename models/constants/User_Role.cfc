@@ -16,7 +16,11 @@ component {
      * @returns array An array of all the role strings.
      */
     public array function getValues() {
-        return structValues( this.ROLES );
+        var values = [];
+        for ( var key in this.ROLES ) {
+            arrayAppend( values, this.ROLES[ key ] );
+        }
+        return values;
     }
 
 }

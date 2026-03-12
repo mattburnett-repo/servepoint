@@ -15,54 +15,9 @@ For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
 - **Platform**: Adobe ColdFusion 2025. Lucee 6 support might happen in the future.
 - **Framework**: ColdBox HMVC
 - **Data Layer**: ColdFusion ORM (Hibernate)
-<!-- - **Testing**: TestBox
-- **Containerization**: Docker -->
+- **Testing**: TestBox
+- **Containerization**: Docker
 - **Frontend**: Progressive Enhancement (React/Vue.js ready)
-
-<!-- ## 📁 Project Structure
-
-```
-ServePoint/
-├── design/           # Design docs, UML artifacts
-├── handlers/         # Controllers
-├── models/           # ORM entities and services
-├── views/            # Presentation templates
-├── layouts/          # Page layouts
-├── interceptors/     # Cross-cutting concerns
-├── modules/          # Modular functionality
-├── tests/            # TestBox tests
-├── docker/           # Docker configuration
-└── config/           # Application configuration
-``` -->
-
-<!-- ## 🔧 Development
-
-### Running Tests
-
-```bash
-box testbox run
-```
-
-### Code Formatting
-
-```bash
-box cfformat run
-```
-
-### Linting
-
-```bash
-box cflint run
-
-``` -->
-
-<!-- ## 🔒 Security & Privacy
-
-- Role-based access controls
-- Data encryption at rest and in transit
-- Secure session management
-- Comprehensive audit logging
-- Compliance with privacy regulations (GDPR, HIPAA, CCPA) -->
 
 ## 📚 Documentation
 
@@ -82,48 +37,51 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
 
 ### Prerequisites
 
-- [CommandBox](https://www.ortussolutions.com/products/commandbox)
-- commandBox-dotenv
-- Java SE 17
-<!-- - [Docker](https://www.docker.com/) and Docker Compose -->
+- [Docker](https://www.docker.com/) and Docker Compose
 
-### Installation
+### Installation and Startup (Docker only)
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd ServePoint
    ```
-2. Create and add values to a `.env` file. Use [.env.example](.env.example) to get started.
-3. **Install commandBox-dotenv**
-   From within CommandBox:
-   ```bash
-    box install commandBox-dotenv
+2. **Create a `.env` file**
+   - Copy from [.env.example](.env.example) and set values for the database connection and any other required settings.
+3. **Start the application stack with Docker** (recommended)  
+   From the project root (`ServePoint` directory), run:
+
+```bash
+docker compose --env-file .env -f docker/docker-compose.yml up
+```
+
+This builds the app image, starts the ColdFusion and Postgres containers, and wires all environment variables from `.env`.
+
+4. **Access the application**
+   - Application: `http://localhost:8080` (or the port defined in `docker-compose.yml`)
+
+### Running tests (Docker)
+
+ServePoint includes TestBox specs under the `tests/` folder.
+
+1. Ensure the stack is running with Docker as described above.
+2. In your browser, open:
+
+   ```text
+   http://localhost:8080/tests/
    ```
-4. **Start your database server (project uses Postgresql as-is)**
-<!-- 2. **Start the application with Docker**
-   ```bash
-   cd docker
-   docker-compose up
-   ``` -->
-5. **Start the application with CommandBox (within the 'ServePoint' directory/folder)**
 
-   ```bash
+3. Use the TestBox runner UI to execute the test suites (including integration specs such as `SeedingSpec.cfc`) by clicking the **Run All** button or selecting individual specs.
 
-   box server start
-   ```
+### Database seeding
 
-   After a short startup process, the app should appear in a browser at
-   '127.0.0.1:randomPortNumber'
-
-<!-- 4. **Access the application**
-   - Application: http://localhost:8080
-   - Admin: http://localhost:8080/admin -->
+- On startup, ServePoint can automatically seed the database with an administrator user and sample data via the ORM.
+- This behavior is controlled by the `SERVEPOINT_AUTO_SEED` environment variable:
+  - If **unset or blank**, seeding **runs by default**.
+  - If set to one of `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
+  - Any other value disables automatic seeding.
+- In Docker, define `SERVEPOINT_AUTO_SEED` in your `.env` file.
 
 ## 📄 License
 
 [MIT](https://opensource.org/licenses/MIT)
-
-```
-
-```

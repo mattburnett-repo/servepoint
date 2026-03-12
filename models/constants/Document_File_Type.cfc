@@ -18,7 +18,11 @@ component {
      * @returns array An array of all the file type strings.
      */
     public array function getValues() {
-        return structValues( this.FILE_TYPES );
+        var values = [];
+        for ( var key in this.FILE_TYPES ) {
+            arrayAppend( values, this.FILE_TYPES[ key ] );
+        }
+        return values;
     }
 
 }

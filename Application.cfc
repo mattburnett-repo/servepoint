@@ -64,6 +64,27 @@ component {
             ormGetSessionFactory();
         }
 
+        // Optionally seed the database after ORM is ready.
+        if ( shouldRunSeeding() ) {
+            try {
+                var seedService = application.cbController.getWireBox().getInstance( "SeedService" );
+                seedService.runAll();
+                application.cbController.getLogBox().getLogger( "app.startup" ).info( "Database seeding completed successfully." );
+            } catch ( any se ) {
+                // Log the error and rethrow so startup fails fast.
+                try {
+                    application.cbController.getLogBox().getLogger( "app.error" ).error(
+                        "Error during database seeding on startup: #se.message#",
+                        { detail : se.detail }
+                    );
+                } catch ( any logErr ) {
+                    // If LogBox is not available, fall back to CF's standard logging.
+                    writeLog( type = "error", text = "Error during database seeding on startup: " & se.message & " | " & se.detail );
+                }
+                rethrow;
+            }
+        }
+
         try {
             application.cbController.getLogBox().getLogger("app.startup").info("Application started: ServePoint");
         } catch ( any e ) {
@@ -71,6 +92,27 @@ component {
         }
 
         return true;
+    }
+
+    /**
+     * Determine whether database seeding should run on startup.
+     * Controlled via the SERVEPOINT_AUTO_SEED environment variable.
+     * Defaults to true when the variable is not set.
+     */
+    private boolean function shouldRunSeeding() {
+        var system = createObject( "java", "java.lang.System" );
+        var value  = system.getEnv( "SERVEPOINT_AUTO_SEED" );
+
+        if ( isNull( value ) ) {
+            return true;
+        }
+
+        var trimmed = trim( value );
+        if ( !len( trimmed ) ) {
+            return true;
+        }
+
+        return listFindNoCase( "1,true,yes,on", trimmed ) > 0;
     }
 
     public boolean function onRequestStart(string targetPage){
