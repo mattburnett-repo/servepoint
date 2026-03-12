@@ -37,9 +37,10 @@ component {
     COLDBOX_APP_KEY = "";
     COLDBOX_FAIL_FAST = true;
 
-    this.mappings["/cbapp"] = COLDBOX_APP_ROOT_PATH;
+    this.mappings["/cbapp"]   = COLDBOX_APP_ROOT_PATH;
     this.mappings["/coldbox"] = COLDBOX_APP_ROOT_PATH & "coldbox";
-    this.mappings["/cborm"] = COLDBOX_APP_ROOT_PATH & "modules/cborm";
+    this.mappings["/cborm"]   = COLDBOX_APP_ROOT_PATH & "modules/cborm";
+    this.mappings["/logbox"]  = COLDBOX_APP_ROOT_PATH & "logbox";
 
     public boolean function onApplicationStart(){
         setting requestTimeout = "300";
@@ -226,7 +227,7 @@ component {
                     directoryCreate(logsPath);
                 }
                 if ( !structKeyExists(application, "standaloneLogBox") || isNull(application.standaloneLogBox) ) {
-                    application.standaloneLogBox = new logbox.system.logging.LogBox("config.LogBox");
+                    application.standaloneLogBox = new coldbox.system.logging.LogBox("config.LogBox");
                 }
                 application.standaloneLogBox.getLogger("app.error").error("Application.onError for event '#arguments.eventName#': #exMsg# #exDetail#", errorExtra);
             } catch ( any e ) {

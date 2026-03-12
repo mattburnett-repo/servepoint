@@ -21,12 +21,12 @@ component {
                     }
                 },
                 console : {
-                    class : "coldbox.system.logging.appenders.ConsoleAppender"
+                    class : "logbox.system.logging.appenders.ConsoleAppender"
                 }
             },
             root : {
                 levelMax  : "INFO",
-                appenders : "console"
+                appenders : "appevents"
             },
             categories : {
                 "app.startup"  : { appenders : "appevents" },

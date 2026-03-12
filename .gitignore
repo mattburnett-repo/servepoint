@@ -11,6 +11,7 @@ WEB-INF
 .engine/**
 .cbfs/**
 docker/.db/**
+.db
 grapher/**
 
 # logs + tests

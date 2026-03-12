@@ -12,7 +12,7 @@ For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
 
 ## 🏗️ Architecture
 
-- **Platform**: Adobe ColdFusion 2025. Lucee 6 compatability is not guaranteed.
+- **Platform**: Adobe ColdFusion 2025. Lucee 6 support might happen in the future.
 - **Framework**: ColdBox HMVC
 - **Data Layer**: ColdFusion ORM (Hibernate)
 <!-- - **Testing**: TestBox
@@ -83,6 +83,7 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
 ### Prerequisites
 
 - [CommandBox](https://www.ortussolutions.com/products/commandbox)
+- commandBox-dotenv
 - Java SE 17
 <!-- - [Docker](https://www.docker.com/) and Docker Compose -->
 
@@ -93,13 +94,19 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
    git clone <repository-url>
    cd ServePoint
    ```
-2. **Start your database server (project uses Postgresql as-is)**
+2. Create and add values to a `.env` file. Use [.env.example](.env.example) to get started.
+3. **Install commandBox-dotenv**
+   From within CommandBox:
+   ```bash
+    box install commandBox-dotenv
+   ```
+4. **Start your database server (project uses Postgresql as-is)**
 <!-- 2. **Start the application with Docker**
    ```bash
    cd docker
    docker-compose up
    ``` -->
-3. **Start the application with CommandBox (within the 'ServePoint' directory/folder)**
+5. **Start the application with CommandBox (within the 'ServePoint' directory/folder)**
 
    ```bash
 
@@ -112,8 +119,6 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
 <!-- 4. **Access the application**
    - Application: http://localhost:8080
    - Admin: http://localhost:8080/admin -->
-
--
 
 ## 📄 License
 
