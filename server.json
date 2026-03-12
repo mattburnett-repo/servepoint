@@ -4,12 +4,6 @@
         "cfengine":"adobe@2025",
         "libDirs":"lib/java"
     },
-    "jvm":{
-        "javaHome":"/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home",
-        "args":[
-            "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
-        ]
-    },
     "web":{
         "rewrites":{
             "enable":"true"
