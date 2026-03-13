@@ -102,7 +102,7 @@
 					<li><i class="bi bi-check text-success"></i> ColdFusion ORM (Hibernate)</li>
 					<li><i class="bi bi-check text-success"></i> Docker Containerization</li>
 					<li><i class="bi bi-check text-success"></i> TestBox Testing Framework</li>
-					<li><i class="bi bi-check text-success"></i> Progressive Enhancement (Vue.js ready)</li>
+					<li><i class="bi bi-check text-success"></i> Progressive Enhancement (React / Angular / Vue.js ready)</li>
 				</ul>
 			</div>
 		</div>
@@ -126,16 +126,6 @@
 					>
 						<i class="bi bi-binoculars" aria-hidden="true"></i>
 						Test Browser
-					</a>
-
-					<a
-						href="#getSetting( "appMapping" )#/tests/runner.cfm"
-						class="btn btn-primary btn-lg"
-						role="button"
-						target="_blank"
-					>
-						<i class="bi bi-activity" aria-hidden="true"></i>
-						Test Runner
 					</a>
 				</div>
 			</div>

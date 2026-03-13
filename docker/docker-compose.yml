@@ -5,6 +5,7 @@
 # alongside a PostgreSQL database for local dev / monolithic deployments.
 ################################################################################
 
+# docker compose --env-file .env -f docker/docker-compose.yml build --no-cache
 # docker compose --env-file .env -f docker/docker-compose.yml up
 
 name: servepoint
