@@ -25,6 +25,7 @@ yarn-error.log
 
 ## Ignored Dependencies
 effective-pom.xml
+/sqlite-jdbc/**
 /coldbox/**
 /testbox/**
 /logbox/**

@@ -1,5 +1,7 @@
 component singleton accessors="true" {
 
+    property name="caseService" inject="CaseService";
+
     /**
      * Entry point for all seed operations.
      * This method should be idempotent: calling it multiple times should not duplicate data.
@@ -109,7 +111,7 @@ component singleton accessors="true" {
             return;
         }
 
-        var cases = entityLoad( "Cases" );
+        var cases = caseService.listActive();
         if ( arrayLen( cases ) == 0 ) {
             return;
         }
