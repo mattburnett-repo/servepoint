@@ -6,17 +6,32 @@ component {
             jsonPayloadToRC: true
         };
 
-        modules = { include:["cborm"], exclude:[] };
+        modules = { include:[ "cborm", "cfmigrations" ], exclude:[] };
 
         moduleSettings = {
             cborm = {
                 datasource = "servepoint",
                 orm = {
-                    dbcreate = "update",
+                    dbcreate = "validate",
                     modelsLocation = "models",
                     logSQL = true
                 },
                 injection = { enabled:true }
+            },
+            cfmigrations = {
+                managers = {
+                    "default" = {
+                        manager = "cfmigrations.models.QBMigrationManager",
+                        migrationsDirectory = "/resources/database/migrations",
+                        seedsDirectory = "/resources/database/seeds",
+                        seedEnvironments = "development",
+                        properties = {
+                            defaultGrammar = "PostgresGrammar@qb",
+                            datasource = "servepoint",
+                            useTransactions = true
+                        }
+                    }
+                }
             }
         };
 

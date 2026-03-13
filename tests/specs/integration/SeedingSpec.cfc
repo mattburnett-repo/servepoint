@@ -4,12 +4,11 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
         describe( "Database Seeding", function(){
 
             beforeEach( function( currentSpec ){
-                // Ensure a fresh ColdBox request for each spec
                 setup();
+                getWireBox().getInstance( "CaseService" ).restoreAllArchived();
             } );
 
             it( "creates an administrator user and sample data", function(){
-                // Resolve the SeedService via WireBox
                 var seedService = getWireBox().getInstance( "SeedService" );
 
                 // Call seeding twice to verify idempotency does not raise errors
@@ -31,6 +30,12 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
                 // Verify that at least one document exists
                 var documents = entityLoad( "Document" );
                 expect( arrayLen( documents ) ).toBeGT( 0 );
+
+                // Seeded cases are active (not archived); default list should include all of them
+                var caseService = getWireBox().getInstance( "CaseService" );
+                var activeCases = caseService.listActive();
+                var allCases = entityLoad( "Cases" );
+                expect( arrayLen( activeCases ) ).toBe( arrayLen( allCases ) );
             } );
         } );
     }

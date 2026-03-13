@@ -26,6 +26,9 @@ erDiagram
         string status
         date dateCreated
         date dateUpdated
+        timestamp archived_at
+        int archived_by FK
+        string archive_reason
         int creator_id FK
         int assigned_to_id FK
     }
@@ -50,14 +53,25 @@ erDiagram
     }
 ```
 
-## Entity summary
+## Entity summary and ORM contract
 
-| Entity      | Table        | Key relationships |
-|------------|--------------|--------------------|
-| Users      | users        | creator of cases, assignedTo cases, author of log_entries |
-| Cases      | cases        | belongs to creator & assignedTo (Users); has many documents & log_entries |
-| Document   | documents    | belongs to one Case |
-| LogEntry   | log_entries  | belongs to one Case and one User |
+| Entity      | Table        | Key relationships | Required (at creation) | Uniqueness / keys |
+|------------|--------------|--------------------|------------------------|--------------------|
+| Users      | users        | creator of cases, assignedTo cases, author of log_entries | `firstName`, `email`, `password`, `role` | `email` unique; PK `user_id` |
+| Cases      | cases        | belongs to creator & assignedTo (Users); has many documents & log_entries | `title`, `status`, `dateCreated`, `creator` | PK `case_id`. Optional: `archivedAt`, `archivedBy`, `archiveReason`. Default case lists: active only (`archived_at IS NULL`). |
+| Document   | documents    | belongs to one Case | `title`, `fileName`, `fileSize`, `fileType`, `dateUploaded`, `caseRef` | PK `document_id` |
+| LogEntry   | log_entries  | belongs to one Case and one User | `dateCreated`, `entryText`, `type`, `caseRef`, `user` | PK `log_entry_id` |
+
+### Index and constraint expectations (for migrations)
+
+- **users**
+  - Unique index on `email`.
+- **cases**
+  - Indexes on `status`, `creator_id`, `assigned_to_id`, `archived_at`.
+- **documents**
+  - Index on `case_id`.
+- **log_entries**
+  - Indexes on `case_id`, `user_id`, and optionally `type`.
 
 ## Constants (non-ORM)
 

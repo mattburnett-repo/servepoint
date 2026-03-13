@@ -99,6 +99,47 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 					var event                = execute( "main.onSessionEnd" );
 				} );
 			} );
+
+			it( "can create and relate core entities after migrations run", function(){
+				// Basic smoke test to ensure ORM and migrations agree on the schema:
+				// create a user, a case, a document, and a log entry and assert they persist.
+				var user = getInstance( "Users" )
+					.setFirstName( "Test" )
+					.setLastName( "User" )
+					.setEmail( "migrations-smoke@example.com" )
+					.setPassword( "password123" )
+					.setRole( "Administrator" );
+				user.save();
+
+				var caseEntity = getInstance( "Cases" )
+					.setTitle( "Migrations Smoke Case" )
+					.setStatus( "New" )
+					.setDateCreated( now() )
+					.setCreator( user );
+				caseEntity.save();
+
+				var doc = getInstance( "Document" )
+					.setTitle( "Smoke Document" )
+					.setFileName( "smoke.pdf" )
+					.setFileSize( 1 )
+					.setFileType( "pdf" )
+					.setDateUploaded( now() )
+					.setCaseRef( caseEntity );
+				doc.save();
+
+				var logEntry = getInstance( "LogEntry" )
+					.setDateCreated( now() )
+					.setEntryText( "Smoke log entry" )
+					.setType( "Case Update" )
+					.setCaseRef( caseEntity )
+					.setUser( user );
+				logEntry.save();
+
+				expect( user.getUserId() ).toBeGT( 0 );
+				expect( caseEntity.getCaseId() ).toBeGT( 0 );
+				expect( doc.getDocumentId() ).toBeGT( 0 );
+				expect( logEntry.getLogEntryId() ).toBeGT( 0 );
+			} );
 		} );
 	}
 

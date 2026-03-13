@@ -8,8 +8,8 @@
         "testbox":"^6.3.2+16",
         "logbox":"^7.4.2+24",
         "wirebox":"^7.4.2+24",
-        "sqlite-jdbc":"github:xerial/sqlite-jdbc",
-        "cborm":"^4.10.0+7"
+        "cborm":"^4.10.0+7",
+        "cfmigrations":"^3.0.0"
     },
     "description":"Enterprise-grade ColdFusion demo application showcasing modern architecture, integration, security, privacy, and deployment best practices—targeted at clients such as the US Federal Government and mission-driven public-sector agencies.",
     "devDependencies":{},
@@ -25,8 +25,8 @@
         "testbox":"testbox/",
         "logbox":"logbox/",
         "wirebox":"wirebox/",
-        "sqlite-jdbc":"sqlite-jdbc/",
-        "cborm":"modules/cborm/"
+        "cborm":"modules/cborm/",
+        "cfmigrations":"modules/cfmigrations/"
     },
     "instructions":"",
     "keywords":[],

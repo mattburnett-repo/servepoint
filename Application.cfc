@@ -14,8 +14,8 @@ component {
     this.datasource = "servepoint";
     
     this.ormSettings = {
-        cfclocation = ["models"],
-        dbcreate = "update",
+        cfclocation = [ "models" ],
+        dbcreate = "validate",
         logSQL = true
     };
 
@@ -59,6 +59,9 @@ component {
         );
         application.cbBootstrap.loadColdbox();
 
+        // Run database migrations before initializing ORM or seeding
+        runMigrations();
+
         // Fail fast: initialize ORM at startup; if DB is down, app won't start
         if ( getApplicationMetadata().ormEnabled ) {
             ormGetSessionFactory();
@@ -92,6 +95,35 @@ component {
         }
 
         return true;
+    }
+
+    /**
+     * Execute pending database migrations using the default cfmigrations manager.
+     * Any errors should cause startup to fail fast.
+     */
+    private void function runMigrations() {
+        try {
+            var migrationService = application.cbController
+                .getWireBox()
+                .getInstance( "migrationService@cfmigrations" );
+
+            // Ensure the migrations tracking table exists, then run all pending migrations.
+            migrationService.install();
+            migrationService.up();
+        } catch ( any mEx ) {
+            try {
+                application.cbController.getLogBox().getLogger( "app.startup" ).error(
+                    "Error while running database migrations on startup: #mEx.message#",
+                    { detail : mEx.detail }
+                );
+            } catch ( any logErr ) {
+                writeLog(
+                    type = "error",
+                    text = "Error while running database migrations on startup: " & mEx.message & " | " & mEx.detail
+                );
+            }
+            rethrow;
+        }
     }
 
     /**

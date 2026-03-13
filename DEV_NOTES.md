@@ -33,6 +33,32 @@ When you run the app via Docker (`docker compose --env-file .env -f docker/docke
 - For Docker workflows, add `SERVEPOINT_AUTO_SEED` to your `.env` file so it is injected into the container.
 - For local CommandBox workflows, set `SERVEPOINT_AUTO_SEED` in your shell environment before running `box server start`.
 
+## ORM model expectations (source of truth)
+
+- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
+- Required vs optional fields, uniqueness rules (e.g., `Users.email` unique), and high-level index expectations are documented in `design/mermaid/data-model.md` and should be treated as the contract for migrations and DB schema.
+
+## Database & migrations
+
+- The database schema is managed via **cfmigrations**:
+  - Migrations live under `resources/database/migrations/` as timestamped CFCs with `up()`/`down()` methods.
+  - The default manager is configured in `config/Coldbox.cfc` to target the `servepoint` datasource with a Postgres grammar.
+- On application startup (`Application.cfc`):
+  - ColdBox is bootstrapped.
+  - `runMigrations()` is invoked to `install()` the migrations tracking table and run `up()` to apply any pending migrations.
+  - ORM is then initialized, followed by optional seeding via `SeedService` when `SERVEPOINT_AUTO_SEED` indicates seeding should run.
+- ORM is configured with `dbcreate="validate"` (in both `Application.cfc` and `config/Coldbox.cfc`), so Hibernate no longer mutates the schema; it only validates that the schema matches the ORM mappings.
+- **Developer workflow**:
+  - For local work, ensure CommandBox dependencies are installed (`box install`), then start the stack via Docker as usual; migrations will run automatically on first request/startup.
+  - Any schema-changing feature (new columns, indexes, archive flags, etc.) must add a new migration in `resources/database/migrations/` rather than relying on `dbcreate`.
+
+### Archive / restore (data retention)
+
+- **Soft archive only**: Cases can be archived at the business level. Data stays in the main tables; the case’s `archived_at` (and optional `archived_by`, `archive_reason`) mark it as archived.
+- **Default query behavior**: Case lists used by the app return **only active cases** by default (`archived_at IS NULL`). Use `CaseService.listActive()` for the default list and `CaseService.listAll( includeArchived = true )` when archived cases should be included (e.g. admin or reporting).
+- **Archive and restore**: Use `CaseService.archiveCase( caseId, userId, reason )` and `CaseService.restoreCase( caseId, userId )`. These optionally create a `LogEntry` for audit. Documents and log entries have no separate archive state; visibility follows the case’s archive flag.
+- A future **hard** archive (separate archive tables or export to storage) is out of scope for this phase.
+
 ## Known issues
 
 - **"graphqlclient not found" with CF 2025**:

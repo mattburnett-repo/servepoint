@@ -62,16 +62,11 @@ This builds the app image, starts the ColdFusion and Postgres containers, and wi
 
 ### Running tests (Docker)
 
-ServePoint includes TestBox specs under the `tests/` folder.
+Tests live under `tests/` and run in the browser against the app in Docker.
 
-1. Ensure the stack is running with Docker as described above.
-2. In your browser, open:
-
-   ```text
-   http://localhost:8080/tests/
-   ```
-
-3. Use the TestBox runner UI to execute the test suites (including integration specs such as `SeedingSpec.cfc`) by clicking the **Run All** button or selecting individual specs.
+1. Start the stack with Docker (see above) so the app is at `http://localhost:8080`.
+2. Open **http://localhost:8080/tests/** in your browser. You’ll see the TestBox runner page.
+3. To run everything (including integration tests): click **Run All**. To run only some tests: expand the list and run the bundle or spec you want (e.g. the integration folder or a single spec file).
 
 ### Database seeding
 
