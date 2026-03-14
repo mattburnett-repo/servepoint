@@ -4,3 +4,9 @@
 .vscode
 .DS_Store
 .dockerignore
+
+# Env files: provided at runtime via --env-file or docker-compose env_file
+.env
+.env.dev
+.env.deploy
+.env.example

@@ -12,10 +12,18 @@ component {
     // Datasource "servepoint" is defined in .cfconfig.json (server-level)
     this.ormEnabled = true;
     this.datasource = "servepoint";
-    
+
+    sys = createObject("java", "java.lang.System");
+    ormDbcreateRaw = sys.getEnv("ORM_DBCREATE");
+    ormDbcreateAllowed = "validate,update,dropcreate,none";
+    if ( isNull(ormDbcreateRaw) || trim(ormDbcreateRaw) == "" || listFindNoCase(ormDbcreateAllowed, trim(ormDbcreateRaw)) == 0 ) {
+        ormDbcreateRaw = "validate";
+    } else {
+        ormDbcreateRaw = trim(ormDbcreateRaw);
+    }
     this.ormSettings = {
         cfclocation = [ "models" ],
-        dbcreate = "validate",
+        dbcreate = ormDbcreateRaw,
         logSQL = true
     };
 

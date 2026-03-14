@@ -8,11 +8,19 @@ component {
 
         modules = { include:[ "cborm", "cfmigrations" ], exclude:[] };
 
+        var sys = createObject("java", "java.lang.System");
+        var ormDbcreateRaw = sys.getEnv("ORM_DBCREATE");
+        var ormDbcreateAllowed = "validate,update,dropcreate,none";
+        if ( isNull(ormDbcreateRaw) || trim(ormDbcreateRaw) == "" || listFindNoCase(ormDbcreateAllowed, trim(ormDbcreateRaw)) == 0 ) {
+            ormDbcreateRaw = "validate";
+        } else {
+            ormDbcreateRaw = trim(ormDbcreateRaw);
+        }
         moduleSettings = {
             cborm = {
                 datasource = "servepoint",
                 orm = {
-                    dbcreate = "validate",
+                    dbcreate = ormDbcreateRaw,
                     modelsLocation = "models",
                     logSQL = true
                 },

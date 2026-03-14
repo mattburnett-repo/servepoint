@@ -46,16 +46,16 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
    git clone <repository-url>
    cd ServePoint
    ```
-2. **Create a `.env` file**
+2. **Create a `.env.dev` file**
    - Copy from [.env.example](.env.example) and set values for the database connection and any other required settings.
 3. **Start the application stack with Docker** (recommended)  
    From the project root (`ServePoint` directory), run:
 
 ```bash
-docker compose --env-file .env -f docker/docker-compose.yml up
+docker compose --env-file .env.dev -f docker/docker-compose.yml up
 ```
 
-This builds the app image, starts the ColdFusion and Postgres containers, and wires all environment variables from `.env`.
+This builds the app image, starts the ColdFusion and **local** Postgres containers, and wires all environment variables from `.env.dev`. The compose stack gives you an isolated local database for development. For deployment to Render (remote database), see [RENDER_DATABASE.md](RENDER_DATABASE.md); Render builds from the Dockerfile only and does not use docker-compose.
 
 4. **Access the application**
    - Application: `http://localhost:8080` (or the port defined in `docker-compose.yml`)
@@ -75,7 +75,7 @@ Tests live under `tests/` and run in the browser against the app in Docker.
   - If **unset or blank**, seeding **runs by default**.
   - If set to one of `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
   - Any other value disables automatic seeding.
-- In Docker, define `SERVEPOINT_AUTO_SEED` in your `.env` file.
+- In Docker, define `SERVEPOINT_AUTO_SEED` in your `.env.dev` file.
 
 ## 📄 License
 

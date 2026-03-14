@@ -8,6 +8,8 @@ WEB-INF
 .tmp/**
 .env
 .env.dev 
+.env.prod
+.env.deploy
 .engine/**
 .cbfs/**
 docker/.db/**
@@ -35,3 +37,4 @@ effective-pom.xml
 
 # files
 exceptionJSON_example.json
+deployment_NOTES.txt

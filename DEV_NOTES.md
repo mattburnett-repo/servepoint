@@ -7,21 +7,26 @@ For day‑to‑day development, **run the app inside Docker**, not via `box serv
 - **Preferred**: from the project root (`ServePoint` directory), start the full stack with:
 
   ```bash
-  docker compose --env-file .env -f docker/docker-compose.yml up
+  docker compose --env-file .env.dev -f docker/docker-compose.yml up
   ```
 
-  This builds the app image, starts the app and Postgres containers, and wires all environment variables from `.env`.
+  This builds the app image, starts the app and Postgres containers, and wires all environment variables from `.env.dev`.
 
 - **Not preferred**: running `box server start` directly on your host. That path is only for troubleshooting; it does not match the containerized production‑like environment, and may behave differently (Java, paths, CF packages, etc.).
+
+### Local vs remote database
+
+- **Docker Compose** (`docker/docker-compose.yml`) starts the app **and** a local PostgreSQL container. Use it with `.env.dev` when you want a **local, dev-only database** so migrations, seeds, and experiments don’t touch the remote Render database. This is the recommended setup for day‑to‑day development.
+- **Remote database (e.g. Render)**: For deployment or for testing against the live DB, run only the app container (e.g. `docker build -t servepoint -f docker/Dockerfile .` then `docker run --env-file .env.deploy -p 8080:8080 servepoint`). Render builds from the Dockerfile only and does not use docker-compose. You do **not** need docker-compose for Render deployment; you **do** need it (or another local Postgres) if you want an isolated local database for development.
 
 ## Config and secrets
 
 This app uses:
 
 - **commandbox-dotenv** (preinstalled in the Docker image) to load environment variables.
-- A familiar **`.env` file in the project root** for secrets and configuration (database credentials, etc.).
+- A familiar **`.env.dev` file in the project root** for secrets and configuration (database credentials, etc.).
 
-When you run the app via Docker (`docker compose --env-file .env -f docker/docker-compose.yml up`), those `.env` values are injected into the containers and used by CF/ColdBox; you should not commit `.env` to version control.
+When you run the app via Docker (`docker compose --env-file .env.dev -f docker/docker-compose.yml up`), those `.env.dev` values are injected into the containers and used by CF/ColdBox; you should not commit `.env.dev` to version control.
 
 ### Database seeding (`SERVEPOINT_AUTO_SEED`)
 
@@ -30,7 +35,7 @@ When you run the app via Docker (`docker compose --env-file .env -f docker/docke
   - If **unset or blank**, seeding **runs by default**.
   - If set to `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
   - Any other value disables automatic seeding.
-- For Docker workflows, add `SERVEPOINT_AUTO_SEED` to your `.env` file so it is injected into the container.
+- For Docker workflows, add `SERVEPOINT_AUTO_SEED` to your `.env.dev` file so it is injected into the container.
 - For local CommandBox workflows, set `SERVEPOINT_AUTO_SEED` in your shell environment before running `box server start`.
 
 ## ORM model expectations (source of truth)
@@ -40,17 +45,20 @@ When you run the app via Docker (`docker compose --env-file .env -f docker/docke
 
 ## Database & migrations
 
-- The database schema is managed via **cfmigrations**:
+- The database schema is managed **only by cfmigrations**. ORM is used to **validate** that the existing schema matches the entity mappings; it does not create or alter tables. All schema changes (new columns, tables, indexes, etc.) go in new migration files under `resources/database/migrations/`.
+- **ORM_DBCREATE**: The value is read from the `ORM_DBCREATE` environment variable (in both `Application.cfc` and `config/Coldbox.cfc`). Allowed values: `validate`, `update`, `dropcreate`, `none`. Default is `validate`. Use `validate` for production and for Render so ORM only checks the schema; use migrations for any schema changes.
+- **Startup order** (`Application.cfc` `onApplicationStart`):
+  1. ColdBox is bootstrapped.
+  2. `runMigrations()` runs: `migrationService.install()` (ensures the `cfmigrations` tracking table exists), then `migrationService.up()` (runs any pending migrations).
+  3. ORM is initialized (`ormGetSessionFactory()`), so the schema is in place before validation.
+  4. Optional seeding via `SeedService` when `SERVEPOINT_AUTO_SEED` indicates seeding should run.
+- **cfmigrations**:
   - Migrations live under `resources/database/migrations/` as timestamped CFCs with `up()`/`down()` methods.
   - The default manager is configured in `config/Coldbox.cfc` to target the `servepoint` datasource with a Postgres grammar.
-- On application startup (`Application.cfc`):
-  - ColdBox is bootstrapped.
-  - `runMigrations()` is invoked to `install()` the migrations tracking table and run `up()` to apply any pending migrations.
-  - ORM is then initialized, followed by optional seeding via `SeedService` when `SERVEPOINT_AUTO_SEED` indicates seeding should run.
-- ORM is configured with `dbcreate="validate"` (in both `Application.cfc` and `config/Coldbox.cfc`), so Hibernate no longer mutates the schema; it only validates that the schema matches the ORM mappings.
 - **Developer workflow**:
   - For local work, ensure CommandBox dependencies are installed (`box install`), then start the stack via Docker as usual; migrations will run automatically on first request/startup.
   - Any schema-changing feature (new columns, indexes, archive flags, etc.) must add a new migration in `resources/database/migrations/` rather than relying on `dbcreate`.
+- **Render database reset**: To wipe the Render Postgres database and run the single bootstrap migration from a clean state, follow the steps in [RENDER_DATABASE.md](RENDER_DATABASE.md).
 
 ### Archive / restore (data retention)
 

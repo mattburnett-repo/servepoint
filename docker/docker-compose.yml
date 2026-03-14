@@ -5,16 +5,16 @@
 # alongside a PostgreSQL database for local dev / monolithic deployments.
 ################################################################################
 
-# docker compose --env-file .env -f docker/docker-compose.yml build --no-cache
-# docker compose --env-file .env -f docker/docker-compose.yml up
+# docker compose --env-file .env.dev -f docker/docker-compose.yml build --no-cache
+# docker compose --env-file .env.dev -f docker/docker-compose.yml up
 
 name: servepoint
 services:
   db:
     container_name: servepoint_db
-    image: postgres:16
+    image: postgres:14
     env_file:
-      - ../.env
+      - ../.env.dev
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -34,7 +34,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ../.env
+      - ../.env.dev
     environment:
       # Safety net. Override host so the app talks to the db service, not localhost
       DB_HOST: db
