@@ -57,4 +57,4 @@ flowchart TB
 
 ## Future: env/secrets
 
-Values in `.cfconfig.json` can be replaced with placeholders (e.g. `${DB_HOST:localhost}`, `${DB_PASSWORD}`) and provided via `.env` or container environment so no secrets are stored in the repo.
+Values in `.cfconfig.json` can be replaced with placeholders (e.g. `${DB_HOST:localhost}`, `${DB_PASSWORD}`) and provided via `.env.dev` or container environment so no secrets are stored in the repo.
