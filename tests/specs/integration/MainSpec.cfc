@@ -106,7 +106,7 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 				var user = getInstance( "Users" )
 					.setFirstName( "Test" )
 					.setLastName( "User" )
-					.setEmail( "migrations-smoke@example.com" )
+					.setEmail( "migrations-smoke-" & createUUID() & "@example.com" )
 					.setPassword( "password123" )
 					.setRole( "Administrator" );
 				user.save();

@@ -7,16 +7,18 @@ For day‑to‑day development, **run the app inside Docker**, not via `box serv
 - **Preferred**: from the project root (`ServePoint` directory), start the full stack with:
 
   ```bash
-  docker compose --env-file .env.dev -f docker/docker-compose.yml up
+  docker compose --env-file .env.dev -f docker/docker-compose.yml down
+  rm -rf .db/postgres/data
+  docker compose --env-file .env.dev -f docker/docker-compose.yml up --build
   ```
 
-  This builds the app image, starts the app and Postgres containers, and wires all environment variables from `.env.dev`.
+  This starts a fresh build of the app image, starts the app and Postgres containers, and wires all environment variables from `.env.dev`. The app is then started.
 
 - **Not preferred**: running `box server start` directly on your host. That path is only for troubleshooting; it does not match the containerized production‑like environment, and may behave differently (Java, paths, CF packages, etc.).
 
 ### Local vs remote database
 
-- **Docker Compose** (`docker/docker-compose.yml`) starts the app **and** a local PostgreSQL container. Use it with `.env.dev` when you want a **local, dev-only database** so migrations, seeds, and experiments don’t touch the remote Render database. This is the recommended setup for day‑to‑day development.
+- **Docker Compose** (`docker/docker-compose.yml`) starts the app **and** a local PostgreSQL container. Use it with `.env.dev` when you want a **local, dev-only database** so migrations, seeds, and experiments don’t touch the remote Render database. This is the recommended setup for day‑to‑day development. The compose file maps the app to **host port 8081** (→ container 8080) so it does not conflict with other tools on your machine that use **8080** (for example nginx). Access the app at **`http://localhost:8081`** for local Compose.
 - **Remote database (e.g. Render)**: For deployment or for testing against the live DB, run only the app container (e.g. `docker build -t servepoint -f docker/Dockerfile .` then `docker run --env-file .env.deploy -p 8080:8080 servepoint`). Render builds from the Dockerfile only and does not use docker-compose. You do **not** need docker-compose for Render deployment; you **do** need it (or another local Postgres) if you want an isolated local database for development.
 
 ## Config and secrets

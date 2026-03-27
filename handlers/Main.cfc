@@ -7,11 +7,11 @@ component extends="coldbox.system.EventHandler" {
 		prc.welcomeMessage = "Welcome to ServePoint";
 		prc.projectDescription = "Social Services Case Management System";
 		prc.projectFeatures = [
-			"Case intake and management",
-			"Document upload and storage", 
-			"Staff communication tools",
-			"Audit trails and reporting",
-			"Role-based access controls"
+			{ "label" : "Case intake and management", "href" : event.buildLink( "cases.index" ) },
+			{ "label" : "Document upload and storage", "href" : "" },
+			{ "label" : "Staff communication tools", "href" : "" },
+			{ "label" : "Audit trails and reporting", "href" : "" },
+			{ "label" : "Role-based access controls", "href" : "" }
 		];
 		prc.targetAudience = "US Federal Government and public-sector agencies";
 		event.setView( "main/index" );

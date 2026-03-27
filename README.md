@@ -58,14 +58,14 @@ docker compose --env-file .env.dev -f docker/docker-compose.yml up
 This builds the app image, starts the ColdFusion and **local** Postgres containers, and wires all environment variables from `.env.dev`. The compose stack gives you an isolated local database for development. For deployment to Render (remote database), see [RENDER_DATABASE.md](RENDER_DATABASE.md); Render builds from the Dockerfile only and does not use docker-compose.
 
 4. **Access the application**
-   - Application: `http://localhost:8080` (or the port defined in `docker-compose.yml`)
+   - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)
 
 ### Running tests (Docker)
 
 Tests live under `tests/` and run in the browser against the app in Docker.
 
-1. Start the stack with Docker (see above) so the app is at `http://localhost:8080`.
-2. Open **http://localhost:8080/tests/** in your browser. You’ll see the TestBox runner page.
+1. Start the stack with Docker (see above) so the app is at `http://localhost:8081`.
+2. Open **http://localhost:8081/tests/** in your browser. You’ll see the TestBox runner page.
 3. To run everything (including integration tests): click **Run All**. To run only some tests: expand the list and run the bundle or spec you want (e.g. the integration folder or a single spec file).
 
 ### Database seeding
