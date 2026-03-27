@@ -33,6 +33,9 @@ component extends="coldbox.system.ioc.config.Binder" {
 		};
 
 		// Map Bindings below
+		// Application services live in /services (see Application.cfc mapping `/cbapp` → app root).
+		map( "CaseService" ).to( "cbapp.services.CaseService" ).asSingleton();
+		map( "SeedService" ).to( "cbapp.services.SeedService" ).asSingleton();
 	}
 
 }

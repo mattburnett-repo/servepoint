@@ -59,6 +59,14 @@
 
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
 
+					<ul class="navbar-nav mb-2 mb-lg-0">
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'cases.index' )#">
+								<i class="bi bi-folder2-open" aria-hidden="true"></i> Cases
+							</a>
+						</li>
+					</ul>
+
 					<!---About --->
 					<ul class="navbar-nav ms-5 mb-2 mb-lg-0">
 						<li class="nav-item dropdown">

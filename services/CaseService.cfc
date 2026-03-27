@@ -37,6 +37,103 @@ component singleton accessors="true" {
     }
 
     /**
+     * Create a new active case (intake).
+     * @return struct { success: boolean, case?: Cases, error?: string }
+     */
+    public struct function createCase(
+        required string title,
+        string description = "",
+        required string status,
+        required numeric creatorUserId,
+        numeric assignedToUserId = 0
+    ) {
+        var statusConstants = new models.constants.Case_Status();
+        var validStatuses   = statusConstants.getValues();
+        if ( !arrayFind( validStatuses, arguments.status ) ) {
+            return { success: false, error: "Invalid case status." };
+        }
+        var creator = entityLoad( "Users", arguments.creatorUserId, true );
+        if ( isNull( creator ) ) {
+            return { success: false, error: "Creator user not found." };
+        }
+        var assignee = creator;
+        if ( arguments.assignedToUserId > 0 ) {
+            var assignUser = entityLoad( "Users", arguments.assignedToUserId, true );
+            if ( !isNull( assignUser ) ) {
+                assignee = assignUser;
+            }
+        }
+        var now = now();
+        var c   = entityNew( "Cases" );
+        c.setTitle( trim( arguments.title ) );
+        c.setDescription( trim( arguments.description ) );
+        c.setStatus( arguments.status );
+        c.setDateCreated( now );
+        c.setDateUpdated( now );
+        c.setCreator( creator );
+        c.setAssignedTo( assignee );
+        try {
+            c.save();
+        } catch ( any e ) {
+            return { success: false, error: "Unable to save case: " & ( e.message ?: "unknown error" ) };
+        }
+        if ( isNull( c.getCaseId() ) || c.getCaseId() <= 0 ) {
+            return { success: false, error: "Case not persisted." };
+        }
+        return { success: true, case: c };
+    }
+
+    /**
+     * Load an active (non-archived) case by id, or null.
+     */
+    public any function getActiveCase( required numeric caseId ) {
+        var caseEntity = entityLoad( "Cases", arguments.caseId, true );
+        if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
+            return;
+        }
+        return caseEntity;
+    }
+
+    /**
+     * Update an active case (title, description, status, assignment).
+     * @return struct { success: boolean, case?: Cases, error?: string }
+     */
+    public struct function updateCase(
+        required numeric caseId,
+        required string title,
+        string description = "",
+        required string status,
+        numeric assignedToUserId = 0
+    ) {
+        var caseEntity = entityLoad( "Cases", arguments.caseId, true );
+        if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
+            return { success: false, error: "Case not found." };
+        }
+        var statusConstants = new models.constants.Case_Status();
+        if ( !arrayFind( statusConstants.getValues(), arguments.status ) ) {
+            return { success: false, error: "Invalid case status." };
+        }
+        if ( arguments.assignedToUserId > 0 ) {
+            var assignUser = entityLoad( "Users", arguments.assignedToUserId, true );
+            if ( !isNull( assignUser ) ) {
+                caseEntity.setAssignedTo( assignUser );
+            }
+        } else {
+            caseEntity.setAssignedTo( caseEntity.getCreator() );
+        }
+        caseEntity.setTitle( trim( arguments.title ) );
+        caseEntity.setDescription( trim( arguments.description ) );
+        caseEntity.setStatus( arguments.status );
+        caseEntity.setDateUpdated( now() );
+        try {
+            caseEntity.save();
+        } catch ( any e ) {
+            return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
+        }
+        return { success: true, case: caseEntity };
+    }
+
+    /**
      * Soft-archive a case. Sets archivedAt, archivedBy, archiveReason; optionally creates a LogEntry.
      * Uses direct SQL so the DB is the source of truth (avoids ORM session/cache issues).
      * @return struct { success: boolean, case?: Cases, error?: string }
