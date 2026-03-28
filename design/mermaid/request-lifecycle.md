@@ -10,6 +10,7 @@ sequenceDiagram
     participant ColdBox
     participant Router
     participant Handler
+    participant Service as CaseService
     participant View
     participant Layout
 
@@ -17,29 +18,37 @@ sequenceDiagram
     Runwar->>AppCfc: onRequestStart(targetPage)
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
-    Router->>Handler: Dispatch (e.g. main.index)
-    Handler->>Handler: Set prc, business logic
-    Handler->>View: event.setView("main/index")
+    Router->>Handler: Dispatch (e.g. cases.index)
+    Handler->>Handler: Set prc, call services / ORM
+    Handler->>Service: e.g. listActive(), createCase()
+    Service-->>Handler: entities / result struct
+    Handler->>View: event.setView("cases/index")
     View->>Layout: Render view in layout
     Layout->>Browser: HTML Response
 ```
 
+Note: handlers that do not use a service (for example `Main.index`) skip the service participant.
+
 ## Application startup (once)
+
+`onApplicationStart` runs migrations before ORM init and optional seeding.
 
 ```mermaid
 flowchart LR
-    A[First request] --> B[Application.cfc loaded]
-    B --> C[ORM init / beforeApplicationStart]
-    C --> D[onApplicationStart]
-    D --> E[ColdBox Bootstrap]
-    E --> F[loadColdbox]
-    F --> G[ormGetSessionFactory - fail fast]
-    G --> H[App ready]
+    A[onApplicationStart] --> B[loadColdbox]
+    B --> C[runMigrations via cfmigrations]
+    C --> D[ormGetSessionFactory fail fast]
+    D --> E{SERVEPOINT_AUTO_SEED?}
+    E -->|yes| F[SeedService.runAll]
+    E -->|no| G[App ready]
+    F --> G
 ```
 
 ## Key files
 
-- **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` boots ColdBox and forces ORM init.
-- **config/Router.cfc**: Routes (e.g. `/healthcheck`, `/api/echo`, `:handler/:action?`).
-- **handlers/Main.cfc**: Default handler (index, underConstruction, data, etc.).
-- **views/main/*.cfm**, **layouts/Main.cfm**: View and layout rendering.
+- **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
+- **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
+- **handlers/Main.cfc**: Home, under construction, sample `data` JSON.
+- **handlers/Cases.cfc**: Case list, detail/edit, create, archive; uses `CaseService`.
+- **services/CaseService.cfc**: Active-case queries, create/update/archive.
+- **views/cases/*.cfm**, **views/main/*.cfm**, **layouts/Main.cfm**: View and layout rendering.

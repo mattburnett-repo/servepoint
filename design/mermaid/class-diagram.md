@@ -1,6 +1,6 @@
 # ServePoint Models – Class Diagram
 
-Class diagram for CFCs in the `models` folder. Persistent entities extend `cborm.models.ActiveEntity`; constants are plain components used for validation and option lists.
+Class diagram for CFCs in the `models` folder. Persistent entities extend `cborm.models.ActiveEntity`. Constants live in `models/constants/` and are injected for validation and option lists.
 
 ```mermaid
 classDiagram
@@ -29,13 +29,17 @@ classDiagram
         +title string
         +description string
         +status string
-        +dateCreated date
-        +dateUpdated date
+        +dateCreated timestamp
+        +dateUpdated timestamp
+        +archivedAt date
+        +archivedBy Users
+        +archiveReason string
         +creator Users
         +assignedTo Users
         +documents collection
         +logEntries collection
         +validate() void
+        +isArchived() boolean
     }
 
     class Document {
@@ -44,14 +48,14 @@ classDiagram
         +fileName string
         +fileSize numeric
         +fileType string
-        +dateUploaded date
+        +dateUploaded timestamp
         +caseRef Cases
         +validate() void
     }
 
     class LogEntry {
         +logEntryId id
-        +dateCreated date
+        +dateCreated timestamp
         +entryText string
         +type string
         +caseRef Cases
@@ -86,7 +90,8 @@ classDiagram
 
     Users "1" --> "0..*" Cases : creator
     Users "1" --> "0..*" Cases : assignedTo
-    Users "1" --> "0..*" LogEntry : logEntries
+    Users "0..1" --> "0..*" Cases : archivedBy
+    Users "1" --> "0..*" LogEntry : user
     Cases "1" --> "0..*" Document : documents
     Cases "1" --> "0..*" LogEntry : logEntries
     Document "*" --> "1" Cases : caseRef
@@ -105,10 +110,11 @@ classDiagram
 |----------------|--------|
 | `<\|--` | Inheritance (entity extends ActiveEntity) |
 | `-->` | Association / relationship (e.g. many-to-one) |
-| `..>` | Dependency (injected constant component) |
+| `..>` | Dependency (injected constant component under `models.constants`) |
 | `<<cborm>>` | Stereotype: provided by cborm module |
 
 ## Notes
 
-- **Persistent entities** (Users, Cases, Document, LogEntry): table-backed; `validate()` is called by ORM before save and uses the injected constant to check allowed values.
-- **Constants** (User_Role, Case_Status, Document_File_Type, Log_Entry_Type): hold structs of allowed values and expose `getValues()` for validation and UI options. Not persisted.
+- **Persistent entities**: table-backed; `validate()` runs on ORM save where configured.
+- **Constants**: structs of allowed values and `getValues()` for validation and UI; not persisted.
+- **Services** (`services/CaseService.cfc`, etc.) are not shown here; they orchestrate ORM and live outside `models/`.

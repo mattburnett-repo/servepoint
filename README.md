@@ -10,6 +10,8 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
 
+Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).
+
 ## 🏗️ Architecture
 
 - **Platform**: Adobe ColdFusion 2025. Lucee 6 support might happen in the future.
@@ -25,7 +27,7 @@ For comprehensive design specifications, architecture decisions, and implementat
 
 ## 📚 Development Notes
 
-Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
+Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md). That file also covers **linting and formatting**: **cfformat** for CFML, **CFLint** (editor + `.cflintrc`), and **Prettier** for non-CF files — see the “Linting and formatting” section there.
 
 ## 📚 Diagramming
 

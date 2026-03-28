@@ -1,0 +1,32 @@
+{
+	"rule": [],
+	"includes": [],
+	"excludes": [
+		{
+			"code": "GLOBAL_VAR"
+		},
+		{
+			"code": "AVOID_USING_ABORT"
+		},
+		{
+			"code": "AVOID_USING_CFINCLUDE_TAG"
+		},
+		{
+			"code": "AVOID_USING_CREATEOBJECT"
+		},
+		{
+			"code": "FILE_SHOULD_START_WITH_LOWERCASE"
+		},
+		{
+			"code": "COMPONENT_HINT_MISSING"
+		}
+	],
+	"inheritParent": true,
+	"parameters": {
+		"FunctionLengthChecker.length": "150",
+		"ComponentLengthChecker.length": "800",
+		"TooManyFunctionsChecker.maximum": "25",
+		"TooManyArgumentsChecker.maximum": "15",
+		"SimpleComplexityChecker.maximum": "15"
+	}
+}

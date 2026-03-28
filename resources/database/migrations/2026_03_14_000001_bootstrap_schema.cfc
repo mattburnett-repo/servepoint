@@ -32,8 +32,8 @@ component {
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
                 status VARCHAR(255) NOT NULL,
-                "dateCreated" TIMESTAMP NOT NULL,
-                "dateUpdated" TIMESTAMP,
+                date_created TIMESTAMP NOT NULL,
+                date_updated TIMESTAMP,
                 creator_id INTEGER NOT NULL,
                 assigned_to_id INTEGER,
                 archived_at TIMESTAMP,
@@ -57,7 +57,7 @@ component {
                 "fileName" VARCHAR(255) NOT NULL,
                 "fileSize" NUMERIC(18,2) NOT NULL,
                 "fileType" VARCHAR(255) NOT NULL,
-                "dateUploaded" TIMESTAMP NOT NULL,
+                date_uploaded TIMESTAMP NOT NULL,
                 case_id INTEGER NOT NULL,
                 CONSTRAINT fk_documents_case FOREIGN KEY (case_id) REFERENCES cases(case_id)
             )
@@ -68,7 +68,7 @@ component {
         runSql( '
             CREATE TABLE IF NOT EXISTS log_entries (
                 log_entry_id SERIAL PRIMARY KEY,
-                "dateCreated" TIMESTAMP NOT NULL,
+                date_created TIMESTAMP NOT NULL,
                 "entryText" TEXT NOT NULL,
                 type VARCHAR(255) NOT NULL,
                 case_id INTEGER NOT NULL,

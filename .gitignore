@@ -1,3 +1,6 @@
+# CFLint JAR (run tools/cflint/download.sh after clone; do not commit ~10MB binary)
+tools/cflint/*.jar
+
 # General Ignores + IDE
 .DS_Store
 settings.xml

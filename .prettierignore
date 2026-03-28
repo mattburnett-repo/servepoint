@@ -1,0 +1,19 @@
+# Dependencies and frameworks (match .gitignore patterns; avoid churn)
+coldbox/
+testbox/
+logbox/
+wirebox/
+modules/
+
+# ColdFusion sources — no first-class Prettier support; keep manual style
+**/*.cfc
+**/*.cfm
+
+# Local / generated
+.db/
+.tmp/
+logs/
+node_modules/
+
+# Binary / large assets
+**/*.pdf
