@@ -79,14 +79,10 @@ component singleton accessors="true" {
             inProgressStatus = statuses[ 1 ];
         }
 
-        var now = now();
-
         var case1 = entityNew( "Cases" );
         case1.setTitle( "Sample Service Request" );
         case1.setDescription( "A sample case created by the database seeder." );
         case1.setStatus( newStatus );
-        case1.setDateCreated( now );
-        case1.setDateUpdated( now );
         case1.setCreator( adminUser );
         case1.setAssignedTo( adminUser );
         entitySave( case1 );
@@ -95,8 +91,6 @@ component singleton accessors="true" {
         case2.setTitle( "In-progress Case" );
         case2.setDescription( "An example case that is currently in progress." );
         case2.setStatus( inProgressStatus );
-        case2.setDateCreated( now );
-        case2.setDateUpdated( now );
         case2.setCreator( adminUser );
         case2.setAssignedTo( adminUser );
         entitySave( case2 );
@@ -129,9 +123,8 @@ component singleton accessors="true" {
         var doc = entityNew( "Document" );
         doc.setTitle( "Welcome Packet" );
         doc.setFileName( "welcome-packet." & pdfType );
-        doc.setFileSize( 0 );
+        doc.setFileSize( 1 );
         doc.setFileType( pdfType );
-        doc.setDateUploaded( now() );
         doc.setCaseRef( caseRef );
         entitySave( doc );
     }

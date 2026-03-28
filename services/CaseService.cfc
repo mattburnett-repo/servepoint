@@ -63,13 +63,10 @@ component singleton accessors="true" {
                 assignee = assignUser;
             }
         }
-        var now = now();
-        var c   = entityNew( "Cases" );
+        var c = entityNew( "Cases" );
         c.setTitle( trim( arguments.title ) );
         c.setDescription( trim( arguments.description ) );
         c.setStatus( arguments.status );
-        c.setDateCreated( now );
-        c.setDateUpdated( now );
         c.setCreator( creator );
         c.setAssignedTo( assignee );
         try {
@@ -80,7 +77,8 @@ component singleton accessors="true" {
         if ( isNull( c.getCaseId() ) || c.getCaseId() <= 0 ) {
             return { success: false, error: "Case not persisted." };
         }
-        return { success: true, case: c };
+        ormEvictEntity( "Cases", c.getCaseId() );
+        return { success: true, case: entityLoad( "Cases", c.getCaseId(), true ) };
     }
 
     /**
@@ -124,13 +122,13 @@ component singleton accessors="true" {
         caseEntity.setTitle( trim( arguments.title ) );
         caseEntity.setDescription( trim( arguments.description ) );
         caseEntity.setStatus( arguments.status );
-        caseEntity.setDateUpdated( now() );
         try {
             caseEntity.save();
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
-        return { success: true, case: caseEntity };
+        ormEvictEntity( "Cases", arguments.caseId );
+        return { success: true, case: entityLoad( "Cases", arguments.caseId, true ) };
     }
 
     /**
@@ -170,7 +168,6 @@ component singleton accessors="true" {
                 ormEvictEntity( "Cases", arguments.caseId );
                 var freshCase = entityLoad( "Cases", arguments.caseId, true );
                 var logEntry = entityNew( "LogEntry" );
-                logEntry.setDateCreated( now() );
                 logEntry.setEntryText( "Case archived." & ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" ) );
                 logEntry.setType( "Case Update" );
                 logEntry.setCaseRef( freshCase );
@@ -211,7 +208,6 @@ component singleton accessors="true" {
                 ormEvictEntity( "Cases", arguments.caseId );
                 var freshCase = entityLoad( "Cases", arguments.caseId, true );
                 var logEntry = entityNew( "LogEntry" );
-                logEntry.setDateCreated( now() );
                 logEntry.setEntryText( "Case restored from archive." );
                 logEntry.setType( "Case Update" );
                 logEntry.setCaseRef( freshCase );
