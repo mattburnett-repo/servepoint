@@ -16,34 +16,42 @@ component singleton accessors="true" {
     }
 
     /**
-     * Ensure at least one administrator user exists.
-     * Uses the User_Role constants to select a valid admin role.
+     * One demo user per role (Citizen, Case Manager, Administrator). Idempotent by email.
      */
     private void function seedUsers() {
-        // If any users already exist, assume seeding has been done.
-        var existingUsers = entityLoad( "Users" );
-        if ( arrayLen( existingUsers ) > 0 ) {
-            return;
+        var seeds = [
+            {
+                email     : "admin@example.com",
+                firstName : "System",
+                lastName  : "Administrator",
+                role      : "Administrator"
+            },
+            {
+                email     : "case.manager@example.com",
+                firstName : "Case",
+                lastName  : "Manager",
+                role      : "Case Manager"
+            },
+            {
+                email     : "citizen@example.com",
+                firstName : "Demo",
+                lastName  : "Citizen",
+                role      : "Citizen"
+            }
+        ];
+        for ( var i = 1; i <= arrayLen( seeds ); i++ ) {
+            var s = seeds[ i ];
+            if ( !isNull( entityLoad( "Users", { email : s.email }, true ) ) ) {
+                continue;
+            }
+            var u = entityNew( "Users" );
+            u.setFirstName( s.firstName );
+            u.setLastName( s.lastName );
+            u.setEmail( s.email );
+            u.setPassword( "change-me" );
+            u.setRole( s.role );
+            entitySave( u );
         }
-
-        // Load role constants so we choose a valid role value.
-        var roleConstants = new models.constants.User_Role();
-        var roles         = roleConstants.getValues();
-
-        // Prefer the Administrator role if present; otherwise fall back to the first defined role.
-        var adminRole = "Administrator";
-        if ( !arrayFind( roles, adminRole ) ) {
-            adminRole = roles[ 1 ];
-        }
-
-        var admin = entityNew( "Users" );
-        admin.setFirstName( "System" );
-        admin.setLastName( "Administrator" );
-        admin.setEmail( "admin@example.com" );
-        // In a real deployment this should be replaced/reset; this is demo-only.
-        admin.setPassword( "change-me" );
-        admin.setRole( adminRole );
-        entitySave( admin );
     }
 
     /**

@@ -1,5 +1,7 @@
 # Development Notes
 
+Agent rules for Cursor (committed with the repo): [.cursor/rules/](.cursor/rules/).
+
 ## Development workflow (important)
 
 For day‑to‑day development, **run the app inside Docker**, not via `box server start` on your host machine.

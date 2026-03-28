@@ -10,6 +10,8 @@ For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIG
 
 For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
 
+Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).
+
 ## 🏗️ Architecture
 
 - **Platform**: Adobe ColdFusion 2025. Lucee 6 support might happen in the future.
