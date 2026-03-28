@@ -1,12 +1,13 @@
 # ServePoint Data Model
 
-Entity relationship diagram for the ORM models (cborm / ColdFusion ORM).
+Entity relationship diagram aligned with PostgreSQL physical columns (`resources/database/migrations`) and ORM mappings in `models/*.cfc`. ORM property names are camelCase; quoted mixed-case columns in `users` / `documents` map to those properties.
 
 ```mermaid
 erDiagram
     users ||--o{ cases : "creator_id"
     users ||--o{ cases : "assigned_to_id"
-    users ||--o{ log_entries : "creator_id"
+    users ||--o{ cases : "archived_by"
+    users ||--o{ log_entries : "user_id"
     cases ||--o{ documents : "case_id"
     cases ||--o{ log_entries : "case_id"
 
@@ -14,7 +15,7 @@ erDiagram
         int user_id PK
         string firstName
         string lastName
-        string email
+        string email UK
         string password
         string role
     }
@@ -23,14 +24,14 @@ erDiagram
         int case_id PK
         string title
         string description
+        timestamp date_created
+        timestamp date_updated
         string status
-        date dateCreated
-        date dateUpdated
+        int creator_id FK
+        int assigned_to_id FK
         timestamp archived_at
         int archived_by FK
         string archive_reason
-        int creator_id FK
-        int assigned_to_id FK
     }
 
     documents {
@@ -39,13 +40,13 @@ erDiagram
         string fileName
         numeric fileSize
         string fileType
-        date dateUploaded
+        timestamp date_uploaded
         int case_id FK
     }
 
     log_entries {
         int log_entry_id PK
-        date dateCreated
+        timestamp date_created
         string entryText
         string type
         int case_id FK
@@ -55,31 +56,24 @@ erDiagram
 
 ## Entity summary and ORM contract
 
-| Entity      | Table        | Key relationships | Required (at creation) | Uniqueness / keys |
-|------------|--------------|--------------------|------------------------|--------------------|
-| Users      | users        | creator of cases, assignedTo cases, author of log_entries | `firstName`, `email`, `password`, `role` | `email` unique; PK `user_id` |
-| Cases      | cases        | belongs to creator & assignedTo (Users); has many documents & log_entries | `title`, `status`, `dateCreated`, `creator` | PK `case_id`. Optional: `archivedAt`, `archivedBy`, `archiveReason`. Default case lists: active only (`archived_at IS NULL`). |
-| Document   | documents    | belongs to one Case | `title`, `fileName`, `fileSize`, `fileType`, `dateUploaded`, `caseRef` | PK `document_id` |
-| LogEntry   | log_entries  | belongs to one Case and one User | `dateCreated`, `entryText`, `type`, `caseRef`, `user` | PK `log_entry_id` |
+| Entity      | Table        | Key relationships | Notes |
+|------------|--------------|-------------------|--------|
+| Users      | users        | creator / assignedTo / archivedBy cases; user for log_entries | `email` unique; PK `user_id` |
+| Cases      | cases        | belongs to creator, assignedTo, archivedBy (Users); has many documents & log_entries | Active lists exclude rows with `archived_at IS NOT NULL`. `date_created` / `date_updated` are maintained by DB defaults and (on update) trigger — see migration `2026_03_27_000002_timestamp_defaults.cfc`. |
+| Document   | documents    | belongs to one Case | PK `document_id`; `date_uploaded` has DB default |
+| LogEntry   | log_entries  | belongs to one Case and one User | PK `log_entry_id`; FK `user_id` → users |
 
 ### Index and constraint expectations (for migrations)
 
-- **users**
-  - Unique index on `email`.
-- **cases**
-  - Indexes on `status`, `creator_id`, `assigned_to_id`, `archived_at`.
-- **documents**
-  - Index on `case_id`.
-- **log_entries**
-  - Indexes on `case_id`, `user_id`, and optionally `type`.
+- **users**: unique on `email`.
+- **cases**: indexes on `status`, `creator_id`, `assigned_to_id`, `archived_at`.
+- **documents**: index on `case_id`.
+- **log_entries**: indexes on `case_id`, `user_id`, `type`.
 
 ## Constants (non-ORM)
 
-Used for validation and dropdowns; not persisted as entities:
+Used for validation and dropdowns; live under `models/constants/`:
 
-- **User_Role**: Citizen, Case Manager, Administrator
-- **Case_Status**: (values defined in constants/Case_Status.cfc)
-- **Document_File_Type**: (values defined in constants/Document_File_Type.cfc)
-- **Log_Entry_Type**: (values defined in constants/Log_Entry_Type.cfc)
+- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type**
 
-All persistent entities extend `cborm.models.ActiveEntity` and use `validate()` with the injected constant components.
+Persistent entities extend `cborm.models.ActiveEntity` and call `validate()` using the injected constant components where applicable.

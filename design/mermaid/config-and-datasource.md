@@ -1,6 +1,6 @@
 # Config and Datasource Flow
 
-How server and application configuration and the PostgreSQL datasource are loaded.
+How server and application configuration and the PostgreSQL datasource are loaded, including migrations and ORM-related environment variables.
 
 ```mermaid
 flowchart TB
@@ -21,13 +21,14 @@ flowchart TB
         F[servepoint: dbdriver, host, port, database, username, password]
     end
 
-    subgraph AppLoad["First request / Application load"]
+    subgraph AppLoad["Application startup (Application.cfc)"]
         G[Application.cfc]
         H[this.datasource = servepoint]
         I[this.ormEnabled = true]
         J[ORM looks up servepoint]
         K[config/Coldbox.cfc]
         L[moduleSettings.cborm.datasource = servepoint]
+        M[cfmigrations manager: datasource servepoint]
     end
 
     A --> B
@@ -41,7 +42,9 @@ flowchart TB
     G --> I
     J --> F
     K --> L
+    K --> M
     L --> J
+    M --> F
 ```
 
 ## Who reads what
@@ -52,9 +55,17 @@ flowchart TB
 | CFConfig  | server.json → cfconfig.file | Path to config JSON (e.g. .cfconfig.json) |
 | CFConfig  | .cfconfig.json      | Datasource `servepoint`, caches, other CF settings; applied to Adobe CF at startup |
 | Adobe CF  | (in-memory after CFConfig) | Registered datasources (e.g. servepoint) |
-| Application.cfc | (code)         | this.datasource = "servepoint", this.ormEnabled, this.ormSettings |
-| Coldbox.cfc | (code)            | moduleSettings.cborm.datasource = "servepoint", orm options |
+| Application.cfc | (code)         | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (includes `ORM_DBCREATE` env, default `validate`) |
+| Coldbox.cfc | (code)            | `moduleSettings.cborm.datasource`, cborm ORM options; `moduleSettings.cfmigrations` → `resources/database/migrations` |
+| cfmigrations | (startup)        | `migrationService.up()` before `ormGetSessionFactory()` |
+
+## Environment variables (relevant)
+
+| Variable | Role |
+|----------|------|
+| `ORM_DBCREATE` | ORM schema mode (`validate`, `update`, `dropcreate`, `none`); defaults to `validate` if unset or invalid |
+| `SERVEPOINT_AUTO_SEED` | When truthy, `SeedService.runAll()` after ORM init; default when unset is to seed |
 
 ## Future: env/secrets
 
-Values in `.cfconfig.json` can be replaced with placeholders (e.g. `${DB_HOST:localhost}`, `${DB_PASSWORD}`) and provided via `.env.dev` or container environment so no secrets are stored in the repo.
+Values in `.cfconfig.json` can be replaced with placeholders (for example `${DB_HOST:localhost}`, `${DB_PASSWORD}`) and provided via `.env` or container environment so secrets are not stored in the repo.
