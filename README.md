@@ -27,7 +27,7 @@ For comprehensive design specifications, architecture decisions, and implementat
 
 ## 📚 Development Notes
 
-Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md).
+Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md). That file also covers **linting and formatting**: **cfformat** for CFML, **CFLint** (editor + `.cflintrc`), and **Prettier** for non-CF files — see the “Linting and formatting” section there.
 
 ## 📚 Diagramming
 

@@ -42,6 +42,18 @@ When you run the app via Docker (`docker compose --env-file .env.dev -f docker/d
 - For Docker workflows, add `SERVEPOINT_AUTO_SEED` to your `.env.dev` file so it is injected into the container.
 - For local CommandBox workflows, set `SERVEPOINT_AUTO_SEED` in your shell environment before running `box server start`.
 
+## Linting and formatting
+
+The app runs in **Docker**; **linting and formatting** run on your **dev machine** (editor + CLI), not inside the container.
+
+| Concern | Tool | Where it lives |
+|--------|------|----------------|
+| **Format** `.cfc` / `.cfm` | **cfformat** (CommandBox module) | Install: `box install commandbox-cfformat` from the repo root. Run: `box cfformat run path/or/glob.cfc --overwrite`. Optional project-wide rules: `.cfformat.json` at the repo root (add when the team wants shared formatting defaults). |
+| **Lint** CFML | **CFLint** via the **CFLint** VS Code / Cursor extension | Needs a **JDK** and the JAR path in [`.vscode/settings.json`](.vscode/settings.json) (`cflint.jarPath`). Fetch the JAR with [`tools/cflint/download.sh`](tools/cflint/download.sh) (output is gitignored) or point `cflint.jarPath` at any `CFLint-*-all.jar` on disk. Rules: [`.cflintrc`](.cflintrc). Rule catalog: [CFLint `RULES.md`](https://github.com/cflint/CFLint/blob/master/RULES.md). |
+| **Format** Markdown, JSON, YAML, etc. | **Prettier** | [`.prettierrc`](.prettierrc), [`.prettierignore`](.prettierignore). **Prettier does not support CFML** — `*.cfc` / `*.cfm` are ignored so the default formatter does not corrupt them. |
+
+**CFLint config notes:** Empty `includes` in `.cflintrc` means all built-in rules apply (see [CFLint README](https://github.com/cflint/CFLint/blob/master/README.md)). Excludes and `parameters` in `.cflintrc` tune noisy rules and length limits for this stack; see `RULES.md` for codes and checker options.
+
 ## ORM model expectations (source of truth)
 
 - All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
