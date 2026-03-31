@@ -8,7 +8,7 @@ component extends="coldbox.system.EventHandler" {
 		prc.projectDescription = "Social Services Case Management System";
 		prc.projectFeatures = [
 			{ "label" : "Case intake and management", "href" : event.buildLink( "cases.index" ) },
-			{ "label" : "Document upload and storage", "href" : "" },
+			{ "label" : "Document upload and storage", "href" : event.buildLink( "documents.index" ) },
 			{ "label" : "Staff communication tools", "href" : "" },
 			{ "label" : "Audit trails and reporting", "href" : "" },
 			{ "label" : "Role-based access controls", "href" : "" }

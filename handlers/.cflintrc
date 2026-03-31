@@ -1,0 +1,23 @@
+{
+  "excludes": [
+    {
+      "code": "ARG_TYPE_ANY"
+    },
+    {
+      "code": "ARGUMENT_TOO_SHORT"
+    },
+    {
+      "code": "STRUCT_ARRAY_NOTATION"
+    },
+    {
+      "code": "UNUSED_METHOD_ARGUMENT"
+    },
+    {
+      "code": "ARG_VAR_MIXED"
+    },
+    {
+      "code": "ARG_VAR_CONFLICT"
+    }
+  ],
+  "inheritParent": true
+}

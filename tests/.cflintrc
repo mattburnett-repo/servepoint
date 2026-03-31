@@ -1,0 +1,11 @@
+{
+  "excludes": [
+    {
+      "code": "FUNCTION_TYPE_MISSING"
+    },
+    {
+      "code": "COMPONENT_TOO_LONG"
+    }
+  ],
+  "inheritParent": true
+}

@@ -1,0 +1,14 @@
+{
+  "excludes": [
+    {
+      "code": "MISSING_VAR"
+    },
+    {
+      "code": "FUNCTION_TYPE_MISSING"
+    },
+    {
+      "code": "STRUCT_ARRAY_NOTATION"
+    }
+  ],
+  "inheritParent": true
+}

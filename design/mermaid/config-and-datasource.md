@@ -29,6 +29,7 @@ flowchart TB
         K[config/Coldbox.cfc]
         L[moduleSettings.cborm.datasource = servepoint]
         M[cfmigrations manager: datasource servepoint]
+        N[servepoint.documentUploads settings]
     end
 
     A --> B
@@ -43,6 +44,7 @@ flowchart TB
     J --> F
     K --> L
     K --> M
+    K --> N
     L --> J
     M --> F
 ```
@@ -65,6 +67,10 @@ flowchart TB
 |----------|------|
 | `ORM_DBCREATE` | ORM schema mode (`validate`, `update`, `dropcreate`, `none`); defaults to `validate` if unset or invalid |
 | `SERVEPOINT_AUTO_SEED` | When truthy, `SeedService.runAll()` after ORM init; default when unset is to seed |
+| `SERVEPOINT_DOCUMENT_STORAGE_ROOT` | Absolute/relative root directory for persisted uploaded document files |
+| `SERVEPOINT_DOCUMENT_TEMP_ROOT` | Temporary upload directory used as staging before validation and move to `SERVEPOINT_DOCUMENT_STORAGE_ROOT` |
+| `SERVEPOINT_DOCUMENT_MAX_BYTES` | Maximum allowed upload size in bytes; defaults to `10485760` (10 MB) |
+| `SERVEPOINT_STORAGE_PERSISTENT` | Boolean flag for storage-mode messaging (`true` persistent mode, `false` ephemeral demo mode) |
 
 ## Future: env/secrets
 

@@ -22,7 +22,8 @@ component {
         ormDbcreateRaw = trim(ormDbcreateRaw);
     }
     this.ormSettings = {
-        cfclocation = [ "models" ],
+        // Use an absolute path so ORM model discovery is stable for normal requests and test execution paths.
+        cfclocation = [ expandPath( "./models" ) ],
         dbcreate = ormDbcreateRaw,
         logSQL = true
     };
