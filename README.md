@@ -48,12 +48,12 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
 ### Installation and Startup (Docker only)
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ServePoint
-   ```
+    ```bash
+    git clone <repository-url>
+    cd ServePoint
+    ```
 2. **Create a `.env.dev` file**
-   - Copy from [.env.example](.env.example) and set values for the database connection and any other required settings.
+    - Copy from [.env.example](.env.example) and set values for the database connection and any other required settings.
 3. **Start the application stack with Docker** (recommended)  
    From the project root (`ServePoint` directory), run:
 
@@ -64,8 +64,8 @@ docker compose --env-file .env.dev -f docker/docker-compose.yml up
 This builds the app image, starts the ColdFusion and **local** Postgres containers, and wires all environment variables from `.env.dev`. The compose stack gives you an isolated local database for development. For deployment to Render (remote database), see [RENDER_DATABASE.md](RENDER_DATABASE.md); Render builds from the Dockerfile only and does not use docker-compose.
 
 4. **Access the application**
-   - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)
-   - Document upload MVP: open `http://localhost:8081/documents/index` to select a case, then upload/list/download files.
+    - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)
+    - Document upload MVP: open `http://localhost:8081/documents/index` to select a case, then upload/list/download files.
 
 ### Running tests (Docker)
 
@@ -79,9 +79,9 @@ Tests live under `tests/` and run in the browser against the app in Docker.
 
 - On startup, ServePoint can automatically seed the database with an administrator user and sample data via the ORM.
 - This behavior is controlled by the `SERVEPOINT_AUTO_SEED` environment variable:
-  - If **unset or blank**, seeding **runs by default**.
-  - If set to one of `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
-  - Any other value disables automatic seeding.
+    - If **unset or blank**, seeding **runs by default**.
+    - If set to one of `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
+    - Any other value disables automatic seeding.
 - In Docker, define `SERVEPOINT_AUTO_SEED` in your `.env.dev` file.
 
 ## 📄 License

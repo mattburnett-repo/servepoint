@@ -54,4 +54,4 @@ flowchart LR
 - **views/documents/index.cfm**: Standalone document workspace (select case, upload, list, download).
 - **services/CaseService.cfc**: Active-case queries, create/update/archive.
 - **services/DocumentService.cfc**: Upload validation/storage, document listing by case, download resolution.
-- **views/cases/*.cfm**, **views/main/*.cfm**, **layouts/Main.cfm**: View and layout rendering.
+- **views/cases/\*.cfm**, **views/main/\*.cfm**, **layouts/Main.cfm**: View and layout rendering.
