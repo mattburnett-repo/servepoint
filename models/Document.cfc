@@ -10,7 +10,7 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="documents
     property name="fileName"     type="string"  notnull="true";
     property name="fileSize"     type="numeric" notnull="true";
     property name="fileType"     type="string"  notnull="true";
-    property name="dateUploaded" type="date"    notnull="true";
+    property name="dateUploaded" type="timestamp" column="date_uploaded" insert="false" update="false" notnull="false";
 
     // Relationship
     property name="caseRef" fieldtype="many-to-one" cfc="Cases" fkcolumn="case_id" notnull="true";

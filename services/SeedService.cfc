@@ -16,34 +16,42 @@ component singleton accessors="true" {
     }
 
     /**
-     * Ensure at least one administrator user exists.
-     * Uses the User_Role constants to select a valid admin role.
+     * One demo user per role (Citizen, Case Manager, Administrator). Idempotent by email.
      */
     private void function seedUsers() {
-        // If any users already exist, assume seeding has been done.
-        var existingUsers = entityLoad( "Users" );
-        if ( arrayLen( existingUsers ) > 0 ) {
-            return;
+        var seeds = [
+            {
+                email     : "admin@example.com",
+                firstName : "System",
+                lastName  : "Administrator",
+                role      : "Administrator"
+            },
+            {
+                email     : "case.manager@example.com",
+                firstName : "Case",
+                lastName  : "Manager",
+                role      : "Case Manager"
+            },
+            {
+                email     : "citizen@example.com",
+                firstName : "Demo",
+                lastName  : "Citizen",
+                role      : "Citizen"
+            }
+        ];
+        for ( var i = 1; i <= arrayLen( seeds ); i++ ) {
+            var s = seeds[ i ];
+            if ( !isNull( entityLoad( "Users", { email : s.email }, true ) ) ) {
+                continue;
+            }
+            var u = entityNew( "Users" );
+            u.setFirstName( s.firstName );
+            u.setLastName( s.lastName );
+            u.setEmail( s.email );
+            u.setPassword( "change-me" );
+            u.setRole( s.role );
+            entitySave( u );
         }
-
-        // Load role constants so we choose a valid role value.
-        var roleConstants = new models.constants.User_Role();
-        var roles         = roleConstants.getValues();
-
-        // Prefer the Administrator role if present; otherwise fall back to the first defined role.
-        var adminRole = "Administrator";
-        if ( !arrayFind( roles, adminRole ) ) {
-            adminRole = roles[ 1 ];
-        }
-
-        var admin = entityNew( "Users" );
-        admin.setFirstName( "System" );
-        admin.setLastName( "Administrator" );
-        admin.setEmail( "admin@example.com" );
-        // In a real deployment this should be replaced/reset; this is demo-only.
-        admin.setPassword( "change-me" );
-        admin.setRole( adminRole );
-        entitySave( admin );
     }
 
     /**
@@ -79,14 +87,10 @@ component singleton accessors="true" {
             inProgressStatus = statuses[ 1 ];
         }
 
-        var now = now();
-
         var case1 = entityNew( "Cases" );
         case1.setTitle( "Sample Service Request" );
         case1.setDescription( "A sample case created by the database seeder." );
         case1.setStatus( newStatus );
-        case1.setDateCreated( now );
-        case1.setDateUpdated( now );
         case1.setCreator( adminUser );
         case1.setAssignedTo( adminUser );
         entitySave( case1 );
@@ -95,8 +99,6 @@ component singleton accessors="true" {
         case2.setTitle( "In-progress Case" );
         case2.setDescription( "An example case that is currently in progress." );
         case2.setStatus( inProgressStatus );
-        case2.setDateCreated( now );
-        case2.setDateUpdated( now );
         case2.setCreator( adminUser );
         case2.setAssignedTo( adminUser );
         entitySave( case2 );
@@ -129,9 +131,8 @@ component singleton accessors="true" {
         var doc = entityNew( "Document" );
         doc.setTitle( "Welcome Packet" );
         doc.setFileName( "welcome-packet." & pdfType );
-        doc.setFileSize( 0 );
+        doc.setFileSize( 1 );
         doc.setFileType( pdfType );
-        doc.setDateUploaded( now() );
         doc.setCaseRef( caseRef );
         entitySave( doc );
     }

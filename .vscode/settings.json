@@ -1,4 +1,11 @@
 {
+  "cflint.enabled": true,
+  "cflint.jarPath": "/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/tools/cflint/CFLint-1.5.0-all.jar",
+  "cflint.runModes": {
+    "onOpen": true,
+    "onSave": true,
+    "onChange": false
+  },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "boxlang.cfml.mappings": [

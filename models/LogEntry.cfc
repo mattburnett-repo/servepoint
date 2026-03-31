@@ -7,7 +7,7 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="log_entri
     property name="logEntryId" fieldtype="id" column="log_entry_id" generator="identity";
 
     // Attributes
-    property name="dateCreated" type="date"   notnull="true";
+    property name="dateCreated" type="timestamp" column="date_created" insert="false" update="false" notnull="false";
     property name="entryText"   type="string" notnull="true";
     property name="type"        type="string" notnull="true";
 

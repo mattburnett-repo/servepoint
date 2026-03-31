@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+# Keep `design/mermaid/` in sync
+
+When you change behavior or structure in areas covered by the diagrams under `design/mermaid/`, update the corresponding markdown files in the same change (or immediately after) so diagrams stay accurate.
+
+**Scope — update diagrams when you touch:**
+
+- **architecture.md** — stack, modules (`cborm`, `cfmigrations`), handlers, services, major folders.
+- **request-lifecycle.md** — `Application.cfc` startup order, routing, handler actions, service usage, key views/layouts.
+- **data-model.md** — tables, columns, FKs, indexes, constants location; keep in line with migrations and `models/*.cfc`.
+- **class-diagram.md** — entity properties, relationships, injected constants, `models/constants/` components.
+- **config-and-datasource.md** — datasource name, CFConfig flow, ColdBox module settings, env vars that affect ORM, migrations, or seeding.
+
+**Do not** expand diagrams with one-off implementation details; mirror what a new contributor needs to understand the system. If a diagram would duplicate a long spec, prefer a short note and a pointer to the real source (for example a migration or `Application.cfc`).

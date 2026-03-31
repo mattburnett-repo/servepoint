@@ -9,8 +9,8 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="cases" {
     property name="title"       type="string" notnull="true";
     property name="description" type="string";
     property name="status"      type="string" notnull="true";
-    property name="dateCreated" type="date"   notnull="true";
-    property name="dateUpdated" type="date";
+    property name="dateCreated" type="timestamp" column="date_created" insert="false" update="false" notnull="false";
+    property name="dateUpdated" type="timestamp" column="date_updated" insert="false" update="false" notnull="false";
 
     // Archive (soft): NULL archivedAt = active, non-NULL = archived
     property name="archivedAt"   type="date"   column="archived_at";

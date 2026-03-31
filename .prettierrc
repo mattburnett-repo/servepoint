@@ -1,0 +1,33 @@
+{
+	"semi": true,
+	"singleQuote": false,
+	"useTabs": true,
+	"tabWidth": 4,
+	"printWidth": 100,
+	"endOfLine": "lf",
+	"trailingComma": "es5",
+	"overrides": [
+		{
+			"files": ["*.yml", "*.yaml"],
+			"options": {
+				"useTabs": false,
+				"tabWidth": 2
+			}
+		},
+		{
+			"files": ["*.json"],
+			"options": {
+				"useTabs": false,
+				"tabWidth": 4
+			}
+		},
+		{
+			"files": ["*.md", "*.mdc"],
+			"options": {
+				"proseWrap": "preserve",
+				"useTabs": true,
+				"tabWidth": 4
+			}
+		}
+	]
+}

@@ -114,21 +114,22 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 				var caseEntity = getInstance( "Cases" )
 					.setTitle( "Migrations Smoke Case" )
 					.setStatus( "New" )
-					.setDateCreated( now() )
 					.setCreator( user );
 				caseEntity.save();
+				ormEvictEntity( "Cases", caseEntity.getCaseId() );
+				caseEntity = entityLoad( "Cases", caseEntity.getCaseId(), true );
 
 				var doc = getInstance( "Document" )
 					.setTitle( "Smoke Document" )
 					.setFileName( "smoke.pdf" )
 					.setFileSize( 1 )
 					.setFileType( "pdf" )
-					.setDateUploaded( now() )
 					.setCaseRef( caseEntity );
 				doc.save();
+				ormEvictEntity( "Document", doc.getDocumentId() );
+				doc = entityLoad( "Document", doc.getDocumentId(), true );
 
 				var logEntry = getInstance( "LogEntry" )
-					.setDateCreated( now() )
 					.setEntryText( "Smoke log entry" )
 					.setType( "Case Update" )
 					.setCaseRef( caseEntity )
