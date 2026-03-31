@@ -22,6 +22,7 @@ grapher/**
 # logs + tests
 logs/**
 tests/results/**
+uploads/**
 
 # npm
 **/node_modules/*

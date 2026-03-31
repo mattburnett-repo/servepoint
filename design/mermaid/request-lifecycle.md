@@ -10,7 +10,7 @@ sequenceDiagram
     participant ColdBox
     participant Router
     participant Handler
-    participant Service as CaseService
+    participant Service as CaseService and DocumentService
     participant View
     participant Layout
 
@@ -18,11 +18,11 @@ sequenceDiagram
     Runwar->>AppCfc: onRequestStart(targetPage)
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
-    Router->>Handler: Dispatch (e.g. cases.index)
+    Router->>Handler: Dispatch (e.g. cases.view or documents.upload)
     Handler->>Handler: Set prc, call services / ORM
-    Handler->>Service: e.g. listActive(), createCase()
+    Handler->>Service: e.g. listActive(), createCase(), uploadFromForm(), listForCase()
     Service-->>Handler: entities / result struct
-    Handler->>View: event.setView("cases/index")
+    Handler->>View: event.setView("cases/index", "cases/view", or "documents/index")
     View->>Layout: Render view in layout
     Layout->>Browser: HTML Response
 ```
@@ -49,6 +49,9 @@ flowchart LR
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
 - **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
 - **handlers/Main.cfc**: Home, under construction, sample `data` JSON.
-- **handlers/Cases.cfc**: Case list, detail/edit, create, archive; uses `CaseService`.
+- **handlers/Cases.cfc**: Case list, detail/edit, create, archive.
+- **handlers/Documents.cfc**: Document upload and download actions, scoped to active cases.
+- **views/documents/index.cfm**: Standalone document workspace (select case, upload, list, download).
 - **services/CaseService.cfc**: Active-case queries, create/update/archive.
-- **views/cases/*.cfm**, **views/main/*.cfm**, **layouts/Main.cfm**: View and layout rendering.
+- **services/DocumentService.cfc**: Upload validation/storage, document listing by case, download resolution.
+- **views/cases/\*.cfm**, **views/main/\*.cfm**, **layouts/Main.cfm**: View and layout rendering.

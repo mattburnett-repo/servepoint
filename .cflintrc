@@ -19,6 +19,24 @@
 		},
 		{
 			"code": "COMPONENT_HINT_MISSING"
+		},
+		{
+			"code": "UNQUOTED_STRUCT_KEY"
+		},
+		{
+			"code": "ARG_HINT_MISSING_SCRIPT"
+		},
+		{
+			"code": "FUNCTION_HINT_MISSING"
+		},
+		{
+			"code": "METHOD_IS_TEMPORARY"
+		},
+		{
+			"code": "VAR_IS_TEMPORARY"
+		},
+		{
+			"code": "LOCAL_LITERAL_VALUE_USED_TOO_OFTEN"
 		}
 	],
 	"inheritParent": true,

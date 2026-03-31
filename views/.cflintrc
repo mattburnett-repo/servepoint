@@ -1,0 +1,11 @@
+{
+  "excludes": [
+    {
+      "code": "FUNCTION_TOO_COMPLEX"
+    },
+    {
+      "code": "VAR_TOO_SHORT"
+    }
+  ],
+  "inheritParent": true
+}

@@ -85,11 +85,17 @@ component singleton accessors="true" {
      * Load an active (non-archived) case by id, or null.
      */
     public any function getActiveCase( required numeric caseId ) {
-        var caseEntity = entityLoad( "Cases", arguments.caseId, true );
-        if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
+        // Force fresh state and query active-only directly to avoid stale session/entity state.
+        ormClearSession();
+        var matches = ormExecuteQuery(
+            "FROM Cases c WHERE c.caseId = :caseId AND c.archivedAt IS NULL",
+            { caseId : arguments.caseId },
+            false
+        );
+        if ( arrayLen( matches ) == 0 ) {
             return;
         }
-        return caseEntity;
+        return matches[ 1 ];
     }
 
     /**
