@@ -6,13 +6,11 @@ component singleton accessors="true" {
      */
     public void function restoreAllArchived() {
         var datasource = "servepoint";
-        transaction {
-            queryExecute(
-                "UPDATE cases SET archived_at = NULL, archived_by = NULL, archive_reason = NULL",
-                {},
-                { datasource : datasource }
-            );
-        }
+        queryExecute(
+            "UPDATE cases SET archived_at = NULL, archived_by = NULL, archive_reason = NULL",
+            {},
+            { datasource : datasource }
+        );
         ormClearSession();
     }
 
@@ -85,7 +83,9 @@ component singleton accessors="true" {
      * Load an active (non-archived) case by id, or null.
      */
     public any function getActiveCase( required numeric caseId ) {
-        // Force fresh state and query active-only directly to avoid stale session/entity state.
+        // Flush first: ormClearSession() drops the session without flushing, which can discard
+        // uncommitted ORM updates and make the next query read stale DB rows (e.g. after updateCase).
+        ormFlush();
         ormClearSession();
         var matches = ormExecuteQuery(
             "FROM Cases c WHERE c.caseId = :caseId AND c.archivedAt IS NULL",
@@ -133,6 +133,7 @@ component singleton accessors="true" {
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
+        ormFlush();
         ormEvictEntity( "Cases", arguments.caseId );
         return { success: true, case: entityLoad( "Cases", arguments.caseId, true ) };
     }

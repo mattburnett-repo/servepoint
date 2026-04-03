@@ -12,8 +12,16 @@
 - Core features:
     - Case intake via forms or APIs
     - Assignment, tracking, and status updates
-    - Secure document upload and management
+    - Secure document upload, listing, and download (retention policy below)
     - Staff communication and audit trails
+
+#### 1a. **Document retention (design decision)**
+
+Documents attached to a case are treated as **part of the case record**, aligned with planned policy- and records-management expectations. The product **does not** expose **delete** (or equivalent hard-remove) actions in the same **upload / view** experience case workers use day to day.
+
+**Disposition**—removing metadata, purging blobs, or otherwise taking a document out of normal use—is intentionally **out of band**: governed by **organizational records policy**, **administrative procedure**, and **separate processes or tooling** (not casual UI deletion). Invalid uploads are still rejected at staging and removed from **temp** only; that is not a substitute for deleting an accepted case document.
+
+Future enhancements might include **admin-only** workflows, **supersede / version** patterns, or **soft-hide** with audit, but **end-user delete from the documents workspace** remains a non-goal unless requirements change.
 
 #### 2. **Platform: Adobe ColdFusion 2025**
 
@@ -117,4 +125,4 @@ Available starting points:
 - Define privacy-conscious user roles and case workflows
 - Design admin UI with privacy and logging in mind
 - Outline cloud deployment architecture and security features
-- Plan secure document upload, storage, and access controls (see issue #33)
+- Plan secure document upload, storage, access controls, and retention alignment (see issue #33 and `DEV_NOTES.md` — document retention)

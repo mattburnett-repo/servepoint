@@ -1,12 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
     function run(){
         describe( "Database Seeding", function(){
-
-            beforeEach( function( currentSpec ){
-                setup();
-                getWireBox().getInstance( "CaseService" ).restoreAllArchived();
-            } );
 
             it( "creates an administrator user and sample data", function(){
                 var seedService = getWireBox().getInstance( "SeedService" );

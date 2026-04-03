@@ -1,12 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
     void function run() {
         describe( "Document download", function() {
-
-            beforeEach( function( currentSpec ) {
-                setup();
-                getWireBox().getInstance( "CaseService" ).restoreAllArchived();
-            } );
 
             it( "resolveDownload returns success payload for stored document", function() {
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );

@@ -1,14 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
     function run(){
         describe( "Archive / restore and query convention", function(){
-
-            beforeEach( function( currentSpec ){
-                setup();
-                // Restore all in same request as the test so listActive() sees correct state
-                var caseService = getWireBox().getInstance( "CaseService" );
-                caseService.restoreAllArchived();
-            } );
 
             it( "listActive returns only active cases; listAll( true ) includes archived", function(){
                 var caseService = getWireBox().getInstance( "CaseService" );

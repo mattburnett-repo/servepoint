@@ -1,12 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
 	function run(){
 		describe( "Cases intake", function(){
-
-			beforeEach( function( currentSpec ){
-				setup();
-				getWireBox().getInstance( "CaseService" ).restoreAllArchived();
-			} );
 
 			it( "cases.index exposes active cases as an array", function(){
 				var event = this.get( "cases.index" );

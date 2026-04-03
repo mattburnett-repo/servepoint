@@ -1,12 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
     void function run() {
         describe( "Documents index", function() {
-
-            beforeEach( function( currentSpec ) {
-                setup();
-                getWireBox().getInstance( "CaseService" ).restoreAllArchived();
-            } );
 
             it( "documents.index renders documents workspace for selected case", function() {
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
