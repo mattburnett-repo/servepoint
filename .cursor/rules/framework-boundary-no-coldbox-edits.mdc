@@ -2,16 +2,12 @@
 alwaysApply: true
 ---
 
-# Framework boundary: do not modify ColdBox/framework code
+# Framework boundary: no ColdBox/framework edits
 
-When fixing app bugs or runtime errors in this repo:
+For app bugs or runtime errors:
 
-1. **Do not edit framework code** — Never change files under `coldbox/`, `wirebox/`, `testbox/`, or module vendor code just to make an app error go away.
-
-2. **Treat framework behavior as contract** — Assume ColdBox/framework internals are correct for this app. Fix the app code, config, env, schema, or data instead.
-
-3. **No surface-level framework patches** — Do not “make it work” by changing framework behavior, handler dispatch internals, or framework defaults.
-
-4. **Escalate if truly blocked** — If a fix appears to require framework changes, stop and ask the user before proceeding.
-
-5. **Prefer upstream root cause fixes** — Apply the smallest app-level correction at the source of the problem.
+1. **Don’t edit framework/vendor** — No changes under `coldbox/`, `wirebox/`, `testbox/`, or module vendor code to silence an error.
+2. **Framework = contract** — Assume ColdBox behavior is correct for this app; fix app code, config, env, schema, or data.
+3. **No framework hacks** — Don’t alter framework behavior, dispatch internals, or defaults to “make it work.”
+4. **Blocked on framework?** — Stop and ask the user before any framework change.
+5. **Fix at source** — Smallest app-level fix at the root cause (same spirit as `upstream-first-debugging.mdc`).

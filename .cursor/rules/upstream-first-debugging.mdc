@@ -4,16 +4,12 @@ alwaysApply: true
 
 # Upstream-first debugging (ServePoint)
 
-When something breaks or behaves wrong:
+Apply this mindset to the problem or code in context when something breaks or behaves wrong:
 
-1. **Trace upstream** — Find where the bad assumption lives (config, schema, column names, types, env) before changing application code. The symptom is rarely where the bug is introduced.
+1. **Upstream first** — Find the bad assumption (config, schema, column names/types, env) before changing app code. Symptoms are rarely where the bug starts.
+2. **Smallest fix** — Fewest lines for the real cause. No helpers/wrappers/new modules to paper over wrong type, name, or migration.
+3. **Postgres / ORM** — Verify what the DB has (`\d`, `information_schema`); align migrations and ORM `column=`; don’t guess quoted vs lowercase identifiers.
+4. **Stop when fixed** — No unrelated refactors or “nice to haves” in the same change unless asked.
+5. **Unsure** — Inspect or **one** targeted question; don’t dump alternatives.
 
-2. **Smallest fix** — Prefer the fewest lines that correct the actual cause. Do not add helpers, wrappers, or new modules to work around a wrong type, name, or migration.
-
-3. **Database / ORM** — Confirm what Postgres actually has (e.g. `\d table`, `information_schema`) and align migrations and ORM `column=` with that. Do not guess quoted vs lowercase identifiers.
-
-4. **Stop when fixed** — Do not refactor unrelated code, expand scope, or add “nice to have” behavior in the same change unless the user asks.
-
-5. **If unsure** — Inspect or ask one targeted question; do not ship a pile of alternatives.
-
-Slash command (same content): `.cursor/commands/trace-upstream.md` — type `/` in chat and choose **trace-upstream** (restart Cursor if it does not appear).
+Slash command: `.cursor/commands/trace-upstream.md` — `/` → **trace-upstream** (restart Cursor if missing).

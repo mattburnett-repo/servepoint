@@ -33,8 +33,10 @@ component {
 	 * - coldbox : Where ColdBox library is installed
 	 * - testbox : Where TestBox is installed
 	 */
-	// Create testing mapping
-	this.mappings[ "/tests" ]   = getDirectoryFromPath( getCurrentTemplatePath() );
+	// Create testing mapping (/tests for URLs; "tests" package for components under tests/specs/...)
+	var testsDir                 = getDirectoryFromPath( getCurrentTemplatePath() );
+	this.mappings[ "/tests" ]   = testsDir;
+	this.mappings[ "tests" ]    = testsDir;
 	// The root application mapping
 	rootPath                    = reReplaceNoCase( this.mappings[ "/tests" ], "tests(\\|/)", "" );
 	this.mappings[ "/root" ]    = this.mappings[ "/cbapp" ] = rootPath;

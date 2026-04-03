@@ -1,7 +1,7 @@
 /*******************************************************************************
  *	Integration Test as BDD
  *
- *	Extends the integration class: coldbox.system.testing.BaseTestCase
+ *	Extends BaseIntegrationTestCase (transaction rollback per spec; see tests/specs/BaseIntegrationTestCase.cfc).
  *
  *	so you can test your ColdBox application headlessly. The 'appMapping' points by default to
  *	the '/root' mapping created in the test folder Application.cfc.  Please note that this
@@ -14,7 +14,7 @@
  *	* eventArguments : The struct of args to pass to the event
  *	* renderResults : Render back the results of the event
  *******************************************************************************/
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
@@ -32,10 +32,6 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 
 	function run(){
 		describe( "Main Handler", function(){
-			beforeEach( function( currentSpec ){
-				// Setup as a new ColdBox request, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
-				setup();
-			} );
 
 			it( "can render the homepage", function(){
 				var event = this.get( "main.index" );

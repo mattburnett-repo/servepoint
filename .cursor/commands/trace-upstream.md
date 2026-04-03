@@ -12,4 +12,8 @@ Apply this mindset to the problem or code in context:
 
 5. **If unsure** — Inspect or ask one targeted question; do not ship a pile of alternatives.
 
+<<<<<<< HEAD
 Project rule reference: `.cursor/rules/upstream-first-debugging.mdc`.
+=======
+Project rules: `.cursor/rules/upstream-first-debugging.mdc` (authoritative), `.cursor/rules/slash-commands.mdc` (all slash commands ↔ rules).
+>>>>>>> main

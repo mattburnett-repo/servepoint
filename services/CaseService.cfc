@@ -6,13 +6,11 @@ component singleton accessors="true" {
      */
     public void function restoreAllArchived() {
         var datasource = "servepoint";
-        transaction {
-            queryExecute(
-                "UPDATE cases SET archived_at = NULL, archived_by = NULL, archive_reason = NULL",
-                {},
-                { datasource : datasource }
-            );
-        }
+        queryExecute(
+            "UPDATE cases SET archived_at = NULL, archived_by = NULL, archive_reason = NULL",
+            {},
+            { datasource : datasource }
+        );
         ormClearSession();
     }
 
