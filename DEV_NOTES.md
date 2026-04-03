@@ -44,6 +44,12 @@ Document uploads are configured in `config/Coldbox.cfc` under `moduleSettings.se
 The `DocumentService` persists files with unique UUID-based disk names and stores those names in `documents.fileName`. `documents.fileType` and `Document_File_Type` constants are used to enforce allowed extensions (`pdf`, `docx`, `png`, `jpeg`, `jpg`).
 Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_ROOT` first, then are validated (active case, allowed type, max size) and moved into `SERVEPOINT_DOCUMENT_STORAGE_ROOT`. Invalid uploads are deleted from temp and never persisted to the final storage root.
 
+### Document retention (policy / product design)
+
+- **Accepted documents** (rows in `documents` plus files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`) are **retained** as part of the case record. There is **no in-app delete** from the documents workspace (upload / list / download only).
+- **Removing** a document from normal use—DB row, file on disk, or both—is **not** implemented in routine UI flows; it belongs to **records disposition** handled **outside** upload/view (e.g. compliance-approved process, DBA/storage ops, future admin tooling), consistent with `DESIGN_NOTES.md` (Document retention).
+- **Case archive** soft-hides the case (and thus document access through normal active-case flows) but **does not** delete document rows or files; see “Archive / restore” below.
+
 #### Storage modes
 
 - **Persistent mode (local dev default)**: `SERVEPOINT_DOCUMENT_STORAGE_ROOT=/app/uploads/documents` and `SERVEPOINT_STORAGE_PERSISTENT=true` with Docker bind mount `./uploads/documents -> /app/uploads/documents`.
@@ -97,7 +103,7 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 
 - **Soft archive only**: Cases can be archived at the business level. Data stays in the main tables; the case’s `archived_at` (and optional `archived_by`, `archive_reason`) mark it as archived.
 - **Default query behavior**: Case lists used by the app return **only active cases** by default (`archived_at IS NULL`). Use `CaseService.listActive()` for the default list and `CaseService.listAll( includeArchived = true )` when archived cases should be included (e.g. admin or reporting).
-- **Archive and restore**: Use `CaseService.archiveCase( caseId, userId, reason )` and `CaseService.restoreCase( caseId, userId )`. These optionally create a `LogEntry` for audit. Documents and log entries have no separate archive state; visibility follows the case’s archive flag.
+- **Archive and restore**: Use `CaseService.archiveCase( caseId, userId, reason )` and `CaseService.restoreCase( caseId, userId )`. These optionally create a `LogEntry` for audit. Documents and log entries have no separate archive state; visibility follows the case’s archive flag. Archiving is **not** document deletion; stored files and `documents` rows remain until an explicit out-of-band disposition process removes them (see **Document retention** above).
 - A future **hard** archive (separate archive tables or export to storage) is out of scope for this phase.
 
 ## Known issues

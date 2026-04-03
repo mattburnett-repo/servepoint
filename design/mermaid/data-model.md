@@ -60,7 +60,7 @@ erDiagram
 |------------|--------------|-------------------|--------|
 | Users      | users        | creator / assignedTo / archivedBy cases; user for log_entries | `email` unique; PK `user_id` |
 | Cases      | cases        | belongs to creator, assignedTo, archivedBy (Users); has many documents & log_entries | Active lists exclude rows with `archived_at IS NOT NULL`. `date_created` / `date_updated` are maintained by DB defaults and (on update) trigger — see migration `2026_03_27_000002_timestamp_defaults.cfc`. |
-| Document   | documents    | belongs to one Case | PK `document_id`; `date_uploaded` has DB default |
+| Document   | documents    | belongs to one Case | PK `document_id`; `date_uploaded` has DB default. Rows represent **retained** case records; the app does not delete them from upload/view flows—see **Document retention** below. |
 | LogEntry   | log_entries  | belongs to one Case and one User | PK `log_entry_id`; FK `user_id` → users |
 
 ### Index and constraint expectations (for migrations)
@@ -69,6 +69,10 @@ erDiagram
 - **cases**: indexes on `status`, `creator_id`, `assigned_to_id`, `archived_at`.
 - **documents**: index on `case_id`.
 - **log_entries**: indexes on `case_id`, `user_id`, `type`.
+
+## Document retention (product / policy)
+
+The `documents` table and files on disk under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are treated as **durable case evidence**. There is **no** in-application **delete** action alongside upload and download for routine users. Removing or purging data follows **records disposition** outside those UI flows (`DESIGN_NOTES.md`, `DEV_NOTES.md`). Soft **case** archive changes what active-case queries return; it does **not** imply document row or file removal.
 
 ## Constants (non-ORM)
 

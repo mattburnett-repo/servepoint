@@ -116,5 +116,6 @@ classDiagram
 ## Notes
 
 - **Persistent entities**: table-backed; `validate()` runs on ORM save where configured.
+- **Document**: modeled as a retained case attachment; the product design intentionally **does not** map an in-app delete lifecycle here—see `DESIGN_NOTES.md` / `DEV_NOTES.md` (Document retention).
 - **Constants**: structs of allowed values and `getValues()` for validation and UI; not persisted.
 - **Services** (`services/CaseService.cfc`, etc.) are not shown here; they orchestrate ORM and live outside `models/`.
