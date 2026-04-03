@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+
+# Slash commands ↔ rules
+
+Commands live under `.cursor/commands/`. Type `/` in chat to run one (restart Cursor if it doesn’t appear).
+
+| Slash command | File | Use with |
+|---------------|------|----------|
+| **trace-upstream** | `trace-upstream.md` | `upstream-first-debugging.mdc` (same five steps) |
+| **pre-deploy-sweep** | `pre-deploy-sweep.md` | `outcome-minimal-steps-framing.mdc` (answer/report shape); `upstream-first-debugging.mdc` (constraints) |
+
+**trace-upstream** — Debug/fix: trace config/schema/env before app code. **pre-deploy-sweep** — Release readiness on the current branch.

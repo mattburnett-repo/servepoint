@@ -56,3 +56,5 @@ Return results in this order:
 - Follow upstream-first debugging.
 - Prefer the smallest fix that corrects the root cause.
 - Do not broaden scope beyond deploy readiness unless asked.
+
+Project rules: `.cursor/rules/outcome-minimal-steps-framing.mdc`, `.cursor/rules/upstream-first-debugging.mdc`, `.cursor/rules/slash-commands.mdc`.
