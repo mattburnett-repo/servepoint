@@ -52,6 +52,15 @@
 		},
 		{
 			"code": "METHOD_TOO_LONG"
+		},
+		{
+			"code": "ARG_VAR_MIXED"
+		},
+		{
+			"code": "FUNCTION_TYPE_ANY"
+		},
+		{
+			"code": "VAR_TOO_SHORT"
 		}
 	],
 	"inheritParent": true,

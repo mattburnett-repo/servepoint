@@ -75,5 +75,8 @@ flowchart TB
 |---------|---------------------------|----------------|
 | `Main` | — | `main/index`, `main/underConstruction` |
 | `Cases` | `CaseService` | `cases/index`, `cases/view`, `cases/new` |
+| `Documents` | `DocumentService`, `CaseService` | `documents/index`; upload/download actions (no in-app document delete—retention policy; see `DESIGN_NOTES.md`) |
 
 `SeedService` runs during `onApplicationStart` when `SERVEPOINT_AUTO_SEED` allows it (see Application.cfc).
+
+**Documents:** Upload, list, and download are in scope for the case workspace; **deletion** of accepted documents is **out of band** (policy / separate process), not a handler action in the MVP.

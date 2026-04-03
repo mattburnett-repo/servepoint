@@ -19,5 +19,20 @@
       "directoryPath": "./testbox",
       "isPhysicalDirectoryPath": false
     }
+  ],
+  "cSpell.words": [
+    "cbapp",
+    "cfclocation",
+    "CFINCLUDE",
+    "coldbox",
+    "dbcreate",
+    "fwreinit",
+    "lucee",
+    "Majano",
+    "Ortus",
+    "ortussolutions",
+    "servepoint",
+    "testbox",
+    "Timespan"
   ]
 }

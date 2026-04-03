@@ -33,6 +33,8 @@ Document upload storage settings (`SERVEPOINT_DOCUMENT_STORAGE_ROOT`, `SERVEPOIN
 Upload handling uses `SERVEPOINT_DOCUMENT_TEMP_ROOT` as staging only; files are validated and then moved to final storage at `SERVEPOINT_DOCUMENT_STORAGE_ROOT` (for Docker local dev: `/app/uploads/documents`, backed by host `./uploads/documents`).
 For demo deployments without persistent disks, set `SERVEPOINT_STORAGE_PERSISTENT=false` and use an ephemeral storage root (for example `/tmp/servepoint/uploads/documents`) so the UI clearly indicates non-persistent behavior.
 
+**Document retention:** Accepted case documents are intentionally **not** deletable from the in-app upload/view flows; disposition is an **out-of-band**, policy-driven concern. See `DESIGN_NOTES.md` and `DEV_NOTES.md` (Document retention).
+
 ## 📚 Diagramming
 
 UML use for this project is mostly exploratory. UML files/artifacts are found in the [design/uml](/design/uml) folder.
@@ -65,7 +67,7 @@ This builds the app image, starts the ColdFusion and **local** Postgres containe
 
 4. **Access the application**
     - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)
-    - Document upload MVP: open `http://localhost:8081/documents/index` to select a case, then upload/list/download files.
+    - Document upload MVP: open `http://localhost:8081/documents/index` to select a case, then upload, list, and download files (no in-app delete; see **Document retention** above).
 
 ### Running tests (Docker)
 
