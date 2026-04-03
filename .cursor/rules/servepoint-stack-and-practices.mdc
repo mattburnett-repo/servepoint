@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+# ServePoint stack and practices
+
+**Stack:** ColdBox (HMVC), **Adobe ColdFusion 2025**, **PostgreSQL 14** (align migrations/ORM with deployed DB), **Render** free tier (cold starts / limits — don’t assume paid features).
+
+**ColdBox:** Use **Ortus Solutions** docs (ColdBox, WireBox, LogBox, CacheBox; `cborm` / `cfmigrations` where used). Match this repo’s patterns; don’t invent new framework shapes. Don’t edit framework/vendor code — `framework-boundary-no-coldbox-edits.mdc`.
+
+**Changes:** Fix the real problem with minimal scope. Same bar for app code, **TestBox** tests, Docker/Render config, env docs — no speculative or “future-proof” layers unless required. Deploy docs: Dockerfile vs compose, env for DB/app.
+
+**Related rules:** `upstream-first-debugging.mdc`, `outcome-minimal-steps-framing.mdc`, `slash-commands.mdc`.

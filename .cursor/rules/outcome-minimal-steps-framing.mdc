@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+
+# Outcome-first, minimal manual steps
+
+If the user wants **X** with **minimal manual steps** (explicit or implied), treat their message as:
+
+> I want **X** outcome with minimal manual steps; here’s what I tried.
+
+1. Lead with the **shortest path** to X (commands, SQL, env, checklist). Theory/tradeoffs **after** or only if asked.
+2. Build on **what they tried**; don’t redo basics unless the codebase or a blocker contradicts it.
+3. **One-liners first** (e.g. `TRUNCATE`, one env var, one UI action).
+4. If **X is unclear**, ask **one** question, then the minimal path for the best guess.
+
+Applies to deploy, DB, Docker, CI, local dev — any domain.

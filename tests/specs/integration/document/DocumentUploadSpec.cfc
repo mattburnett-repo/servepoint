@@ -1,12 +1,7 @@
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
+component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
     void function run() {
         describe( "Document upload", function() {
-
-            beforeEach( function( currentSpec ) {
-                setup();
-                getWireBox().getInstance( "CaseService" ).restoreAllArchived();
-            } );
 
             it( "DocumentService.persistUploadedFile stores metadata and lists by case", function() {
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );

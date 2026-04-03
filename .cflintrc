@@ -37,6 +37,21 @@
 		},
 		{
 			"code": "LOCAL_LITERAL_VALUE_USED_TOO_OFTEN"
+		},
+		{
+			"code": "STRUCT_ARRAY_NOTATION"
+		},
+		{
+			"code": "ARG_DEFAULT_MISSING"
+		},
+		{
+			"code": "ARG_TYPE_MISSING"
+		},
+		{
+			"code": "UNUSED_METHOD_ARGUMENT"
+		},
+		{
+			"code": "METHOD_TOO_LONG"
 		}
 	],
 	"inheritParent": true,
