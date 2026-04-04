@@ -1,6 +1,7 @@
 component extends="coldbox.system.EventHandler" {
 
-    property name="caseService" inject="CaseService";
+    property name="caseService"          inject="CaseService";
+    property name="communicationService" inject="CommunicationService";
 
     /**
      * List active (non-archived) cases.
@@ -33,9 +34,74 @@ component extends="coldbox.system.EventHandler" {
             prc.noticeMessage = session.casesNotice;
             structDelete( session, "casesNotice" );
         }
-        prc.statusOptions = new models.constants.Case_Status().getValues();
-        prc.users         = entityLoad( "Users" );
+        loadCaseDetailContext( prc, caseEntity.getCaseId() );
         event.setView( "cases/view" );
+    }
+
+    /**
+     * POST: add a staff communication to an active case.
+     */
+    function addCommunication( event, rc, prc ){
+        if ( event.getHTTPMethod() != "POST" ) {
+            relocate( "cases.index" );
+            return;
+        }
+        var caseId = structKeyExists( rc, "caseId" ) && isNumeric( rc.caseId ) ? val( rc.caseId ) : 0;
+        if ( caseId <= 0 ) {
+            session.casesNotice = "Invalid case.";
+            relocate( "cases.index" );
+            return;
+        }
+        var author = entityLoad( "Users", { email : "admin@example.com" }, true );
+        if ( isNull( author ) ) {
+            var allUsers = entityLoad( "Users" );
+            if ( arrayLen( allUsers ) ) {
+                author = allUsers[ 1 ];
+            } else {
+                session.casesNotice = "No users available to post a communication.";
+                relocate( url = event.buildLink( to = "cases.view", queryString = "id=#caseId#" ) );
+                return;
+            }
+        }
+        var typeConstants = new models.constants.Communication_Type().getValues();
+        var commType      = arrayLen( typeConstants ) ? typeConstants[ 1 ] : "";
+        var message       = structKeyExists( rc, "message" ) ? trim( rc.message ) : "";
+        var result        = communicationService.createCommunication(
+            caseId  = caseId,
+            userId  = author.getUserId(),
+            message = message,
+            type    = commType
+        );
+        if ( !result.success ) {
+            prc.errorMessage = result.error;
+            var ce = caseService.getActiveCase( caseId );
+            if ( isNull( ce ) ) {
+                session.casesNotice = "Case not found or no longer active.";
+                relocate( "cases.index" );
+                return;
+            }
+            prc.caseEntity = ce;
+            loadCaseDetailContext( prc, caseId );
+            event.setView( "cases/view" );
+            return;
+        }
+        session.casesNotice = "Communication added.";
+        relocate( url = event.buildLink( to = "cases.view", queryString = "id=#caseId#" ) );
+    }
+
+    /**
+     * Populate prc for case detail (edit form + comms + activity).
+     */
+    private void function loadCaseDetailContext( required prc, required numeric caseId ) {
+        prc.statusOptions        = new models.constants.Case_Status().getValues();
+        prc.users                = entityLoad( "Users" );
+        prc.communications       = communicationService.listForCase( arguments.caseId );
+        prc.activityLogEntries   = communicationService.listLogEntriesForCase( arguments.caseId );
+        prc.defaultCommunicationType = "";
+        var ct = new models.constants.Communication_Type().getValues();
+        if ( arrayLen( ct ) ) {
+            prc.defaultCommunicationType = ct[ 1 ];
+        }
     }
 
     /**
@@ -61,8 +127,7 @@ component extends="coldbox.system.EventHandler" {
                 return;
             }
             prc.caseEntity = ce;
-            prc.statusOptions = new models.constants.Case_Status().getValues();
-            prc.users         = entityLoad( "Users" );
+            loadCaseDetailContext( prc, caseId );
             event.setView( "cases/view" );
             return;
         }
@@ -81,8 +146,7 @@ component extends="coldbox.system.EventHandler" {
         if ( !result.success ) {
             prc.errorMessage = result.error;
             prc.caseEntity   = caseService.getActiveCase( caseId );
-            prc.statusOptions = new models.constants.Case_Status().getValues();
-            prc.users         = entityLoad( "Users" );
+            loadCaseDetailContext( prc, caseId );
             event.setView( "cases/view" );
             return;
         }

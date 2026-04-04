@@ -8,8 +8,10 @@ erDiagram
     users ||--o{ cases : "assigned_to_id"
     users ||--o{ cases : "archived_by"
     users ||--o{ log_entries : "user_id"
+    users ||--o{ communications : "author updated_by"
     cases ||--o{ documents : "case_id"
     cases ||--o{ log_entries : "case_id"
+    cases ||--o{ communications : "case_id"
 
     users {
         int user_id PK
@@ -52,16 +54,28 @@ erDiagram
         int case_id FK
         int user_id FK
     }
+
+    communications {
+        int communication_id PK
+        timestamp date_created
+        timestamp date_updated
+        string message
+        string type
+        int case_id FK
+        int user_id FK
+        int updated_by FK
+    }
 ```
 
 ## Entity summary and ORM contract
 
 | Entity      | Table        | Key relationships | Notes |
 |------------|--------------|-------------------|--------|
-| Users      | users        | creator / assignedTo / archivedBy cases; user for log_entries | `email` unique; PK `user_id` |
-| Cases      | cases        | belongs to creator, assignedTo, archivedBy (Users); has many documents & log_entries | Active lists exclude rows with `archived_at IS NOT NULL`. `date_created` / `date_updated` are maintained by DB defaults and (on update) trigger — see migration `2026_03_27_000002_timestamp_defaults.cfc`. |
+| Users      | users        | creator / assignedTo / archivedBy cases; user for log_entries; author & optional `updated_by` for communications | `email` unique; PK `user_id` |
+| Cases      | cases        | belongs to creator, assignedTo, archivedBy (Users); has many documents, log_entries, communications | Active lists exclude rows with `archived_at IS NOT NULL`. `date_created` / `date_updated` are maintained by DB defaults and (on update) trigger — see migration `2026_03_27_000002_timestamp_defaults.cfc`. |
 | Document   | documents    | belongs to one Case | PK `document_id`; `date_uploaded` has DB default. Rows represent **retained** case records; the app does not delete them from upload/view flows—see **Document retention** below. |
-| LogEntry   | log_entries  | belongs to one Case and one User | PK `log_entry_id`; FK `user_id` → users |
+| LogEntry   | log_entries  | belongs to one Case and one User | **Case activity** (automated/audit-style lines). PK `log_entry_id`; FK `user_id` → users |
+| Communication | communications | belongs to one Case and one User (author); optional `updated_by` (User) for future edits | **Staff communications** (human notes). PK `communication_id`; `date_updated` trigger — migration `2026_04_03_000001_communications.cfc`. In **development**, `SeedService` adds idempotent demo rows when the table is empty. |
 
 ### Index and constraint expectations (for migrations)
 
@@ -69,6 +83,7 @@ erDiagram
 - **cases**: indexes on `status`, `creator_id`, `assigned_to_id`, `archived_at`.
 - **documents**: index on `case_id`.
 - **log_entries**: indexes on `case_id`, `user_id`, `type`.
+- **communications**: indexes on `case_id`, `user_id`, `type`.
 
 ## Document retention (product / policy)
 
@@ -78,6 +93,6 @@ The `documents` table and files on disk under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`
 
 Used for validation and dropdowns; live under `models/constants/`:
 
-- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type**
+- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type**, **Communication_Type**
 
 Persistent entities extend `cborm.models.ActiveEntity` and call `validate()` using the injected constant components where applicable.

@@ -57,7 +57,7 @@ Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_
 
 ### Database seeding (`SERVEPOINT_AUTO_SEED`)
 
-- On application startup, the ORM can automatically seed the database with an administrator user and sample demo data.
+- On application startup, the ORM can automatically seed the database with an administrator user and sample demo data (including **communications** on seeded cases). `seedCommunications()` is **idempotent**: if any row exists in `communications`, it skips inserting demo notes.
 - This is controlled by the `SERVEPOINT_AUTO_SEED` environment variable:
   - If **unset or blank**, seeding **runs by default**.
   - If set to `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
@@ -79,7 +79,7 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 
 ## ORM model expectations (source of truth)
 
-- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
+- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`, `Communication`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
 - Required vs optional fields, uniqueness rules (e.g., `Users.email` unique), and high-level index expectations are documented in `design/mermaid/data-model.md` and should be treated as the contract for migrations and DB schema.
 
 ## Database & migrations

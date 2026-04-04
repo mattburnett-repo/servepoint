@@ -132,10 +132,22 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 					.setUser( user );
 				logEntry.save();
 
+				var commType = ( new models.constants.Communication_Type() ).getValues()[ 1 ];
+				var commTs   = now();
+				var comm     = getInstance( "Communication" )
+					.setMessage( "Smoke staff communication" )
+					.setType( commType )
+					.setCaseRef( caseEntity )
+					.setAuthor( user )
+					.setDateCreated( commTs )
+					.setDateUpdated( commTs );
+				comm.save();
+
 				expect( user.getUserId() ).toBeGT( 0 );
 				expect( caseEntity.getCaseId() ).toBeGT( 0 );
 				expect( doc.getDocumentId() ).toBeGT( 0 );
 				expect( logEntry.getLogEntryId() ).toBeGT( 0 );
+				expect( comm.getCommunicationId() ).toBeGT( 0 );
 			} );
 		} );
 	}
