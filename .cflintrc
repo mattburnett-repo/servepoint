@@ -21,6 +21,9 @@
 			"code": "COMPONENT_HINT_MISSING"
 		},
 		{
+			"code": "COMPONENT_TOO_LONG"
+		},
+		{
 			"code": "UNQUOTED_STRUCT_KEY"
 		},
 		{
@@ -60,7 +63,13 @@
 			"code": "FUNCTION_TYPE_ANY"
 		},
 		{
+			"code": "FUNCTION_TYPE_MISSING"
+		},
+		{
 			"code": "VAR_TOO_SHORT"
+		},
+		{
+			"code": "PARSE_ERROR"
 		}
 	],
 	"inheritParent": true,

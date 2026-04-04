@@ -17,7 +17,11 @@ component {
      * @returns array An array of all the log entry type strings.
      */
     public array function getValues() {
-        return structValues( this.TYPES );
+        var values = [];
+        for ( var key in this.TYPES ) {
+            arrayAppend( values, this.TYPES[ key ] );
+        }
+        return values;
     }
 
 }

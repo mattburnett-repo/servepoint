@@ -6,6 +6,10 @@ alwaysApply: true
 
 **Stack:** ColdBox (HMVC), **Adobe ColdFusion 2025**, **PostgreSQL 14** (align migrations/ORM with deployed DB), **Render** free tier (cold starts / limits — don’t assume paid features).
 
+**Adobe CF vs Lucee (don’t copy Lucee-only APIs):** This app runs on **Adobe ColdFusion**, not Lucee. Do **not** use **`structValues()`** — it exists on Lucee but **is not** defined on ACF and will throw *Variable STRUCTVALUES is undefined* (often during startup/seeding when constants load). For `getValues()` on structs under `models/constants/`, use the repo pattern: `for ( var key in this.SOME_STRUCT ) { arrayAppend( values, this.SOME_STRUCT[ key ] ); }` — see `models/constants/Case_Status.cfc`, `Communication_Type.cfc`, `Log_Entry_Type.cfc`.
+
+**Tag-based views (`.cfm` / `<cfoutput>`):** Do **not** nest **`#...#`** inside another `#...#` expression (e.g. `queryString = "id=#entity.getId()#"` inside `#event.buildLink( ... )#`) — that yields **Template** exceptions. Build the query string with **concatenation** in one evaluation, e.g. `#event.buildLink( to = "cases.view", queryString = "id=" & commRow.getCaseRef().getCaseId() )#`. Do **not** use **`row`** as a `<cfloop>` `index` name; it clashes with CFML’s `row` semantics — use names like `commRow` or `activityRow` (see `views/communications/index.cfm`, `views/cases/view.cfm`).
+
 **ColdBox:** Use **Ortus Solutions** docs (ColdBox, WireBox, LogBox, CacheBox; `cborm` / `cfmigrations` where used). Match this repo’s patterns; don’t invent new framework shapes. Don’t edit framework/vendor code — `framework-boundary-no-coldbox-edits.mdc`.
 
 **Changes:** Fix the real problem with minimal scope. Same bar for app code, **TestBox** tests, Docker/Render config, env docs — no speculative or “future-proof” layers unless required. Deploy docs: Dockerfile vs compose, env for DB/app.
