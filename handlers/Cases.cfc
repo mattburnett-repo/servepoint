@@ -59,7 +59,7 @@ component extends="coldbox.system.EventHandler" {
                 author = allUsers[ 1 ];
             } else {
                 session.casesNotice = "No users available to post a communication.";
-                relocate( url = event.buildLink( to = "cases.view", queryString = "id=#caseId#" ) );
+                relocate( event = "cases.view", queryString = "id=" & caseId );
                 return;
             }
         }
@@ -86,7 +86,7 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
         session.casesNotice = "Communication added.";
-        relocate( url = event.buildLink( to = "cases.view", queryString = "id=#caseId#" ) );
+        relocate( event = "cases.view", queryString = "id=" & caseId );
     }
 
     /**
@@ -151,7 +151,7 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
         session.casesNotice = "Case updated successfully.";
-        relocate( url = event.buildLink( to = "cases.view", queryString = "id=#caseId#" ) );
+        relocate( event = "cases.view", queryString = "id=" & caseId );
     }
 
     /**
