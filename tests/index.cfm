@@ -26,7 +26,11 @@
 	// Execute an incoming path
 	if( !isNull( url.action ) ){
 		if( directoryExists( targetPath ) ){
-			writeOutput( "#new testbox.system.TestBox( directory=executePath ).run()#" );
+			tbDirectory = {
+				mapping: executePath,
+				recurse: true,
+			};
+			writeOutput( "#new testbox.system.TestBox( directory=tbDirectory ).run()#" );
 		} else {
 			writeOutput( "<h2>Invalid Directory: #encodeForHTML( targetPath )#</h2>" );
 		}

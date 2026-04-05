@@ -132,7 +132,8 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 					.setUser( user );
 				logEntry.save();
 
-				var commType = ( new models.constants.Communication_Type() ).getValues()[ 1 ];
+				var typeConstants = new models.constants.Communication_Type();
+				var commType      = typeConstants.getValues()[ 1 ];
 				var commTs   = now();
 				var comm     = getInstance( "Communication" )
 					.setMessage( "Smoke staff communication" )
@@ -142,6 +143,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 					.setDateCreated( commTs )
 					.setDateUpdated( commTs );
 				comm.save();
+
 
 				expect( user.getUserId() ).toBeGT( 0 );
 				expect( caseEntity.getCaseId() ).toBeGT( 0 );
