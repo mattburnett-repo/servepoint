@@ -1,6 +1,7 @@
 component singleton accessors="true" {
 
     property name="caseService" inject="CaseService";
+    property name="logEntryService" inject="LogEntryService";
 
     /**
      * List communications for an active (non-archived) case, newest first.
@@ -96,6 +97,12 @@ component singleton accessors="true" {
         if ( isNull( comm.getCommunicationId() ) || comm.getCommunicationId() <= 0 ) {
             return { success: false, error: "Communication was not persisted." };
         }
+        logEntryService.record(
+            caseId    = arguments.caseId,
+            userId    = arguments.userId,
+            type      = "Case Update",
+            entryText = "Communication added."
+        );
         ormEvictEntity( "Communication", comm.getCommunicationId() );
         return { success: true, communication: entityLoad( "Communication", comm.getCommunicationId(), true ) };
     }

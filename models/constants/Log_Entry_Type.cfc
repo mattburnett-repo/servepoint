@@ -9,6 +9,7 @@ component {
         "LOGIN": "Login",
         "CASE_UPDATE": "Case Update",
         "DOCUMENT_UPLOAD": "Document Upload",
+        "DOCUMENT_DOWNLOAD": "Document Download",
         "ERROR": "Error"
     };
 

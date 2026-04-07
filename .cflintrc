@@ -69,7 +69,7 @@
 			"code": "VAR_TOO_SHORT"
 		},
 		{
-			"code": "PARSE_ERROR"
+			"code": "COMPONENT_TOO_WORDY"
 		}
 	],
 	"inheritParent": true,

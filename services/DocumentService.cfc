@@ -2,6 +2,7 @@ component singleton accessors="true" {
 
     property name="caseService" inject="CaseService";
     property name="coldbox" inject="coldbox";
+    property name="logEntryService" inject="LogEntryService";
 
     /**
      * Upload a file from a multipart form field and persist metadata.
@@ -10,7 +11,8 @@ component singleton accessors="true" {
     public struct function uploadFromForm(
         required numeric caseId,
         required string title,
-        string fileField = "documentFile"
+        string fileField = "documentFile",
+        numeric userId = 0
     ) {
         var trimmedTitle = trim( arguments.title );
         if ( !len( trimmedTitle ) ) {
@@ -29,7 +31,8 @@ component singleton accessors="true" {
         return persistUploadedFile(
             caseId = arguments.caseId,
             title = trimmedTitle,
-            uploadedFile = uploaded
+            uploadedFile = uploaded,
+            userId = arguments.userId
         );
     }
 
@@ -40,7 +43,8 @@ component singleton accessors="true" {
     public struct function persistUploadedFile(
         required numeric caseId,
         required string title,
-        required struct uploadedFile
+        required struct uploadedFile,
+        numeric userId = 0
     ) {
         var caseEntity = caseService.getActiveCase( arguments.caseId );
         if ( isNull( caseEntity ) ) {
@@ -93,6 +97,14 @@ component singleton accessors="true" {
 
         ormEvictEntity( "Document", doc.getDocumentId() );
         var persisted = entityLoad( "Document", doc.getDocumentId(), true );
+        if ( arguments.userId > 0 ) {
+            logEntryService.record(
+                caseId    = arguments.caseId,
+                userId    = arguments.userId,
+                type      = "Document Upload",
+                entryText = "Document uploaded: " & persisted.getTitle() & " (" & persisted.getFileName() & ")."
+            );
+        }
         return { success: true, document: persisted };
     }
 
@@ -113,7 +125,7 @@ component singleton accessors="true" {
 
     /**
      * Resolve a document download target scoped to an active case.
-     * @return struct { success: boolean, path?: string, fileName?: string, fileType?: string, error?: string }
+     * @return struct { success: boolean, path?: string, fileName?: string, fileType?: string, documentTitle?: string, error?: string }
      */
     public struct function resolveDownload(
         required numeric caseId,
@@ -138,7 +150,8 @@ component singleton accessors="true" {
             success: true,
             path: diskPath,
             fileName: doc.getFileName(),
-            fileType: doc.getFileType()
+            fileType: doc.getFileType(),
+            documentTitle: doc.getTitle()
         };
     }
 
