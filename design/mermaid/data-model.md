@@ -93,6 +93,6 @@ The `documents` table and files on disk under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`
 
 Used for validation and dropdowns; live under `models/constants/`:
 
-- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type**, **Communication_Type**
+- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type** (valid `log_entries.type`, including document upload and download), **Communication_Type**
 
 Persistent entities extend `cborm.models.ActiveEntity` and call `validate()` using the injected constant components where applicable.

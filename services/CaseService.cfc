@@ -1,4 +1,5 @@
 component singleton accessors="true" {
+    property name="logEntryService" inject="LogEntryService";
 
     /**
      * Restore all archived cases in one go (bulk UPDATE). Use for test isolation so specs see all cases as active.
@@ -75,6 +76,12 @@ component singleton accessors="true" {
         if ( isNull( c.getCaseId() ) || c.getCaseId() <= 0 ) {
             return { success: false, error: "Case not persisted." };
         }
+        logEntryService.record(
+            caseId    = c.getCaseId(),
+            userId    = creator.getUserId(),
+            type      = "Case Update",
+            entryText = "Case created."
+        );
         ormEvictEntity( "Cases", c.getCaseId() );
         return { success: true, case: entityLoad( "Cases", c.getCaseId(), true ) };
     }
@@ -133,6 +140,12 @@ component singleton accessors="true" {
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
+        logEntryService.record(
+            caseId    = arguments.caseId,
+            userId    = caseEntity.getCreator().getUserId(),
+            type      = "Case Update",
+            entryText = "Case updated."
+        );
         ormFlush();
         ormEvictEntity( "Cases", arguments.caseId );
         return { success: true, case: entityLoad( "Cases", arguments.caseId, true ) };
@@ -172,14 +185,12 @@ component singleton accessors="true" {
                 { datasource : datasource }
             );
             if ( arguments.createLogEntry ) {
-                ormEvictEntity( "Cases", arguments.caseId );
-                var freshCase = entityLoad( "Cases", arguments.caseId, true );
-                var logEntry = entityNew( "LogEntry" );
-                logEntry.setEntryText( "Case archived." & ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" ) );
-                logEntry.setType( "Case Update" );
-                logEntry.setCaseRef( freshCase );
-                logEntry.setUser( userEntity );
-                entitySave( logEntry );
+                logEntryService.record(
+                    caseId    = arguments.caseId,
+                    userId    = arguments.userId,
+                    type      = "Case Update",
+                    entryText = "Case archived." & ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" )
+                );
             }
         }
         ormClearSession();
@@ -212,14 +223,12 @@ component singleton accessors="true" {
                 { datasource : datasource }
             );
             if ( arguments.createLogEntry ) {
-                ormEvictEntity( "Cases", arguments.caseId );
-                var freshCase = entityLoad( "Cases", arguments.caseId, true );
-                var logEntry = entityNew( "LogEntry" );
-                logEntry.setEntryText( "Case restored from archive." );
-                logEntry.setType( "Case Update" );
-                logEntry.setCaseRef( freshCase );
-                logEntry.setUser( userEntity );
-                entitySave( logEntry );
+                logEntryService.record(
+                    caseId    = arguments.caseId,
+                    userId    = arguments.userId,
+                    type      = "Case Update",
+                    entryText = "Case restored from archive."
+                );
             }
         }
         ormClearSession();

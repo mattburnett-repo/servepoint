@@ -2,6 +2,7 @@ component extends="coldbox.system.EventHandler" {
 
     property name="caseService" inject="CaseService";
     property name="documentService" inject="DocumentService";
+    property name="logEntryService" inject="LogEntryService";
 
     /**
      * Documents landing page. Optionally scoped to a specific active case.
@@ -56,10 +57,20 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
 
+        var author = entityLoad( "Users", { email : "admin@example.com" }, true );
+        if ( isNull( author ) ) {
+            var allUsers = entityLoad( "Users" );
+            if ( arrayLen( allUsers ) ) {
+                author = allUsers[ 1 ];
+            }
+        }
+        var uploadUserId = !isNull( author ) ? author.getUserId() : 0;
+
         var result = documentService.uploadFromForm(
             caseId = caseId,
             title = structKeyExists( rc, "title" ) ? trim( rc.title ) : "",
-            fileField = "documentFile"
+            fileField = "documentFile",
+            userId = uploadUserId
         );
 
         session.casesNotice = result.success ? "Document uploaded successfully." : ( result.error ?: "Could not upload document." );
@@ -83,6 +94,23 @@ component extends="coldbox.system.EventHandler" {
             session.casesNotice = resolved.error ?: "Document not found.";
             relocate( url = event.buildLink( to = "documents.index", queryString = "caseId=#caseId#" ) );
             return;
+        }
+
+        var downloadUser = entityLoad( "Users", { email : "admin@example.com" }, true );
+        if ( isNull( downloadUser ) ) {
+            var downloadUsers = entityLoad( "Users" );
+            if ( arrayLen( downloadUsers ) ) {
+                downloadUser = downloadUsers[ 1 ];
+            }
+        }
+        if ( !isNull( downloadUser ) ) {
+            var titleForLog = structKeyExists( resolved, "documentTitle" ) ? resolved.documentTitle : "";
+            logEntryService.record(
+                caseId    = caseId,
+                userId    = downloadUser.getUserId(),
+                type      = "Document Download",
+                entryText = "Document downloaded: " & titleForLog & " (" & resolved.fileName & ")."
+            );
         }
 
         event.setHTTPHeader( name = "Content-Disposition", value = 'attachment; filename="#resolved.fileName#"' );

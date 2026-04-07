@@ -37,6 +37,7 @@ component extends="coldbox.system.ioc.config.Binder" {
 		map( "CaseService" ).to( "cbapp.services.CaseService" ).asSingleton();
 		map( "CommunicationService" ).to( "cbapp.services.CommunicationService" ).asSingleton();
 		map( "DocumentService" ).to( "cbapp.services.DocumentService" ).asSingleton();
+		map( "LogEntryService" ).to( "cbapp.services.LogEntryService" ).asSingleton();
 		map( "SeedService" ).to( "cbapp.services.SeedService" ).asSingleton();
 	}
 
