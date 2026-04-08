@@ -47,6 +47,24 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 var restoreResult = caseService.restoreCase( caseId, user.getUserId(), true );
                 expect( restoreResult.success ).toBeTrue( restoreResult.error ?: "no error message" );
                 expect( arrayLen( caseService.listActive() ) ).toBe( countBefore );
+
+                var logRows = ormExecuteQuery(
+                    "FROM LogEntry le WHERE le.caseRef.caseId = :caseId ORDER BY le.logEntryId DESC",
+                    { caseId : caseId },
+                    false
+                );
+                var hasArchive = false;
+                var hasRestore = false;
+                for ( var row in logRows ) {
+                    if ( row.getType() == "Case Archive" ) {
+                        hasArchive = true;
+                    }
+                    if ( row.getType() == "Case Restore" ) {
+                        hasRestore = true;
+                    }
+                }
+                expect( hasArchive ).toBeTrue();
+                expect( hasRestore ).toBeTrue();
             } );
 
             it( "archiveCase returns error when case not found or already archived", function(){

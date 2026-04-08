@@ -89,7 +89,18 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
 
-        var resolved = documentService.resolveDownload( caseId = caseId, documentId = documentId );
+        var downloadUser = entityLoad( "Users", { email : "admin@example.com" }, true );
+        if ( isNull( downloadUser ) ) {
+            var downloadUsers = entityLoad( "Users" );
+            if ( arrayLen( downloadUsers ) ) {
+                downloadUser = downloadUsers[ 1 ];
+            }
+        }
+        var resolved = documentService.resolveDownload(
+            caseId = caseId,
+            documentId = documentId,
+            userId = !isNull( downloadUser ) ? downloadUser.getUserId() : 0
+        );
         if ( !resolved.success ) {
             session.casesNotice = resolved.error ?: "Document not found.";
             relocate( url = event.buildLink( to = "documents.index", queryString = "caseId=#caseId#" ) );

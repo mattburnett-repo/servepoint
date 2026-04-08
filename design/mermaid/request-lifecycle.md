@@ -10,7 +10,7 @@ sequenceDiagram
     participant ColdBox
     participant Router
     participant Handler
-    participant Service as CaseService and DocumentService
+    participant Service as CaseService DocumentService ReportsService
     participant View
     participant Layout
 
@@ -18,11 +18,11 @@ sequenceDiagram
     Runwar->>AppCfc: onRequestStart(targetPage)
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
-    Router->>Handler: Dispatch (e.g. cases.view or documents.upload)
+    Router->>Handler: Dispatch (e.g. cases.view documents.upload reports.index)
     Handler->>Handler: Set prc, call services / ORM
-    Handler->>Service: e.g. listActive(), createCase(), listForCase(), listForHub(), createCommunication(), uploadFromForm()
+    Handler->>Service: e.g. listActive(), createCase(), listForCase(), listForHub(), createCommunication(), uploadFromForm(), getLogEntryCountsByType()
     Service-->>Handler: entities / result struct
-    Handler->>View: event.setView("cases/index", "cases/view", "communications/index", or "documents/index")
+    Handler->>View: event.setView("cases/index", "cases/view", "communications/index", "reports/index", or "documents/index")
     View->>Layout: Render view in layout
     Layout->>Browser: HTML Response
 ```
@@ -48,14 +48,16 @@ flowchart LR
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
 - **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
-- **handlers/Main.cfc**: Home, under construction, sample `data` JSON.
+- **handlers/Main.cfc**: Home, under construction, sample `data` JSON; links core features including audit/reporting entry.
 - **handlers/Cases.cfc**: Case list, detail/edit, create, archive, POST `addCommunication` (staff notes on active cases).
 - **handlers/Communications.cfc**: Read-only communications hub (`communications.index`) with optional filters (case, type, author).
+- **handlers/Reports.cfc**: Reporting hub (`reports.index`) with date-range filters and optional archived-case inclusion.
 - **handlers/Documents.cfc**: Document upload and download actions, scoped to active cases. **No delete** in routine flows—see document retention in `DESIGN_NOTES.md` / `DEV_NOTES.md`.
 - **views/documents/index.cfm**: Standalone document workspace (select case, upload, list, download).
 - **services/CaseService.cfc**: Active-case queries, create/update/archive.
 - **services/CommunicationService.cfc**: List/create communications for active cases, ordered activity log entries per case, hub listing with filters.
-- **services/DocumentService.cfc**: Upload validation/storage, document listing by case, download resolution.
+- **services/DocumentService.cfc**: Upload validation/storage, document listing by case, download resolution, and document download audit writes.
+- **services/ReportsService.cfc**: Aggregate audit reporting queries (`log_entries` grouped by type with optional date filters).
 
 ## Document retention (design)
 

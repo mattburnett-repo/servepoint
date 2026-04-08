@@ -65,7 +65,7 @@ flowchart TB
 |----------|------------|
 | Client   | Browser |
 | Runtime  | CommandBox, Runwar, CFConfig, Adobe CF 2025 |
-| App      | Application.cfc, ColdBox, WireBox, Router, Handlers, Services (e.g. CaseService, CommunicationService, SeedService), Views, Layouts |
+| App      | Application.cfc, ColdBox, WireBox, Router, Handlers, Services (e.g. CaseService, CommunicationService, ReportsService, SeedService), Views, Layouts |
 | Data     | cborm, cfmigrations (startup migrations), CF ORM, PostgreSQL |
 | Config   | server.json, .cfconfig.json |
 
@@ -76,6 +76,7 @@ flowchart TB
 | `Main` | — | `main/index`, `main/underConstruction` |
 | `Cases` | `CaseService`, `CommunicationService` | `cases/index`, `cases/view`, `cases/new`; `addCommunication` (POST) |
 | `Communications` | `CommunicationService`, `CaseService` | `communications/index` (read-only hub) |
+| `Reports` | `ReportsService` | `reports/index` (log-entry aggregate reporting) |
 | `Documents` | `DocumentService`, `CaseService` | `documents/index`; upload/download actions (no in-app document delete—retention policy; see `DESIGN_NOTES.md`) |
 
 `SeedService` runs during `onApplicationStart` when `SERVEPOINT_AUTO_SEED` allows it (see Application.cfc).

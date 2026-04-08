@@ -102,7 +102,9 @@ component singleton accessors="true" {
                 caseId    = arguments.caseId,
                 userId    = arguments.userId,
                 type      = "Document Upload",
-                entryText = "Document uploaded: " & persisted.getTitle() & " (" & persisted.getFileName() & ")."
+                entryText = "Document uploaded (ID " & persisted.getDocumentId() & ") for case ID " & arguments.caseId &
+                    ": " & persisted.getTitle() & " (" & persisted.getFileName() & ", " & persisted.getFileType() &
+                    ", " & persisted.getFileSize() & " bytes)."
             );
         }
         return { success: true, document: persisted };
@@ -129,7 +131,8 @@ component singleton accessors="true" {
      */
     public struct function resolveDownload(
         required numeric caseId,
-        required numeric documentId
+        required numeric documentId,
+        numeric userId = 0
     ) {
         var caseEntity = caseService.getActiveCase( arguments.caseId );
         if ( isNull( caseEntity ) ) {
@@ -146,6 +149,14 @@ component singleton accessors="true" {
             return { success: false, error: "Document file is missing from storage." };
         }
 
+        if ( arguments.userId > 0 ) {
+            recordDownloadEvent(
+                caseId = arguments.caseId,
+                userId = arguments.userId,
+                document = doc
+            );
+        }
+
         return {
             success: true,
             path: diskPath,
@@ -153,6 +164,23 @@ component singleton accessors="true" {
             fileType: doc.getFileType(),
             documentTitle: doc.getTitle()
         };
+    }
+
+    /**
+     * Record a document download activity line for reporting and case audit history.
+     */
+    public void function recordDownloadEvent(
+        required numeric caseId,
+        required numeric userId,
+        required Document document
+    ) {
+        logEntryService.record(
+            caseId    = arguments.caseId,
+            userId    = arguments.userId,
+            type      = "Document Download",
+            entryText = "Document downloaded (ID " & arguments.document.getDocumentId() & ") for case ID " & arguments.caseId &
+                ": " & arguments.document.getTitle() & " (" & arguments.document.getFileName() & ")."
+        );
     }
 
     /**

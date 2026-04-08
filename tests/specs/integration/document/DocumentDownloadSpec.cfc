@@ -32,6 +32,45 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 expect( len( trim( resolved.fileName ) ) ).toBeGT( 0 );
             } );
 
+            it( "resolveDownload records a Document Download log when userId is provided", function() {
+                var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
+                var caseService = getWireBox().getInstance( "CaseService" );
+                var documentService = getWireBox().getInstance( "DocumentService" );
+                var created = caseService.createCase(
+                    title = "Doc download logs " & createUUID(),
+                    description = "",
+                    status = "New",
+                    creatorUserId = admin.getUserId(),
+                    assignedToUserId = admin.getUserId()
+                );
+                var tempFile = createTempUploadFile( "pdf" );
+                var uploaded = documentService.persistUploadedFile(
+                    caseId = created.case.getCaseId(),
+                    title = "Download Audit Target",
+                    uploadedFile = tempFile,
+                    userId = admin.getUserId()
+                );
+                expect( uploaded.success ).toBeTrue();
+
+                var resolved = documentService.resolveDownload(
+                    caseId = created.case.getCaseId(),
+                    documentId = uploaded.document.getDocumentId(),
+                    userId = admin.getUserId()
+                );
+                expect( resolved.success ).toBeTrue();
+
+                var activityRows = ormExecuteQuery(
+                    "FROM LogEntry le WHERE le.caseRef.caseId = :caseId AND le.type = :eventType ORDER BY le.logEntryId DESC",
+                    {
+                        caseId : created.case.getCaseId(),
+                        eventType : "Document Download"
+                    },
+                    false
+                );
+                expect( arrayLen( activityRows ) ).toBeGTE( 1 );
+                expect( activityRows[ 1 ].getEntryText() ).toInclude( "Document downloaded (ID" );
+            } );
+
             it( "resolveDownload rejects document when case does not match", function() {
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
                 var caseService = getWireBox().getInstance( "CaseService" );

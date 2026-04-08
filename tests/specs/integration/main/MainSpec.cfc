@@ -36,6 +36,14 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			it( "can render the homepage", function(){
 				var event = this.get( "main.index" );
 				expect( event.getValue( name = "welcomemessage", private = true ) ).toBe( "Welcome to ServePoint" );
+				var features = event.getValue( name = "projectFeatures", private = true );
+				var hasAuditLink = false;
+				for ( var feature in features ) {
+					if ( feature.label == "Audit trails and reporting" && len( trim( feature.href ) ) ) {
+						hasAuditLink = true;
+					}
+				}
+				expect( hasAuditLink ).toBeTrue();
 			} );
 
 			it( "can render some restful data", function(){

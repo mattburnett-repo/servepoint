@@ -68,6 +68,7 @@ This builds the app image, starts the ColdFusion and **local** Postgres containe
 4. **Access the application**
     - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)
     - Document upload MVP: open `http://localhost:8081/documents/index` to select a case, then upload, list, and download files (no in-app delete; see **Document retention** above).
+    - Audit/reporting MVP: open `http://localhost:8081/reports/index` for database-driven log-entry summary reporting (demo scope; not certified compliance reporting).
 
 ### Running tests (Docker)
 
