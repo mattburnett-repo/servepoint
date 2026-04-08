@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+# Scope and evidence (pairing discipline)
+
+Reduce **scope creep** and **over-speculation** when debugging or implementing.
+
+## Scope
+
+1. **Only change files or areas the user names.** If something else must change, say so in **one sentence**, name the path, and **stop** until they agree.
+2. If the user gives a scope prefix (e.g. *“only `MainSpec.cfc`”*), treat it as **hard** until they widen it.
+
+## Evidence before theory
+
+1. **Lead with what is known:** error text, line numbers, what was toggled, what passed/failed. If the user supplied an experiment (e.g. *“commenting line X fixes compile”*), **treat that as primary** until disproven by reading the code or a targeted check.
+2. **Do not present guesses as facts.** If you have not read the relevant file or run the check, say **hypothesis** or ask **one** targeted question instead of listing alternatives.
+3. **Order of response:** shortest **actionable** fix or check → then optional deeper explanation **only if useful** or if asked.
+
+## Size of change
+
+1. Prefer the **smallest** diff that addresses the cause. No drive-by refactors, renames, or new abstractions unless the user asked or they are strictly required for the fix.
+2. Avoid **large or speculative** rewrites when a local change matches existing repo patterns (grep for the same pattern before inventing a new one).
+
+## Modes (Cursor)
+
+1. **Ask mode:** read-only triage — narrow the cause and propose **one** minimal next step.
+2. **Agent mode:** apply **only** what was agreed; keep the diff aligned with named scope.
+
+## Frustration signals
+
+**Swearing and/or writing in ALL CAPS** means the current path is wrong: **stop** defending or extending the same approach. Acknowledge briefly, **re-read** what they already said (evidence, scope), propose **one** minimal correction or **one** question — no long theory, no new scope.
+
+## Optional user prefix
+
+When a task is drifting, the user may repeat: *evidence only; named scope; minimal diff.* Treat that as reinforcing this rule.
+
+**Related:** `upstream-first-debugging.mdc`, `outcome-minimal-steps-framing.mdc`, `servepoint-stack-and-practices.mdc`.

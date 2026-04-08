@@ -53,7 +53,7 @@ flowchart TB
 
 | Consumer        | File / source               | Purpose                                                                                                                   |
 | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| CommandBox      | server.json                 | Server name, engine (adobe@2025), JVM, web, **cfconfig.file**, scripts                                                    |
+| CommandBox      | server.json                 | Server name, engine (adobe@2025), JVM, web, **cfconfig.file**, **runwar.args** (`--log-level ERROR` suppresses noisy Runwar WARNs on stop socket), scripts |
 | CFConfig        | server.json → cfconfig.file | Path to config JSON (e.g. .cfconfig.json)                                                                                 |
 | CFConfig        | .cfconfig.json              | Datasource `servepoint`, caches, other CF settings; applied to Adobe CF at startup                                        |
 | Adobe CF        | (in-memory after CFConfig)  | Registered datasources (e.g. servepoint)                                                                                  |

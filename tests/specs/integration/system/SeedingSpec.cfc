@@ -26,6 +26,10 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 var documents = entityLoad( "Document" );
                 expect( arrayLen( documents ) ).toBeGT( 0 );
 
+                // Demo staff communications (idempotent seed; may already exist from app startup)
+                var communications = entityLoad( "Communication" );
+                expect( arrayLen( communications ) ).toBeGT( 0 );
+
                 // Seeded cases are active (not archived); default list should include all of them
                 var caseService = getWireBox().getInstance( "CaseService" );
                 var activeCases = caseService.listActive();

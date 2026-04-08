@@ -9,8 +9,8 @@ component extends="coldbox.system.EventHandler" {
 		prc.projectFeatures = [
 			{ "label" : "Case intake and management", "href" : event.buildLink( "cases.index" ) },
 			{ "label" : "Document upload and storage", "href" : event.buildLink( "documents.index" ) },
-			{ "label" : "Staff communication tools", "href" : "" },
-			{ "label" : "Audit trails and reporting", "href" : "" },
+			{ "label" : "Staff communication tools", "href" : event.buildLink( "communications.index" ) },
+			{ "label" : "Audit trails and reporting", "href" : event.buildLink( "reports.index" ) },
 			{ "label" : "Role-based access controls", "href" : "" }
 		];
 		prc.targetAudience = "US Federal Government and public-sector agencies";

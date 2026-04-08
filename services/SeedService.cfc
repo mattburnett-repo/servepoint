@@ -1,6 +1,7 @@
 component singleton accessors="true" {
 
-    property name="caseService" inject="CaseService";
+    property name="caseService"            inject="CaseService";
+    property name="communicationService" inject="CommunicationService";
 
     /**
      * Entry point for all seed operations.
@@ -12,6 +13,7 @@ component singleton accessors="true" {
             seedUsers();
             seedCases();
             seedDocuments();
+            seedCommunications();
         }
     }
 
@@ -137,4 +139,65 @@ component singleton accessors="true" {
         entitySave( doc );
     }
 
+    /**
+     * Demo staff communications on seeded cases. Idempotent: skips if any communication row exists.
+     */
+    private void function seedCommunications() {
+        if ( arrayLen( entityLoad( "Communication" ) ) > 0 ) {
+            return;
+        }
+
+        var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
+        var mgr   = entityLoad( "Users", { email : "case.manager@example.com" }, true );
+        if ( isNull( admin ) || isNull( mgr ) ) {
+            return;
+        }
+
+        var typeConstants = new models.constants.Communication_Type();
+        var types         = typeConstants.getValues();
+        if ( arrayLen( types ) == 0 ) {
+            return;
+        }
+        var commType = types[ 1 ];
+
+        var active = caseService.listActive();
+        if ( arrayLen( active ) == 0 ) {
+            return;
+        }
+
+        var caseA = active[ 1 ];
+        var caseB = active[ 1 ];
+        if ( arrayLen( active ) >= 2 ) {
+            caseB = active[ 2 ];
+        }
+        for ( var i = 1; i <= arrayLen( active ); i++ ) {
+            if ( active[ i ].getTitle() == "Sample Service Request" ) {
+                caseA = active[ i ];
+            }
+            if ( active[ i ].getTitle() == "In-progress Case" ) {
+                caseB = active[ i ];
+            }
+        }
+
+        var seeds = [
+            { caseId : caseA.getCaseId(), userId : admin.getUserId(), message : "Initial intake notes: client prefers morning contact." },
+            { caseId : caseA.getCaseId(), userId : mgr.getUserId(), message : "Follow-up scheduled; waiting on supporting documents." },
+            { caseId : caseB.getCaseId(), userId : mgr.getUserId(), message : "Reviewed case file; no blockers for next step." },
+            { caseId : caseB.getCaseId(), userId : admin.getUserId(), message : "Document upload received and linked to this case." }
+        ];
+        for ( var j = 1; j <= arrayLen( seeds ); j++ ) {
+            var s = seeds[ j ];
+            var result = communicationService.createCommunication(
+                caseId  = s.caseId,
+                userId  = s.userId,
+                message = s.message,
+                type    = commType
+            );
+            if ( !result.success ) {
+                throw( type = "Application", message = "seedCommunications failed: " & ( result.error ?: "unknown" ) );
+            }
+        }
+    }
+
 }
+

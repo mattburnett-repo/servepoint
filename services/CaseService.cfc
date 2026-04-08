@@ -1,4 +1,5 @@
 component singleton accessors="true" {
+    property name="logEntryService" inject="LogEntryService";
 
     /**
      * Restore all archived cases in one go (bulk UPDATE). Use for test isolation so specs see all cases as active.
@@ -75,6 +76,12 @@ component singleton accessors="true" {
         if ( isNull( c.getCaseId() ) || c.getCaseId() <= 0 ) {
             return { success: false, error: "Case not persisted." };
         }
+        logEntryService.record(
+            caseId    = c.getCaseId(),
+            userId    = creator.getUserId(),
+            type      = "Case Create",
+            entryText = "Case created (ID " & c.getCaseId() & "): " & c.getTitle() & "."
+        );
         ormEvictEntity( "Cases", c.getCaseId() );
         return { success: true, case: entityLoad( "Cases", c.getCaseId(), true ) };
     }
@@ -113,6 +120,8 @@ component singleton accessors="true" {
         if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
             return { success: false, error: "Case not found." };
         }
+        var previousTitle = caseEntity.getTitle();
+        var previousStatus = caseEntity.getStatus();
         var statusConstants = new models.constants.Case_Status();
         if ( !arrayFind( statusConstants.getValues(), arguments.status ) ) {
             return { success: false, error: "Invalid case status." };
@@ -133,6 +142,13 @@ component singleton accessors="true" {
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
+        logEntryService.record(
+            caseId    = arguments.caseId,
+            userId    = caseEntity.getCreator().getUserId(),
+            type      = "Case Update",
+            entryText = "Case updated (ID " & arguments.caseId & "): title '" & previousTitle & "' to '" & caseEntity.getTitle() &
+                "', status '" & previousStatus & "' to '" & caseEntity.getStatus() & "'."
+        );
         ormFlush();
         ormEvictEntity( "Cases", arguments.caseId );
         return { success: true, case: entityLoad( "Cases", arguments.caseId, true ) };
@@ -172,14 +188,13 @@ component singleton accessors="true" {
                 { datasource : datasource }
             );
             if ( arguments.createLogEntry ) {
-                ormEvictEntity( "Cases", arguments.caseId );
-                var freshCase = entityLoad( "Cases", arguments.caseId, true );
-                var logEntry = entityNew( "LogEntry" );
-                logEntry.setEntryText( "Case archived." & ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" ) );
-                logEntry.setType( "Case Update" );
-                logEntry.setCaseRef( freshCase );
-                logEntry.setUser( userEntity );
-                entitySave( logEntry );
+                logEntryService.record(
+                    caseId    = arguments.caseId,
+                    userId    = arguments.userId,
+                    type      = "Case Archive",
+                    entryText = "Case archived (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')." &
+                        ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" )
+                );
             }
         }
         ormClearSession();
@@ -212,14 +227,12 @@ component singleton accessors="true" {
                 { datasource : datasource }
             );
             if ( arguments.createLogEntry ) {
-                ormEvictEntity( "Cases", arguments.caseId );
-                var freshCase = entityLoad( "Cases", arguments.caseId, true );
-                var logEntry = entityNew( "LogEntry" );
-                logEntry.setEntryText( "Case restored from archive." );
-                logEntry.setType( "Case Update" );
-                logEntry.setCaseRef( freshCase );
-                logEntry.setUser( userEntity );
-                entitySave( logEntry );
+                logEntryService.record(
+                    caseId    = arguments.caseId,
+                    userId    = arguments.userId,
+                    type      = "Case Restore",
+                    entryText = "Case restored from archive (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')."
+                );
             }
         }
         ormClearSession();

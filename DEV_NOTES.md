@@ -57,7 +57,7 @@ Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_
 
 ### Database seeding (`SERVEPOINT_AUTO_SEED`)
 
-- On application startup, the ORM can automatically seed the database with an administrator user and sample demo data.
+- On application startup, the ORM can automatically seed the database with an administrator user and sample demo data (including **communications** on seeded cases). `seedCommunications()` is **idempotent**: if any row exists in `communications`, it skips inserting demo notes.
 - This is controlled by the `SERVEPOINT_AUTO_SEED` environment variable:
   - If **unset or blank**, seeding **runs by default**.
   - If set to `1`, `true`, `yes`, or `on` (case-insensitive), seeding runs.
@@ -79,7 +79,7 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 
 ## ORM model expectations (source of truth)
 
-- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
+- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`, `Communication`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
 - Required vs optional fields, uniqueness rules (e.g., `Users.email` unique), and high-level index expectations are documented in `design/mermaid/data-model.md` and should be treated as the contract for migrations and DB schema.
 
 ## Database & migrations
@@ -97,6 +97,13 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 - **Developer workflow**:
   - For local work, ensure CommandBox dependencies are installed (`box install`), then start the stack via Docker as usual; migrations will run automatically on first request/startup.
   - Any schema-changing feature (new columns, indexes, archive flags, etc.) must add a new migration in `resources/database/migrations/` rather than relying on `dbcreate`.
+- **Schema drift capture (quick process)**:
+  1. Export local schema + column metadata:
+     - `pg_dump -h localhost -p 5432 -U <db_user> -d <db_name> --schema-only --no-owner --no-privileges > full.schema.sql`
+     - `psql -h localhost -p 5432 -U <db_user> -d <db_name> -c "SELECT table_name, ordinal_position, column_name, data_type, udt_name, is_nullable, column_default FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('users','cases','documents','log_entries','communications') ORDER BY table_name, ordinal_position;" > app.columns.txt`
+  2. Compare those outputs to expected mappings/migrations.
+  3. Create a new timestamped migration in `resources/database/migrations/` that explicitly applies the needed `ALTER TABLE` changes (types/defaults/nullability/renames).
+  4. Deploy/startup runs `migrationService.up()` and applies that migration in target environments.
 - **Render database reset**: To wipe the Render Postgres database and run the single bootstrap migration from a clean state, follow the steps in [RENDER_DATABASE.md](RENDER_DATABASE.md).
 
 ### Archive / restore (data retention)
