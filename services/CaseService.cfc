@@ -79,8 +79,8 @@ component singleton accessors="true" {
         logEntryService.record(
             caseId    = c.getCaseId(),
             userId    = creator.getUserId(),
-            type      = "Case Update",
-            entryText = "Case created."
+            type      = "Case Create",
+            entryText = "Case created (ID " & c.getCaseId() & "): " & c.getTitle() & "."
         );
         ormEvictEntity( "Cases", c.getCaseId() );
         return { success: true, case: entityLoad( "Cases", c.getCaseId(), true ) };
@@ -120,6 +120,8 @@ component singleton accessors="true" {
         if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
             return { success: false, error: "Case not found." };
         }
+        var previousTitle = caseEntity.getTitle();
+        var previousStatus = caseEntity.getStatus();
         var statusConstants = new models.constants.Case_Status();
         if ( !arrayFind( statusConstants.getValues(), arguments.status ) ) {
             return { success: false, error: "Invalid case status." };
@@ -144,7 +146,8 @@ component singleton accessors="true" {
             caseId    = arguments.caseId,
             userId    = caseEntity.getCreator().getUserId(),
             type      = "Case Update",
-            entryText = "Case updated."
+            entryText = "Case updated (ID " & arguments.caseId & "): title '" & previousTitle & "' to '" & caseEntity.getTitle() &
+                "', status '" & previousStatus & "' to '" & caseEntity.getStatus() & "'."
         );
         ormFlush();
         ormEvictEntity( "Cases", arguments.caseId );
@@ -188,8 +191,9 @@ component singleton accessors="true" {
                 logEntryService.record(
                     caseId    = arguments.caseId,
                     userId    = arguments.userId,
-                    type      = "Case Update",
-                    entryText = "Case archived." & ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" )
+                    type      = "Case Archive",
+                    entryText = "Case archived (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')." &
+                        ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" )
                 );
             }
         }
@@ -226,8 +230,8 @@ component singleton accessors="true" {
                 logEntryService.record(
                     caseId    = arguments.caseId,
                     userId    = arguments.userId,
-                    type      = "Case Update",
-                    entryText = "Case restored from archive."
+                    type      = "Case Restore",
+                    entryText = "Case restored from archive (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')."
                 );
             }
         }

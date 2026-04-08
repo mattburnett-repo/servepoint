@@ -27,6 +27,19 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				expect( result.success ).toBeTrue();
 				var list = commSvc.listForCase( cr.case.getCaseId() );
 				expect( arrayLen( list ) ).toBeGTE( 1 );
+				var activity = commSvc.listLogEntriesForCase( cr.case.getCaseId() );
+				expect( arrayLen( activity ) ).toBeGTE( 2 );
+				var commEntryFound = false;
+				var commEntryText = "";
+				for ( var row in activity ) {
+					if ( row.getType() == "Communication Create" ) {
+						commEntryFound = true;
+						commEntryText = row.getEntryText();
+						break;
+					}
+				}
+				expect( commEntryFound ).toBeTrue();
+				expect( commEntryText ).toInclude( "Communication added (ID" );
 			} );
 
 			it( "CommunicationService rejects empty message", function(){

@@ -24,7 +24,7 @@ component singleton accessors="true" {
      */
     public array function listLogEntriesForCase( required numeric caseId ) {
         return ormExecuteQuery(
-            "FROM LogEntry le JOIN FETCH le.user JOIN FETCH le.caseRef WHERE le.caseRef.caseId = :caseId ORDER BY le.dateCreated DESC",
+            "FROM LogEntry le JOIN FETCH le.user JOIN FETCH le.caseRef WHERE le.caseRef.caseId = :caseId ORDER BY le.dateCreated DESC, le.logEntryId DESC",
             { caseId : arguments.caseId },
             false
         );
@@ -100,8 +100,9 @@ component singleton accessors="true" {
         logEntryService.record(
             caseId    = arguments.caseId,
             userId    = arguments.userId,
-            type      = "Case Update",
-            entryText = "Communication added."
+            type      = "Communication Create",
+            entryText = "Communication added (ID " & comm.getCommunicationId() & ") for case ID " & arguments.caseId &
+                ": " & left( body, 120 ) & ( len( body ) > 120 ? "..." : "" )
         );
         ormEvictEntity( "Communication", comm.getCommunicationId() );
         return { success: true, communication: entityLoad( "Communication", comm.getCommunicationId(), true ) };

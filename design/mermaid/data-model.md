@@ -74,7 +74,7 @@ erDiagram
 | Users      | users        | creator / assignedTo / archivedBy cases; user for log_entries; author & optional `updated_by` for communications | `email` unique; PK `user_id` |
 | Cases      | cases        | belongs to creator, assignedTo, archivedBy (Users); has many documents, log_entries, communications | Active lists exclude rows with `archived_at IS NOT NULL`. `date_created` / `date_updated` are maintained by DB defaults and (on update) trigger — see migration `2026_03_27_000002_timestamp_defaults.cfc`. |
 | Document   | documents    | belongs to one Case | PK `document_id`; `date_uploaded` has DB default. Rows represent **retained** case records; the app does not delete them from upload/view flows—see **Document retention** below. |
-| LogEntry   | log_entries  | belongs to one Case and one User | **Case activity** (automated/audit-style lines). PK `log_entry_id`; FK `user_id` → users |
+| LogEntry   | log_entries  | belongs to one Case and one User | **Case activity** (automated/audit-style lines) used by case activity UI and reporting aggregates. PK `log_entry_id`; FK `user_id` → users |
 | Communication | communications | belongs to one Case and one User (author); optional `updated_by` (User) for future edits | **Staff communications** (human notes). PK `communication_id`; `date_updated` trigger — migration `2026_04_03_000001_communications.cfc`. In **development**, `SeedService` adds idempotent demo rows when the table is empty. |
 
 ### Index and constraint expectations (for migrations)
@@ -93,6 +93,6 @@ The `documents` table and files on disk under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`
 
 Used for validation and dropdowns; live under `models/constants/`:
 
-- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type** (valid `log_entries.type`, including document upload and download), **Communication_Type**
+- **User_Role**, **Case_Status**, **Document_File_Type**, **Log_Entry_Type** (valid `log_entries.type`, including `Case Create`, `Case Update`, `Case Archive`, `Case Restore`, `Communication Create`, document upload/download), **Communication_Type**
 
 Persistent entities extend `cborm.models.ActiveEntity` and call `validate()` using the injected constant components where applicable.
