@@ -38,7 +38,7 @@ Run a focused pre-deploy sweep for the current branch.
    - If tests cannot be executed (environment/sandbox/runtime issue), do not mark quality gates complete; capture the exact blocker under **Open risks** and provide the exact command to run once unblocked.
 
 5. **Docs/sync checks**
-   - If behavior/config changed, verify `README.md`, `DEV_NOTES.md`, and relevant `design/mermaid/*.md` are updated.
+   - If behavior/config changed, verify `README.md`, `docs/DEV_NOTES.md`, `docs/DESIGN_NOTES.md`, and relevant `design/mermaid/*.md` are updated.
 
 ## Output format
 

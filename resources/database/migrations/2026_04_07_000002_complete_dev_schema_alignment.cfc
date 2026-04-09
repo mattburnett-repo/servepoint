@@ -1,6 +1,6 @@
 /**
  * Enforce full column-level schema alignment to the current dev database shape
- * for users, cases, documents, log_entries, and communications.
+ * for users, cases, documents, and communications.
  */
 component {
 
@@ -40,13 +40,6 @@ component {
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded DROP NOT NULL" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded SET DEFAULT CURRENT_TIMESTAMP" );
 
-        // log_entries
-        runSql( "ALTER TABLE log_entries ALTER COLUMN entrytext TYPE varchar(255) USING left(entrytext::varchar,255)" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN type TYPE varchar(255)" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created TYPE timestamp without time zone" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created DROP NOT NULL" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
-
         // communications
         runSql( "ALTER TABLE communications ALTER COLUMN message TYPE varchar(255) USING left(message::varchar,255)" );
         runSql( "ALTER TABLE communications ALTER COLUMN type TYPE varchar(255)" );
@@ -64,9 +57,6 @@ component {
         runSql( "ALTER TABLE communications ALTER COLUMN message TYPE text" );
         runSql( "ALTER TABLE communications ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
         runSql( "ALTER TABLE communications ALTER COLUMN date_updated SET DEFAULT CURRENT_TIMESTAMP" );
-
-        runSql( "ALTER TABLE log_entries ALTER COLUMN entrytext TYPE text" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created SET NOT NULL" );
 
         runSql( "ALTER TABLE documents ALTER COLUMN filesize TYPE numeric(18,2) USING filesize::numeric(18,2)" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded SET NOT NULL" );

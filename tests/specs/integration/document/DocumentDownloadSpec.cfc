@@ -60,7 +60,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 expect( resolved.success ).toBeTrue();
 
                 var activityRows = ormExecuteQuery(
-                    "FROM LogEntry le WHERE le.caseRef.caseId = :caseId AND le.type = :eventType ORDER BY le.logEntryId DESC",
+                    "FROM AuditEvent ae WHERE ae.caseRef.caseId = :caseId AND ae.eventType = :eventType ORDER BY ae.auditEventId DESC",
                     {
                         caseId : created.case.getCaseId(),
                         eventType : "Document Download"

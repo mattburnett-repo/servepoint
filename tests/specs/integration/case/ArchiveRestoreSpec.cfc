@@ -49,7 +49,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 expect( arrayLen( caseService.listActive() ) ).toBe( countBefore );
 
                 var logRows = ormExecuteQuery(
-                    "FROM LogEntry le WHERE le.caseRef.caseId = :caseId ORDER BY le.logEntryId DESC",
+                    "FROM AuditEvent ae WHERE ae.caseRef.caseId = :caseId ORDER BY ae.auditEventId DESC",
                     { caseId : caseId },
                     false
                 );

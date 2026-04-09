@@ -2,7 +2,7 @@
 
 Use these steps when you want to **reset the Render PostgreSQL database** so the app can run the single bootstrap migration from a clean state (e.g. after consolidating migrations or fixing schema drift).
 
-If drift exists but you do **not** want a full reset, first capture current local schema/column metadata and add an explicit corrective migration, then deploy. See **DEV_NOTES.md → Database & migrations → Schema drift capture (quick process)**.
+If drift exists but you do **not** want a full reset, first capture current local schema/column metadata and add an explicit corrective migration, then deploy. See **[DEV_NOTES.md](DEV_NOTES.md)** → Database & migrations → Schema drift capture (quick process).
 
 **Environment variables on Render:** The repo does not commit `.env.deploy` (it is in `.gitignore`). Configure the Render **Web Service** with the same variables you use locally for the remote DB: at minimum set `DB_DRIVER`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (from your Render Postgres service), `ORM_DBCREATE=validate`, and `SERVEPOINT_AUTO_SEED` (e.g. `true`) in the Render dashboard so each deploy has the correct config.
 
@@ -23,7 +23,8 @@ Run the following SQL **in order** so foreign keys are respected. This drops all
 
 ```sql
 -- Drop application tables (order matters because of foreign keys)
-DROP TABLE IF EXISTS log_entries CASCADE;
+DROP TABLE IF EXISTS audit_events CASCADE;
+DROP TABLE IF EXISTS communications CASCADE;
 DROP TABLE IF EXISTS documents CASCADE;
 DROP TABLE IF EXISTS cases CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
@@ -32,7 +33,7 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS cfmigrations CASCADE;
 ```
 
-After this, the database has no `users`, `cases`, `documents`, `log_entries`, or `cfmigrations` tables.
+After this, the database has no `users`, `cases`, `documents`, `communications`, `audit_events`, or `cfmigrations` tables.
 
 ## 3. Rebuild and redeploy the app
 
@@ -48,7 +49,7 @@ docker run --env-file .env.deploy -p 8080:8080 servepoint
 - Push your branch (with the new migration and this wipe) and let Render build and deploy, **or**
 - In the Render dashboard, trigger a **Manual Deploy** for the ServePoint web service.
 
-On first request after deploy, the app will run `migrationService.install()` (recreating the `cfmigrations` table) and `migrationService.up()`, which runs the single bootstrap migration and creates `users`, `cases`, `documents`, and `log_entries` with the correct columns and indexes.
+On first request after deploy, the app will run `migrationService.install()` (recreating the `cfmigrations` table) and `migrationService.up()`, which runs pending migrations and creates the current schema (`users`, `cases`, `documents`, `communications`, `audit_events`, etc.).
 
 ## 4. Optional: re-seed data
 
@@ -59,7 +60,7 @@ If you use `SERVEPOINT_AUTO_SEED=true` (default in `.env.deploy`), the app will 
 | Step | Action |
 |------|--------|
 | 1 | Connect to Render Postgres with psql or another client. |
-| 2 | Run the `DROP TABLE IF EXISTS ...` SQL above (log_entries → documents → cases → users → cfmigrations). |
+| 2 | Run the `DROP TABLE IF EXISTS ...` SQL above (audit_events → communications → documents → cases → users → cfmigrations). |
 | 3 | Rebuild Docker image and run container, or redeploy the web service on Render. |
 | 4 | Optionally rely on auto-seed or run seeds manually. |
 

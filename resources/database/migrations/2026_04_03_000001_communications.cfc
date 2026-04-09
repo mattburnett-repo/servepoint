@@ -1,5 +1,5 @@
 /**
- * Staff communications: case-scoped messages (separate from log_entries / activity).
+ * Staff communications: case-scoped messages (separate from structured audit_events).
  */
 component {
 

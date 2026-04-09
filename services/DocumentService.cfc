@@ -2,7 +2,7 @@ component singleton accessors="true" {
 
     property name="caseService" inject="CaseService";
     property name="coldbox" inject="coldbox";
-    property name="logEntryService" inject="LogEntryService";
+    property name="auditLoggerService" inject="AuditLoggerService";
 
     /**
      * Upload a file from a multipart form field and persist metadata.
@@ -98,11 +98,14 @@ component singleton accessors="true" {
         ormEvictEntity( "Document", doc.getDocumentId() );
         var persisted = entityLoad( "Document", doc.getDocumentId(), true );
         if ( arguments.userId > 0 ) {
-            logEntryService.record(
-                caseId    = arguments.caseId,
-                userId    = arguments.userId,
-                type      = "Document Upload",
-                entryText = "Document uploaded (ID " & persisted.getDocumentId() & ") for case ID " & arguments.caseId &
+            auditLoggerService.record(
+                category    = "document",
+                eventType   = "Document Upload",
+                outcome     = "success",
+                actorUserId = arguments.userId,
+                caseId      = arguments.caseId,
+                documentId  = persisted.getDocumentId(),
+                message     = "Document uploaded (ID " & persisted.getDocumentId() & ") for case ID " & arguments.caseId &
                     ": " & persisted.getTitle() & " (" & persisted.getFileName() & ", " & persisted.getFileType() &
                     ", " & persisted.getFileSize() & " bytes)."
             );
@@ -174,11 +177,14 @@ component singleton accessors="true" {
         required numeric userId,
         required Document document
     ) {
-        logEntryService.record(
-            caseId    = arguments.caseId,
-            userId    = arguments.userId,
-            type      = "Document Download",
-            entryText = "Document downloaded (ID " & arguments.document.getDocumentId() & ") for case ID " & arguments.caseId &
+        auditLoggerService.record(
+            category    = "document",
+            eventType   = "Document Download",
+            outcome     = "success",
+            actorUserId = arguments.userId,
+            caseId      = arguments.caseId,
+            documentId  = arguments.document.getDocumentId(),
+            message     = "Document downloaded (ID " & arguments.document.getDocumentId() & ") for case ID " & arguments.caseId &
                 ": " & arguments.document.getTitle() & " (" & arguments.document.getFileName() & ")."
         );
     }

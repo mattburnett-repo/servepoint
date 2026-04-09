@@ -22,7 +22,6 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="cases" {
     property name="assignedTo" fieldtype="many-to-one" cfc="Users" fkcolumn="assigned_to_id";
 
     property name="documents"      fieldtype="one-to-many" cfc="Document"     fkcolumn="case_id";
-    property name="logEntries"     fieldtype="one-to-many" cfc="LogEntry"     fkcolumn="case_id";
     property name="communications" fieldtype="one-to-many" cfc="Communication" fkcolumn="case_id";
 
     /**
