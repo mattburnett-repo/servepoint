@@ -70,6 +70,18 @@
 		},
 		{
 			"code": "COMPONENT_TOO_WORDY"
+		},
+		{
+			"code": "FUNCTION_TOO_COMPLEX"
+		},
+		{
+			"code": "METHOD_TOO_SHORT"
+		},
+		{
+			"code": "VAR_HAS_PREFIX_OR_POSTFIX"
+		},
+		{
+			"code": "VAR_TOO_LONG"
 		}
 	],
 	"inheritParent": true,

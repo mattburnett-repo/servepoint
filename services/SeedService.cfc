@@ -2,6 +2,7 @@ component singleton accessors="true" {
 
     property name="caseService"            inject="CaseService";
     property name="communicationService" inject="CommunicationService";
+    property name="auditLoggerService" inject="AuditLoggerService";
 
     /**
      * Entry point for all seed operations.
@@ -14,6 +15,7 @@ component singleton accessors="true" {
             seedCases();
             seedDocuments();
             seedCommunications();
+            seedAuditEvents();
         }
     }
 
@@ -197,6 +199,42 @@ component singleton accessors="true" {
                 throw( type = "Application", message = "seedCommunications failed: " & ( result.error ?: "unknown" ) );
             }
         }
+    }
+
+    /**
+     * Seed a small set of audit events for demo visibility. Idempotent: skips when rows already exist.
+     */
+    private void function seedAuditEvents() {
+        if ( arrayLen( entityLoad( "AuditEvent" ) ) > 0 ) {
+            return;
+        }
+
+        var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
+        if ( isNull( admin ) ) {
+            return;
+        }
+        var activeCases = caseService.listActive();
+        var primaryCaseId = arrayLen( activeCases ) ? activeCases[ 1 ].getCaseId() : 0;
+
+        auditLoggerService.record(
+            category = "security",
+            eventType = "Login Success",
+            outcome = "success",
+            actorUserId = admin.getUserId(),
+            reasonCode = "seed_demo",
+            message = "Seeded demo login success event.",
+            metadata = { seeded = true }
+        );
+        auditLoggerService.record(
+            category = "report",
+            eventType = "Report View",
+            outcome = "success",
+            actorUserId = admin.getUserId(),
+            caseId = primaryCaseId,
+            reasonCode = "seed_demo",
+            message = "Seeded demo report view event.",
+            metadata = { seeded = true, includeArchived = false }
+        );
     }
 
 }

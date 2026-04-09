@@ -72,7 +72,7 @@ flowchart TB
 | `SERVEPOINT_DOCUMENT_MAX_BYTES`    | Maximum allowed upload size in bytes; defaults to `10485760` (10 MB)                                        |
 | `SERVEPOINT_STORAGE_PERSISTENT`    | Boolean flag for storage-mode messaging (`true` persistent mode, `false` ephemeral demo mode)               |
 
-Persisted document files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are **retained** as part of the case record; the app does not delete accepted documents from upload/view flows. See **Document retention** in `DEV_NOTES.md` / `DESIGN_NOTES.md`.
+Persisted document files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are **retained** as part of the case record; the app does not delete accepted documents from upload/view flows. See **Document retention** in `docs/DEV_NOTES.md` / `docs/DESIGN_NOTES.md`.
 
 ## Future: env/secrets
 

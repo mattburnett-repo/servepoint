@@ -7,4 +7,4 @@ JAR="$DIR/CFLint-1.5.0-all.jar"
 echo "Downloading CFLint to $JAR ..."
 curl -fsSL -o "$JAR" \
   'https://repo1.maven.org/maven2/com/github/cflint/CFLint/1.5.0/CFLint-1.5.0-all.jar'
-echo "Done. Set cflint.jarPath in .vscode/settings.json to this path (see DEV_NOTES.md)."
+echo "Done. Set cflint.jarPath in .vscode/settings.json to this path (see docs/DEV_NOTES.md)."

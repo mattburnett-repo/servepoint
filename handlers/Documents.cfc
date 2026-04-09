@@ -2,7 +2,6 @@ component extends="coldbox.system.EventHandler" {
 
     property name="caseService" inject="CaseService";
     property name="documentService" inject="DocumentService";
-    property name="logEntryService" inject="LogEntryService";
 
     /**
      * Documents landing page. Optionally scoped to a specific active case.
@@ -105,23 +104,6 @@ component extends="coldbox.system.EventHandler" {
             session.casesNotice = resolved.error ?: "Document not found.";
             relocate( url = event.buildLink( to = "documents.index", queryString = "caseId=#caseId#" ) );
             return;
-        }
-
-        var downloadUser = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( downloadUser ) ) {
-            var downloadUsers = entityLoad( "Users" );
-            if ( arrayLen( downloadUsers ) ) {
-                downloadUser = downloadUsers[ 1 ];
-            }
-        }
-        if ( !isNull( downloadUser ) ) {
-            var titleForLog = structKeyExists( resolved, "documentTitle" ) ? resolved.documentTitle : "";
-            logEntryService.record(
-                caseId    = caseId,
-                userId    = downloadUser.getUserId(),
-                type      = "Document Download",
-                entryText = "Document downloaded: " & titleForLog & " (" & resolved.fileName & ")."
-            );
         }
 
         event.setHTTPHeader( name = "Content-Disposition", value = 'attachment; filename="#resolved.fileName#"' );

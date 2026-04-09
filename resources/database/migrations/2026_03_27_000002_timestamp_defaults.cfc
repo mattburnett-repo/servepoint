@@ -67,24 +67,6 @@ component {
                 ) THEN
                     ALTER TABLE documents RENAME COLUMN "dateUploaded" TO date_uploaded;
                 END IF;
-
-                IF EXISTS (
-                    SELECT 1 FROM pg_attribute a
-                    JOIN pg_class c ON c.oid = a.attrelid
-                    JOIN pg_namespace n ON n.oid = c.relnamespace
-                    WHERE n.nspname = ''public'' AND c.relname = ''log_entries''
-                      AND a.attname = ''datecreated'' AND a.attnum > 0 AND NOT a.attisdropped
-                ) THEN
-                    ALTER TABLE log_entries RENAME COLUMN datecreated TO date_created;
-                ELSIF EXISTS (
-                    SELECT 1 FROM pg_attribute a
-                    JOIN pg_class c ON c.oid = a.attrelid
-                    JOIN pg_namespace n ON n.oid = c.relnamespace
-                    WHERE n.nspname = ''public'' AND c.relname = ''log_entries''
-                      AND a.attname = ''dateCreated'' AND a.attnum > 0 AND NOT a.attisdropped
-                ) THEN
-                    ALTER TABLE log_entries RENAME COLUMN "dateCreated" TO date_created;
-                END IF;
             END
             $normalize$ LANGUAGE plpgsql
         ' );
@@ -92,7 +74,6 @@ component {
         runSql( "ALTER TABLE cases ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
         runSql( "ALTER TABLE cases ALTER COLUMN date_updated SET DEFAULT CURRENT_TIMESTAMP" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded SET DEFAULT CURRENT_TIMESTAMP" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
 
         runSql( '
             CREATE OR REPLACE FUNCTION cases_set_date_updated()
@@ -118,6 +99,5 @@ component {
         runSql( "ALTER TABLE cases ALTER COLUMN date_created DROP DEFAULT" );
         runSql( "ALTER TABLE cases ALTER COLUMN date_updated DROP DEFAULT" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded DROP DEFAULT" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created DROP DEFAULT" );
     }
 }

@@ -76,9 +76,11 @@ flowchart TB
 | `Main` | — | `main/index`, `main/underConstruction` |
 | `Cases` | `CaseService`, `CommunicationService` | `cases/index`, `cases/view`, `cases/new`; `addCommunication` (POST) |
 | `Communications` | `CommunicationService`, `CaseService` | `communications/index` (read-only hub) |
-| `Reports` | `ReportsService` | `reports/index` (log-entry aggregate reporting) |
-| `Documents` | `DocumentService`, `CaseService` | `documents/index`; upload/download actions (no in-app document delete—retention policy; see `DESIGN_NOTES.md`) |
+| `Reports` | `ReportsService`, `AuditLoggerService` | `reports/index` (audit-event aggregate reporting) |
+| `Documents` | `DocumentService`, `CaseService` | `documents/index`; upload/download actions (no in-app document delete—retention policy; see `docs/DESIGN_NOTES.md`) |
 
 `SeedService` runs during `onApplicationStart` when `SERVEPOINT_AUTO_SEED` allows it (see Application.cfc).
+
+Audit writes are centralized in `AuditLoggerService`, which persists structured rows to `audit_events` and emits category-scoped LogBox lines (`audit.security`, `audit.case`, `audit.document`, `audit.report`, `audit.admin`).
 
 **Documents:** Upload, list, and download are in scope for the case workspace; **deletion** of accepted documents is **out of band** (policy / separate process), not a handler action in the MVP.

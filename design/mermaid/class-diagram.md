@@ -20,7 +20,7 @@ classDiagram
         +role string
         +cases collection
         +assignedTo collection
-        +logEntries collection
+        +auditEvents collection
         +communicationsAuthored collection
         +communicationsUpdatedBy collection
         +validate() void
@@ -39,7 +39,7 @@ classDiagram
         +creator Users
         +assignedTo Users
         +documents collection
-        +logEntries collection
+        +auditEvents collection
         +communications collection
         +validate() void
         +isArchived() boolean
@@ -56,16 +56,6 @@ classDiagram
         +validate() void
     }
 
-    class LogEntry {
-        +logEntryId id
-        +dateCreated timestamp
-        +entryText string
-        +type string
-        +caseRef Cases
-        +user Users
-        +validate() void
-    }
-
     class Communication {
         +communicationId id
         +dateCreated timestamp
@@ -75,6 +65,22 @@ classDiagram
         +caseRef Cases
         +author Users
         +updatedBy Users
+        +validate() void
+    }
+
+    class AuditEvent {
+        +auditEventId id
+        +dateOccurred timestamp
+        +requestId string
+        +category string
+        +eventType string
+        +outcome string
+        +reasonCode string
+        +message string
+        +metadataJson string
+        +caseRef Cases
+        +document Document
+        +actorUser Users
         +validate() void
     }
 
@@ -93,42 +99,56 @@ classDiagram
         +getValues() array
     }
 
-    class Log_Entry_Type {
+    class Communication_Type {
         +TYPES struct
         +getValues() array
     }
 
-    class Communication_Type {
-        +TYPES struct
+    class Audit_Category {
+        +VALUES struct
+        +getValues() array
+    }
+
+    class Audit_Event_Type {
+        +VALUES struct
+        +getValues() array
+    }
+
+    class Audit_Outcome {
+        +VALUES struct
         +getValues() array
     }
 
     ActiveEntity <|-- Users
     ActiveEntity <|-- Cases
     ActiveEntity <|-- Document
-    ActiveEntity <|-- LogEntry
     ActiveEntity <|-- Communication
+    ActiveEntity <|-- AuditEvent
 
     Users "1" --> "0..*" Cases : creator
     Users "1" --> "0..*" Cases : assignedTo
     Users "0..1" --> "0..*" Cases : archivedBy
-    Users "1" --> "0..*" LogEntry : user
+    Users "0..1" --> "0..*" AuditEvent : actorUser
     Users "1" --> "0..*" Communication : author
     Users "0..1" --> "0..*" Communication : updatedBy
     Cases "1" --> "0..*" Document : documents
-    Cases "1" --> "0..*" LogEntry : logEntries
+    Cases "0..1" --> "0..*" AuditEvent : auditEvents
     Cases "1" --> "0..*" Communication : communications
     Document "*" --> "1" Cases : caseRef
-    LogEntry "*" --> "1" Cases : caseRef
-    LogEntry "*" --> "1" Users : user
+    Document "0..1" --> "0..*" AuditEvent : document
     Communication "*" --> "1" Cases : caseRef
     Communication "*" --> "1" Users : author
+    AuditEvent "*" --> "0..1" Cases : caseRef
+    AuditEvent "*" --> "0..1" Users : actorUser
+    AuditEvent "*" --> "0..1" Document : document
 
     Users ..> User_Role : inject
     Cases ..> Case_Status : inject
     Document ..> Document_File_Type : inject
-    LogEntry ..> Log_Entry_Type : inject
     Communication ..> Communication_Type : inject
+    AuditEvent ..> Audit_Category : inject
+    AuditEvent ..> Audit_Event_Type : inject
+    AuditEvent ..> Audit_Outcome : inject
 ```
 
 ## Legend
@@ -143,6 +163,6 @@ classDiagram
 ## Notes
 
 - **Persistent entities**: table-backed; `validate()` runs on ORM save where configured.
-- **Document**: modeled as a retained case attachment; the product design intentionally **does not** map an in-app delete lifecycle here—see `DESIGN_NOTES.md` / `DEV_NOTES.md` (Document retention).
+- **Document**: modeled as a retained case attachment; the product design intentionally **does not** map an in-app delete lifecycle here—see `docs/DESIGN_NOTES.md` / `docs/DEV_NOTES.md` (Document retention).
 - **Constants**: structs of allowed values and `getValues()` for validation and UI; not persisted.
 - **Services** (`services/CaseService.cfc`, `services/CommunicationService.cfc`, etc.) are not shown here; they orchestrate ORM and live outside `models/`.

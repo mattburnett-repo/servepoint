@@ -106,7 +106,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 
 			it( "can create and relate core entities after migrations run", function(){
 				// Basic smoke test to ensure ORM and migrations agree on the schema:
-				// create a user, a case, a document, and a log entry and assert they persist.
+				// create a user, a case, a document, audit event, and communication and assert they persist.
 				var user = getInstance( "Users" )
 					.setFirstName( "Test" )
 					.setLastName( "User" )
@@ -133,12 +133,15 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				ormEvictEntity( "Document", doc.getDocumentId() );
 				doc = entityLoad( "Document", doc.getDocumentId(), true );
 
-				var logEntry = getInstance( "LogEntry" )
-					.setEntryText( "Smoke log entry" )
-					.setType( "Case Update" )
+				var auditEvent = getInstance( "AuditEvent" )
+					.setDateOccurred( now() )
+					.setCategory( "case" )
+					.setEventType( "Case Update" )
+					.setOutcome( "success" )
+					.setMessage( "Smoke audit event" )
 					.setCaseRef( caseEntity )
-					.setUser( user );
-				logEntry.save();
+					.setActorUser( user );
+				auditEvent.save();
 
 				var typeConstants = new models.constants.Communication_Type();
 				var commType      = typeConstants.getValues()[ 1 ];
@@ -156,7 +159,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				expect( user.getUserId() ).toBeGT( 0 );
 				expect( caseEntity.getCaseId() ).toBeGT( 0 );
 				expect( doc.getDocumentId() ).toBeGT( 0 );
-				expect( logEntry.getLogEntryId() ).toBeGT( 0 );
+				expect( auditEvent.getAuditEventId() ).toBeGT( 0 );
 				expect( comm.getCommunicationId() ).toBeGT( 0 );
 			} );
 		} );
