@@ -1,5 +1,5 @@
 component singleton accessors="true" {
-    property name="logEntryService" inject="LogEntryService";
+    property name="auditLoggerService" inject="AuditLoggerService";
 
     /**
      * Restore all archived cases in one go (bulk UPDATE). Use for test isolation so specs see all cases as active.
@@ -76,11 +76,13 @@ component singleton accessors="true" {
         if ( isNull( c.getCaseId() ) || c.getCaseId() <= 0 ) {
             return { success: false, error: "Case not persisted." };
         }
-        logEntryService.record(
-            caseId    = c.getCaseId(),
-            userId    = creator.getUserId(),
-            type      = "Case Create",
-            entryText = "Case created (ID " & c.getCaseId() & "): " & c.getTitle() & "."
+        auditLoggerService.record(
+            category    = "case",
+            eventType   = "Case Create",
+            outcome     = "success",
+            actorUserId = creator.getUserId(),
+            caseId      = c.getCaseId(),
+            message     = "Case created (ID " & c.getCaseId() & "): " & c.getTitle() & "."
         );
         ormEvictEntity( "Cases", c.getCaseId() );
         return { success: true, case: entityLoad( "Cases", c.getCaseId(), true ) };
@@ -142,11 +144,13 @@ component singleton accessors="true" {
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
-        logEntryService.record(
-            caseId    = arguments.caseId,
-            userId    = caseEntity.getCreator().getUserId(),
-            type      = "Case Update",
-            entryText = "Case updated (ID " & arguments.caseId & "): title '" & previousTitle & "' to '" & caseEntity.getTitle() &
+        auditLoggerService.record(
+            category    = "case",
+            eventType   = "Case Update",
+            outcome     = "success",
+            actorUserId = caseEntity.getCreator().getUserId(),
+            caseId      = arguments.caseId,
+            message     = "Case updated (ID " & arguments.caseId & "): title '" & previousTitle & "' to '" & caseEntity.getTitle() &
                 "', status '" & previousStatus & "' to '" & caseEntity.getStatus() & "'."
         );
         ormFlush();
@@ -155,7 +159,7 @@ component singleton accessors="true" {
     }
 
     /**
-     * Soft-archive a case. Sets archivedAt, archivedBy, archiveReason; optionally creates a LogEntry.
+     * Soft-archive a case. Sets archivedAt, archivedBy, archiveReason; optionally creates an AuditEvent.
      * Uses direct SQL so the DB is the source of truth (avoids ORM session/cache issues).
      * @return struct { success: boolean, case?: Cases, error?: string }
      */
@@ -163,7 +167,7 @@ component singleton accessors="true" {
         required numeric caseId,
         required numeric userId,
         string reason = "",
-        boolean createLogEntry = true
+        boolean createAuditEvent = true
     ) {
         var caseEntity = entityLoad( "Cases", arguments.caseId, true );
         if ( isNull( caseEntity ) ) {
@@ -187,12 +191,14 @@ component singleton accessors="true" {
                 },
                 { datasource : datasource }
             );
-            if ( arguments.createLogEntry ) {
-                logEntryService.record(
-                    caseId    = arguments.caseId,
-                    userId    = arguments.userId,
-                    type      = "Case Archive",
-                    entryText = "Case archived (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')." &
+            if ( arguments.createAuditEvent ) {
+                auditLoggerService.record(
+                    category    = "case",
+                    eventType   = "Case Archive",
+                    outcome     = "success",
+                    actorUserId = arguments.userId,
+                    caseId      = arguments.caseId,
+                    message     = "Case archived (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')." &
                         ( len( trim( arguments.reason ) ) ? " Reason: " & arguments.reason : "" )
                 );
             }
@@ -202,14 +208,14 @@ component singleton accessors="true" {
     }
 
     /**
-     * Restore a soft-archived case. Clears archivedAt, archivedBy, archiveReason; optionally creates a LogEntry.
+     * Restore a soft-archived case. Clears archivedAt, archivedBy, archiveReason; optionally creates an AuditEvent.
      * Uses direct SQL; idempotent (no-op if already active).
      * @return struct { success: boolean, case?: Cases, error?: string }
      */
     public struct function restoreCase(
         required numeric caseId,
         required numeric userId,
-        boolean createLogEntry = true
+        boolean createAuditEvent = true
     ) {
         var caseEntity = entityLoad( "Cases", arguments.caseId, true );
         if ( isNull( caseEntity ) ) {
@@ -226,12 +232,14 @@ component singleton accessors="true" {
                 { caseId : arguments.caseId },
                 { datasource : datasource }
             );
-            if ( arguments.createLogEntry ) {
-                logEntryService.record(
-                    caseId    = arguments.caseId,
-                    userId    = arguments.userId,
-                    type      = "Case Restore",
-                    entryText = "Case restored from archive (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')."
+            if ( arguments.createAuditEvent ) {
+                auditLoggerService.record(
+                    category    = "case",
+                    eventType   = "Case Restore",
+                    outcome     = "success",
+                    actorUserId = arguments.userId,
+                    caseId      = arguments.caseId,
+                    message     = "Case restored from archive (ID " & arguments.caseId & ", title '" & caseEntity.getTitle() & "')."
                 );
             }
         }

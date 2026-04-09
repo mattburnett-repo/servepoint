@@ -80,7 +80,9 @@
 						<div class="rounded-circle flex-shrink-0 text-success px-1">
 							<i class="bi bi-journal-text" aria-hidden="true"></i> 
 						</div>
-						<div class="d-flex gap-2 w-100 justify-content-between">Comprehensive audit logging</div>
+						<div class="d-flex gap-2 w-100 justify-content-between">
+							<a href="#event.buildLink( "reports.index" )#">Comprehensive audit logging</a>
+						</div>
 					</div>
 					<div class="list-group-item d-flex gap-2 py-3">
 						<div class="rounded-circle flex-shrink-0 text-success px-1">

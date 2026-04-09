@@ -6,7 +6,13 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             it( "reports.index renders the reporting page", function() {
                 var event = this.get( "reports.index" );
                 expect( event.getRenderedContent() ).toInclude( "Audit trails and reporting" );
-                expect( event.getRenderedContent() ).toInclude( "Log entries by type" );
+                expect( event.getRenderedContent() ).toInclude( "Audit events by type" );
+            } );
+
+            it( "reports.byType renders detail rows for a selected event type", function() {
+                var event = this.get( "reports.byType?eventType=Case%20Create" );
+                expect( event.getRenderedContent() ).toInclude( "Audit events for Case Create" );
+                expect( event.getRenderedContent() ).toInclude( "Event details" );
             } );
 
             it( "ReportsService returns grouped log entry counts for active cases by default", function() {
@@ -51,7 +57,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     caseId = created.case.getCaseId(),
                     userId = admin.getUserId(),
                     reason = "reports spec",
-                    createLogEntry = true
+                    createAuditEvent = true
                 );
                 expect( archived.success ).toBeTrue();
 
@@ -90,6 +96,34 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 var today = dateFormat( now(), "yyyy-mm-dd" );
                 var q = reportsService.getTypeCounts( dateFrom = today, dateTo = today );
                 expect( q.recordCount ).toBeGTE( 1 );
+            } );
+
+            it( "ReportsService getEventsByType returns only the selected event type", function() {
+                var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
+                expect( isNull( admin ) ).toBeFalse();
+                var caseService = getWireBox().getInstance( "CaseService" );
+                var reportsService = getWireBox().getInstance( "ReportsService" );
+                var created = caseService.createCase(
+                    title = "Reports detail filtering " & createUUID(),
+                    description = "",
+                    status = "New",
+                    creatorUserId = admin.getUserId(),
+                    assignedToUserId = admin.getUserId()
+                );
+                expect( created.success ).toBeTrue();
+                var archived = caseService.archiveCase(
+                    caseId = created.case.getCaseId(),
+                    userId = admin.getUserId(),
+                    reason = "reports by type spec",
+                    createAuditEvent = true
+                );
+                expect( archived.success ).toBeTrue();
+
+                var q = reportsService.getEventsByType( eventType = "Case Archive", includeArchived = true );
+                expect( q.recordCount ).toBeGTE( 1 );
+                for ( var i = 1; i <= q.recordCount; i++ ) {
+                    expect( q.event_type[ i ] ).toBe( "Case Archive" );
+                }
             } );
         } );
     }

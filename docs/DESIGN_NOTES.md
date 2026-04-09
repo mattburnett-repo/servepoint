@@ -125,4 +125,4 @@ Available starting points:
 - Define privacy-conscious user roles and case workflows
 - Design admin UI with privacy and logging in mind
 - Outline cloud deployment architecture and security features
-- Plan secure document upload, storage, access controls, and retention alignment (see issue #33 and `DEV_NOTES.md` — document retention)
+- Plan secure document upload, storage, access controls, and retention alignment (see issue #33 and [DEV_NOTES.md](DEV_NOTES.md) — document retention)

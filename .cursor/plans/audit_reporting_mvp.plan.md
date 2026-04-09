@@ -1,119 +1,106 @@
 ---
-name: Audit Reporting MVP
-overview: "Implement issue #35 with a minimal reporting entry point and stronger service-level audit detail, while keeping schema unchanged unless Phase 2 log-type granularity requires a constant update only."
+name: Audit Events Table Migration
+overview: Implement comprehensive audit logging with a dedicated audit events datastore (`audit_events` / `AuditEvent`), migrate case-level audit writes to `AuditLoggerService`, and document/test/seed the flow while keeping operational LogBox logging distinct.
 todos:
-  - id: add-reporting-mvp
-    content: Implement minimal report service/handler/view and route entry
+  - id: design-audit-schema
+    content: Define and implement new audit_events schema + ORM model + constants/taxonomy
     status: completed
-  - id: wire-home-link
-    content: Make home Core Feature audit/reporting link actionable
+  - id: build-audit-service
+    content: Add centralized AuditLogger service and wire via WireBox
     status: completed
-  - id: phase1-audit-detail
-    content: Enrich service-level log entryText for case/document/communication events
+  - id: migrate-event-writers
+    content: Replace legacy case-activity audit writes in services with AuditLogger calls
     status: completed
-  - id: phase2-log-types
-    content: Add and apply specific Log_Entry_Type values for granular events
+  - id: update-seeding
+    content: Add idempotent seed data for audit_events
     status: completed
-  - id: service-owns-download-audit
-    content: Move document download logging responsibility into DocumentService
+  - id: add-tests
+    content: Add/update TestBox coverage for migration, service behavior, and key integration flows
     status: completed
-  - id: update-tests
-    content: Update/add integration specs for reports and audit detail/type assertions
+  - id: docs-and-home-link
+    content: Document strategy in docs/logging.md + docs/DEV_NOTES pointer and wire homepage audit link
     status: completed
-  - id: sync-mermaid-docs
-    content: Update design/mermaid docs for reporting and audit behavior changes
+  - id: sync-mermaid
+    content: Update design/mermaid architecture, request lifecycle, and data model docs
     status: completed
 isProject: false
 ---
 
-# Audit Trails and Reporting Plan
+# Audit Events Migration Plan
 
 ## Goal
-Deliver the agreed MVP for issue #35 by using persisted `LogEntry` records as the in-app audit source, adding one lightweight aggregate report, and improving event detail at the service layer with test coverage.
+Implement Issue #39 by introducing a dedicated persisted audit events store (`audit_events`), migrating case/domain audit writes into that pipeline, and establishing structured audit that is ready for upcoming auth work.
 
-## Implementation Principle (existing code first)
-- Use existing repo code as the guide for all behavior, naming, and structure.
-- Match current ColdBox/WireBox/TestBox patterns before introducing anything new.
-- Prefer extending current services/handlers/views over creating new abstractions.
-- Keep changes minimal and local to the agreed scope.
-- Reuse established conventions for:
-  - active vs archived case handling (`CaseService.listActive()`, `CaseService.getActiveCase()`),
-  - audit writes (`LogEntryService.record()`),
-  - view rendering and redirects in handlers,
-  - integration test setup and rollback via `tests/specs/BaseIntegrationTestCase.cfc`.
-
-## Confirmed Scope
-- Keep database schema unchanged (no migrations planned).
-- Use existing case-level audit trail UI as baseline (already present in case detail).
-- Add reporting entry point and one aggregate report.
-- Implement both detail phases:
-  - Phase 1: richer `entryText` for existing events.
-  - Phase 2: more specific log types via constants (no table changes).
-- Update tests to remain accurate and passing.
-- Keep `design/mermaid/` docs in sync with behavior changes.
+## Confirmed Decisions
+- Use existing services/handlers for instrumentation; do not introduce interceptors in this MVP.
+- Create a new audit event taxonomy (categories/actions/outcomes/reason codes).
+- Add a new database table + ORM entity for audit events.
+- Migrate case mutation audit writes to the new audit table only (no dual-write to a second activity store).
+- Keep docs in both a new logging doc and a concise pointer in DEV notes.
 
 ## Implementation Steps
-1. Add reporting read path (service + handler + view), following existing conventions
-- Create a focused reporting service method for one aggregate report (recommended: log-entry counts by type with optional date range and clear default behavior), mirroring current service query style.
-- Add a `Reports` handler action to parse filters and populate `prc`, matching existing handler patterns used in `Cases`, `Documents`, and `Communications`.
-- Add a server-rendered report view with accessible filter controls and labeled output.
-- File targets:
-  - [services](services)
-  - [handlers](handlers)
-  - [views](views)
 
-2. Wire homepage feature navigation using existing Main handler pattern
-- Make “Audit trails and reporting” actionable from home page by linking to the new report entry point.
-- File targets:
-  - [handlers/Main.cfc](handlers/Main.cfc)
-  - [views/main/index.cfm](views/main/index.cfm) (if needed for label/UX consistency)
+1. Add persisted audit datastore and model
+- Create migration under [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/resources/database/migrations/](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/resources/database/migrations/) for `audit_events` (append-only).
+- Include columns for auth-readiness and traceability: timestamp, request id, actor user id (nullable), category, action, outcome, optional case/document/resource identifiers, reason code, sanitized message, optional redacted JSON metadata.
+- Add indexes for expected query paths (occurred time, category/action, actor, case).
+- Add ORM entity in [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/models/](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/models/) mapped to the new table.
 
-3. Phase 1 audit detail improvements at service layer (no new architecture)
-- Expand `entryText` for existing service events so logs contain actionable context (case identifiers/titles, status transitions where available, communication/document descriptors), while keeping current service ownership of those events.
-- Keep current `type` values valid and stable during this phase.
-- File targets:
-  - [services/CaseService.cfc](services/CaseService.cfc)
-  - [services/CommunicationService.cfc](services/CommunicationService.cfc)
-  - [services/DocumentService.cfc](services/DocumentService.cfc)
+2. Define audit taxonomy/constants
+- Add constants for audit categories/actions/outcomes/reason codes under [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/models/constants/](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/models/constants/).
+- Keep taxonomy separate from staff messaging (`Communication_Type`, etc.) so audit semantics stay explicit.
 
-4. Phase 2 event-type granularity, aligned with existing constants model
-- Extend [models/constants/Log_Entry_Type.cfc](models/constants/Log_Entry_Type.cfc) with specific types needed by agreed events, using the same constants/getValues pattern already used across `models/constants`.
-- Update service calls to use these explicit types.
-- Ensure `LogEntry.validate()` remains aligned with allowed types.
-- File targets:
-  - [models/constants/Log_Entry_Type.cfc](models/constants/Log_Entry_Type.cfc)
-  - [services/CaseService.cfc](services/CaseService.cfc)
-  - [services/CommunicationService.cfc](services/CommunicationService.cfc)
-  - [services/DocumentService.cfc](services/DocumentService.cfc)
+3. Build centralized audit writer service
+- Add `AuditLoggerService` in [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/services/](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/services/).
+- Responsibilities:
+  - validate normalized event payload,
+  - apply redaction/truncation (no passwords/tokens/secrets, no sensitive bodies/paths),
+  - persist to `audit_events`,
+  - emit structured LogBox line by category for ops/SIEM-readiness.
+- Register in [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/config/WireBox.cfc](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/config/WireBox.cfc).
 
-5. Keep download audit behavior consistent with service-level ownership
-- Move/centralize document-download audit logging so service layer is the canonical source for document audit events.
-- Keep handler focused on request/response concerns.
-- File targets:
-  - [handlers/Documents.cfc](handlers/Documents.cfc)
-  - [services/DocumentService.cfc](services/DocumentService.cfc)
+4. Configure LogBox categories for structured audit emission
+- Update [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/config/LogBox.cfc](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/config/LogBox.cfc) with `audit.security`, `audit.case`, `audit.document`, `audit.report`, `audit.admin` categories.
+- Keep existing `app.*` lifecycle/error categories unchanged.
 
-6. Test coverage updates, based on existing integration spec style
-- Add/update integration specs for:
-  - report query results and filter behavior,
-  - updated log message expectations,
-  - new log type expectations,
-  - primary report handler path.
-- Maintain transaction rollback isolation via base integration test harness and follow current spec data-setup patterns (create only what each spec needs).
-- File targets:
-  - [tests/specs](tests/specs)
+5. Migrate existing producers to the new audit table
+- Completed: services now call `AuditLoggerService` where case/document/communication flows need persisted audit (see `CaseService`, `CommunicationService`, `DocumentService`, reporting as applicable).
+- Preserve existing actor fallback behavior until auth is implemented.
 
-7. Documentation sync (required by project rule)
-- Update mermaid docs to reflect new reporting flow and audit event semantics.
-- Keep updates concise and contributor-oriented.
-- File targets:
-  - [design/mermaid/request-lifecycle.md](design/mermaid/request-lifecycle.md)
-  - [design/mermaid/architecture.md](design/mermaid/architecture.md)
-  - [design/mermaid/data-model.md](design/mermaid/data-model.md) (constants/behavior notes only unless schema truly changes)
+6. Seeding updates
+- Extend [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/services/SeedService.cfc](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/services/SeedService.cfc) with idempotent seed rows in `audit_events` for demo visibility.
+- Keep seed data minimal and realistic; avoid sensitive payloads.
 
-## Delivery and Verification
-- Run targeted integration tests for case/document/communication/logging/reporting paths.
-- Confirm no persistent test residue (transaction rollback pattern remains in effect).
-- Verify homepage link reaches report entry page and report output uses DB-driven values.
-- Keep UI labels explicit that reporting is demo-scope, not certified compliance output.
-- Verify changed code follows existing patterns before merge (service contracts, handler flow, view style, and constants usage).
+7. Test coverage
+- Add/adjust integration specs in [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/tests/specs/integration/](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/tests/specs/integration/) to verify:
+  - audit rows persisted for core case/document/communication flows,
+  - redaction and truncation behavior,
+  - new writes go only through `AuditLoggerService` / `audit_events`.
+
+8. Documentation + home page linkage
+- Add [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/docs/logging.md](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/docs/logging.md) with:
+  - distinction between operational LogBox logs and persisted audit events,
+  - taxonomy and field contract,
+  - redaction rules and sample safe outputs,
+  - note on future auth integration.
+- Add concise pointer/update in [docs/DEV_NOTES.md](../../docs/DEV_NOTES.md).
+- Update homepage audit line/link in [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/views/main/index.cfm](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/views/main/index.cfm).
+
+9. Required design sync
+- Update:
+  - [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/architecture.md](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/architecture.md)
+  - [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/request-lifecycle.md](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/request-lifecycle.md)
+  - [/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/data-model.md](/Volumes/projectDrive/projects/webDev/coldFusion/demo_apps/ServePoint/design/mermaid/data-model.md)
+- Reflect `audit_events` as the persisted audit store and align diagrams with the ORM model.
+
+## Validation Checklist
+- Migration applies cleanly on fresh startup.
+- Core service actions create expected `audit_events` rows.
+- No secrets/full sensitive text in persisted audit payloads or LogBox structured outputs.
+- Seed runs idempotently.
+- Updated integration tests pass.
+- Home page audit link points to documentation.
+
+## Future Auth Fit (explicit)
+- Current schema/service contract must support additive auth events (`login_success`, `login_failure`, `logout`, `authz_denied`) without redesign.
+- Actor can remain nullable until auth session context is available, then become populated by auth workflow.

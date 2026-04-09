@@ -1,6 +1,6 @@
 # Development Notes
 
-Agent rules for Cursor (committed with the repo): [.cursor/rules/](.cursor/rules/).
+Agent rules for Cursor (committed with the repo): [../.cursor/rules/](../.cursor/rules/).
 
 ## Development workflow (important)
 
@@ -30,6 +30,10 @@ This app uses:
 - **commandbox-dotenv** (preinstalled in the Docker image) to load environment variables.
 - A familiar **`.env.dev` file in the project root** for secrets and configuration (database credentials, etc.).
 
+## Logging and audit strategy
+
+See [logging.md](logging.md) for the current audit/event taxonomy, redaction rules, and the distinction between operational LogBox logs and persisted audit records.
+
 When you run the app via Docker (`docker compose --env-file .env.dev -f docker/docker-compose.yml up`), those `.env.dev` values are injected into the containers and used by CF/ColdBox; you should not commit `.env.dev` to version control.
 
 ### Document upload storage settings
@@ -47,7 +51,7 @@ Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_
 ### Document retention (policy / product design)
 
 - **Accepted documents** (rows in `documents` plus files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`) are **retained** as part of the case record. There is **no in-app delete** from the documents workspace (upload / list / download only).
-- **Removing** a document from normal use—DB row, file on disk, or both—is **not** implemented in routine UI flows; it belongs to **records disposition** handled **outside** upload/view (e.g. compliance-approved process, DBA/storage ops, future admin tooling), consistent with `DESIGN_NOTES.md` (Document retention).
+- **Removing** a document from normal use—DB row, file on disk, or both—is **not** implemented in routine UI flows; it belongs to **records disposition** handled **outside** upload/view (e.g. compliance-approved process, DBA/storage ops, future admin tooling), consistent with [DESIGN_NOTES.md](DESIGN_NOTES.md) (Document retention).
 - **Case archive** soft-hides the case (and thus document access through normal active-case flows) but **does not** delete document rows or files; see “Archive / restore” below.
 
 #### Storage modes
@@ -72,15 +76,15 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 | Concern | Tool | Where it lives |
 |--------|------|----------------|
 | **Format** `.cfc` / `.cfm` | **cfformat** (CommandBox module) | Install: `box install commandbox-cfformat` from the repo root. Run: `box cfformat run path/or/glob.cfc --overwrite`. Optional project-wide rules: `.cfformat.json` at the repo root (add when the team wants shared formatting defaults). |
-| **Lint** CFML | **CFLint** via the **CFLint** VS Code / Cursor extension | Needs a **JDK** and the JAR path in [`.vscode/settings.json`](.vscode/settings.json) (`cflint.jarPath`). Fetch the JAR with [`tools/cflint/download.sh`](tools/cflint/download.sh) (output is gitignored) or point `cflint.jarPath` at any `CFLint-*-all.jar` on disk. Rules: [`.cflintrc`](.cflintrc). Rule catalog: [CFLint `RULES.md`](https://github.com/cflint/CFLint/blob/master/RULES.md). |
-| **Format** Markdown, JSON, YAML, etc. | **Prettier** | [`.prettierrc`](.prettierrc), [`.prettierignore`](.prettierignore). **Prettier does not support CFML** — `*.cfc` / `*.cfm` are ignored so the default formatter does not corrupt them. |
+| **Lint** CFML | **CFLint** via the **CFLint** VS Code / Cursor extension | Needs a **JDK** and the JAR path in [`../.vscode/settings.json`](../.vscode/settings.json) (`cflint.jarPath`). Fetch the JAR with [`../tools/cflint/download.sh`](../tools/cflint/download.sh) (output is gitignored) or point `cflint.jarPath` at any `CFLint-*-all.jar` on disk. Rules: [`../.cflintrc`](../.cflintrc). Rule catalog: [CFLint `RULES.md`](https://github.com/cflint/CFLint/blob/master/RULES.md). |
+| **Format** Markdown, JSON, YAML, etc. | **Prettier** | [`../.prettierrc`](../.prettierrc), [`../.prettierignore`](../.prettierignore). **Prettier does not support CFML** — `*.cfc` / `*.cfm` are ignored so the default formatter does not corrupt them. |
 
 **CFLint config notes:** Empty `includes` in `.cflintrc` means all built-in rules apply (see [CFLint README](https://github.com/cflint/CFLint/blob/master/README.md)). Excludes and `parameters` in `.cflintrc` tune noisy rules and length limits for this stack; see `RULES.md` for codes and checker options.
 
 ## ORM model expectations (source of truth)
 
-- All persistent entities (`Users`, `Cases`, `Document`, `LogEntry`, `Communication`) extend `cborm.models.ActiveEntity` and are mapped according to `design/mermaid/data-model.md`.
-- Required vs optional fields, uniqueness rules (e.g., `Users.email` unique), and high-level index expectations are documented in `design/mermaid/data-model.md` and should be treated as the contract for migrations and DB schema.
+- All persistent entities (`Users`, `Cases`, `Document`, `Communication`, `AuditEvent`) extend `cborm.models.ActiveEntity` and are mapped according to `../design/mermaid/data-model.md`.
+- Required vs optional fields, uniqueness rules (e.g., `Users.email` unique), and high-level index expectations are documented in `../design/mermaid/data-model.md` and should be treated as the contract for migrations and DB schema.
 
 ## Database & migrations
 
@@ -100,7 +104,7 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 - **Schema drift capture (quick process)**:
   1. Export local schema + column metadata:
      - `pg_dump -h localhost -p 5432 -U <db_user> -d <db_name> --schema-only --no-owner --no-privileges > full.schema.sql`
-     - `psql -h localhost -p 5432 -U <db_user> -d <db_name> -c "SELECT table_name, ordinal_position, column_name, data_type, udt_name, is_nullable, column_default FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('users','cases','documents','log_entries','communications') ORDER BY table_name, ordinal_position;" > app.columns.txt`
+     - `psql -h localhost -p 5432 -U <db_user> -d <db_name> -c "SELECT table_name, ordinal_position, column_name, data_type, udt_name, is_nullable, column_default FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('users','cases','documents','communications','audit_events') ORDER BY table_name, ordinal_position;" > app.columns.txt`
   2. Compare those outputs to expected mappings/migrations.
   3. Create a new timestamped migration in `resources/database/migrations/` that explicitly applies the needed `ALTER TABLE` changes (types/defaults/nullability/renames).
   4. Deploy/startup runs `migrationService.up()` and applies that migration in target environments.
@@ -110,7 +114,7 @@ The app runs in **Docker**; **linting and formatting** run on your **dev machine
 
 - **Soft archive only**: Cases can be archived at the business level. Data stays in the main tables; the case’s `archived_at` (and optional `archived_by`, `archive_reason`) mark it as archived.
 - **Default query behavior**: Case lists used by the app return **only active cases** by default (`archived_at IS NULL`). Use `CaseService.listActive()` for the default list and `CaseService.listAll( includeArchived = true )` when archived cases should be included (e.g. admin or reporting).
-- **Archive and restore**: Use `CaseService.archiveCase( caseId, userId, reason )` and `CaseService.restoreCase( caseId, userId )`. These optionally create a `LogEntry` for audit. Documents and log entries have no separate archive state; visibility follows the case’s archive flag. Archiving is **not** document deletion; stored files and `documents` rows remain until an explicit out-of-band disposition process removes them (see **Document retention** above).
+- **Archive and restore**: Use `CaseService.archiveCase( caseId, userId, reason )` and `CaseService.restoreCase( caseId, userId )`. These optionally create `audit_events` rows for audit. Documents have no separate archive state; visibility follows the case’s archive flag. Archiving is **not** document deletion; stored files and `documents` rows remain until an explicit out-of-band disposition process removes them (see **Document retention** above).
 - A future **hard** archive (separate archive tables or export to storage) is out of scope for this phase.
 
 ## Known issues

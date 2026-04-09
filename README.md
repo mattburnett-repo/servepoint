@@ -6,9 +6,9 @@ A Work-In-Progress enterprise-grade ColdFusion demo application showcasing moder
 
 ServePoint is a **Social Services Case Management System** designed for managing citizen cases at both federal and local government levels. It demonstrates ColdFusion's enterprise capabilities with a focus on security, privacy, and modern development practices.
 
-For detailed design specifications and requirements, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
+For detailed design specifications and requirements, see [docs/DESIGN_NOTES.md](docs/DESIGN_NOTES.md).
 
-For development notes, see [DEV_NOTES.md](DEV_NOTES.md).
+For development notes, see [docs/DEV_NOTES.md](docs/DEV_NOTES.md).
 
 Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).
 
@@ -23,17 +23,17 @@ Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).
 
 ## 📚 Documentation
 
-For comprehensive design specifications, architecture decisions, and implementation details, see [DESIGN_NOTES.md](DESIGN_NOTES.md).
+For comprehensive design specifications, architecture decisions, and implementation details, see [docs/DESIGN_NOTES.md](docs/DESIGN_NOTES.md).
 
 ## 📚 Development Notes
 
-Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [DEV_NOTES.md](DEV_NOTES.md). That file also covers **linting and formatting**: **cfformat** for CFML, **CFLint** (editor + `.cflintrc`), and **Prettier** for non-CF files — see the “Linting and formatting” section there.
+Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [docs/DEV_NOTES.md](docs/DEV_NOTES.md). That file also covers **linting and formatting**: **cfformat** for CFML, **CFLint** (editor + `.cflintrc`), and **Prettier** for non-CF files — see the “Linting and formatting” section there.
 
-Document upload storage settings (`SERVEPOINT_DOCUMENT_STORAGE_ROOT`, `SERVEPOINT_DOCUMENT_TEMP_ROOT`, `SERVEPOINT_DOCUMENT_MAX_BYTES`) are also documented in `DEV_NOTES.md`.
+Document upload storage settings (`SERVEPOINT_DOCUMENT_STORAGE_ROOT`, `SERVEPOINT_DOCUMENT_TEMP_ROOT`, `SERVEPOINT_DOCUMENT_MAX_BYTES`) are also documented in `docs/DEV_NOTES.md`.
 Upload handling uses `SERVEPOINT_DOCUMENT_TEMP_ROOT` as staging only; files are validated and then moved to final storage at `SERVEPOINT_DOCUMENT_STORAGE_ROOT` (for Docker local dev: `/app/uploads/documents`, backed by host `./uploads/documents`).
 For demo deployments without persistent disks, set `SERVEPOINT_STORAGE_PERSISTENT=false` and use an ephemeral storage root (for example `/tmp/servepoint/uploads/documents`) so the UI clearly indicates non-persistent behavior.
 
-**Document retention:** Accepted case documents are intentionally **not** deletable from the in-app upload/view flows; disposition is an **out-of-band**, policy-driven concern. See `DESIGN_NOTES.md` and `DEV_NOTES.md` (Document retention).
+**Document retention:** Accepted case documents are intentionally **not** deletable from the in-app upload/view flows; disposition is an **out-of-band**, policy-driven concern. See `docs/DESIGN_NOTES.md` and `docs/DEV_NOTES.md` (Document retention).
 
 ## 📚 Diagramming
 
@@ -63,7 +63,7 @@ Mermaid is also exploratory. Files/artifacts in the [design/mermaid](/design/mer
 docker compose --env-file .env.dev -f docker/docker-compose.yml up
 ```
 
-This builds the app image, starts the ColdFusion and **local** Postgres containers, and wires all environment variables from `.env.dev`. The compose stack gives you an isolated local database for development. For deployment to Render (remote database), see [RENDER_DATABASE.md](RENDER_DATABASE.md); Render builds from the Dockerfile only and does not use docker-compose.
+This builds the app image, starts the ColdFusion and **local** Postgres containers, and wires all environment variables from `.env.dev`. The compose stack gives you an isolated local database for development. For deployment to Render (remote database), see [docs/RENDER_DATABASE.md](docs/RENDER_DATABASE.md); Render builds from the Dockerfile only and does not use docker-compose.
 
 4. **Access the application**
     - Application: `http://localhost:8081` (host port mapped in `docker/docker-compose.yml`; container still listens on 8080)

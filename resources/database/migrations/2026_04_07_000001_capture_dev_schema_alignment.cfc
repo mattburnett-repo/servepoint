@@ -68,20 +68,6 @@ component {
 
         runSql( "ALTER TABLE documents ALTER COLUMN filesize TYPE double precision USING filesize::double precision" );
 
-        // log_entries: quoted camelCase -> lowercase
-        runSql( '
-            DO $$
-            BEGIN
-                IF EXISTS (
-                    SELECT 1 FROM information_schema.columns
-                    WHERE table_schema = ''public'' AND table_name = ''log_entries'' AND column_name = ''entryText''
-                ) THEN
-                    ALTER TABLE log_entries RENAME COLUMN "entryText" TO entrytext;
-                END IF;
-            END
-            $$;
-        ' );
-
         // cases: data type/nullability/defaults from local snapshot
         runSql( "ALTER TABLE cases ALTER COLUMN description TYPE varchar(255) USING left(description::varchar,255)" );
         runSql( "ALTER TABLE cases ALTER COLUMN archived_at TYPE date USING archived_at::date" );
@@ -90,11 +76,9 @@ component {
         runSql( "ALTER TABLE cases ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
         runSql( "ALTER TABLE cases ALTER COLUMN date_updated SET DEFAULT CURRENT_TIMESTAMP" );
 
-        // documents/log_entries defaults + nullability from local snapshot
+        // documents defaults + nullability from local snapshot
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded DROP NOT NULL" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded SET DEFAULT CURRENT_TIMESTAMP" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created DROP NOT NULL" );
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created SET DEFAULT CURRENT_TIMESTAMP" );
 
         // communications defaults are absent in local snapshot
         runSql( "ALTER TABLE communications ALTER COLUMN date_created DROP DEFAULT" );
@@ -107,7 +91,6 @@ component {
         runSql( "ALTER TABLE communications ALTER COLUMN date_updated SET DEFAULT CURRENT_TIMESTAMP" );
 
         // restore not-null constraints expected by existing migrations
-        runSql( "ALTER TABLE log_entries ALTER COLUMN date_created SET NOT NULL" );
         runSql( "ALTER TABLE documents ALTER COLUMN date_uploaded SET NOT NULL" );
         runSql( "ALTER TABLE cases ALTER COLUMN date_created SET NOT NULL" );
 
@@ -116,20 +99,6 @@ component {
         runSql( "ALTER TABLE cases ALTER COLUMN date_created DROP DEFAULT" );
         runSql( "ALTER TABLE cases ALTER COLUMN archived_at TYPE timestamp USING archived_at::timestamp" );
         runSql( "ALTER TABLE cases ALTER COLUMN description TYPE text" );
-
-        // restore log_entries physical column name
-        runSql( '
-            DO $$
-            BEGIN
-                IF EXISTS (
-                    SELECT 1 FROM information_schema.columns
-                    WHERE table_schema = ''public'' AND table_name = ''log_entries'' AND column_name = ''entrytext''
-                ) THEN
-                    ALTER TABLE log_entries RENAME COLUMN entrytext TO "entryText";
-                END IF;
-            END
-            $$;
-        ' );
 
         // restore documents type and physical column names
         runSql( "ALTER TABLE documents ALTER COLUMN filesize TYPE numeric(18,2) USING filesize::numeric(18,2)" );

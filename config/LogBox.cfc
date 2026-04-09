@@ -31,7 +31,12 @@ component {
             categories : {
                 "app.startup"  : { appenders : "appevents" },
                 "app.error"    : { appenders : "appevents" },
-                "app.shutdown" : { appenders : "appevents" }
+                "app.shutdown" : { appenders : "appevents" },
+                "audit.security" : { appenders : "appevents" },
+                "audit.case" : { appenders : "appevents" },
+                "audit.document" : { appenders : "appevents" },
+                "audit.report" : { appenders : "appevents" },
+                "audit.admin" : { appenders : "appevents" }
             }
         };
     }

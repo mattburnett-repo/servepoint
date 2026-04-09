@@ -1,6 +1,6 @@
 ---
 name: Communications and activity
-overview: Add a `communications` table and ORM entity for staff-written case messages (separate from `log_entries` / activity), a read-only comms hub with case/type/author filters, two sections on case detail (Communications + Case activity), wire the home page link to the hub, idempotent **seed data** for demo comms via SeedService, and extend TestBox plus mermaid design docs. No edit UI in MVP; `date_updated` / `updated_by` exist for a future edit flow.
+overview: Add a `communications` table and ORM entity for staff-written case messages (separate from structured `audit_events` for domain audit), a read-only comms hub with case/type/author filters, two sections on case detail (Communications + Case activity from `audit_events`), wire the home page link to the hub, idempotent **seed data** for demo comms via SeedService, and extend TestBox plus mermaid design docs. No edit UI in MVP; `date_updated` / `updated_by` exist for a future edit flow.
 todos:
   - id: migration-communications
     content: "Add cfmigrations migration: communications table, FKs, indexes, date_updated trigger, down() drops"
@@ -35,7 +35,7 @@ isProject: false
 
 | Surface         | Behavior                                                                                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Case detail** | Two blocks: **Communications** (POST new note + list) and **Case activity** (read-only `LogEntry` rows, e.g. archive/restore).                                                         |
+| **Case detail** | Two blocks: **Communications** (POST new note + list) and **Case activity** (read-only `AuditEvent` rows for the case, e.g. archive/restore).                                                         |
 | **Comms hub**   | Read-only list of all `communications`, filters: **case**, **type**, **author** (real `users` only; no “System” on hub). Unfiltered = all rows, **newest first**. Pagination deferred. |
 | **Home**        | [handlers/Main.cfc](handlers/Main.cfc) — set **Staff communication tools** `href` to the hub route (same pattern as case/doc links).                                                   |
 
@@ -43,11 +43,11 @@ isProject: false
 flowchart LR
   subgraph casePage [cases.view]
     Comms[Communications form and list]
-    Activity[Case activity LogEntry list]
+    Activity[Case activity AuditEvent list]
   end
   Hub[communications.index]
   DB1[(communications)]
-  DB2[(log_entries)]
+  DB2[(audit_events)]
   Comms --> DB1
   Activity --> DB2
   Hub --> DB1
@@ -69,10 +69,10 @@ flowchart LR
 
 ## Models and constants
 
-- **`models/constants/Communication_Type.cfc`** — single allowed value for MVP (extend later); `getValues()` like [Log_Entry_Type.cfc](models/constants/Log_Entry_Type.cfc).
+- **`models/constants/Communication_Type.cfc`** — single allowed value for MVP (extend later); `getValues()` like [Audit_Event_Type.cfc](models/constants/Audit_Event_Type.cfc) pattern (loop keys, no `structValues()` on Adobe CF).
 - **`models/Communication.cfc`** (table `communications`) — `cborm.models.ActiveEntity`, PK `communicationId`, properties mapped to snake_case columns (`message`, `type`, `dateCreated`, `dateUpdated` with `insert=false` `update=false` if DB/trigger-owned, matching [Cases.cfc](models/Cases.cfc)), `many-to-one` to `Cases` and `Users` (author + `updatedBy`).
 - **`models/Cases.cfc`** — add `one-to-many` `communications` → `Communication` `fkcolumn="case_id"`.
-- **`models/Users.cfc`** — add `one-to-many` to `Communication` for `user_id` / `updated_by` if needed for ORM navigation (follow existing `logEntries` pattern in [Users.cfc](models/Users.cfc)).
+- **`models/Users.cfc`** — add `one-to-many` to `Communication` for `user_id` / `updated_by` if needed for ORM navigation (follow existing collection patterns on `Cases` / `Users`).
 
 ## Service layer
 
@@ -86,7 +86,7 @@ flowchart LR
 Extend [services/SeedService.cfc](services/SeedService.cfc):
 
 - Add **`seedCommunications()`**, invoked from **`runAll()`** after **`seedCases()`** (ordering relative to `seedDocuments()` is arbitrary; cases must exist first).
-- **Idempotent** (align with [seedDocuments](services/SeedService.cfc)): recommended approach — if **any** `Communication` rows exist, **return early** (simplest). Alternative: skip only when a deterministic marker exists (e.g. known message prefix on a seeded case) if you need re-seed after manual deletes; document in [DEV_NOTES.md](DEV_NOTES.md) if non-obvious.
+- **Idempotent** (align with [seedDocuments](services/SeedService.cfc)): recommended approach — if **any** `Communication` rows exist, **return early** (simplest). Alternative: skip only when a deterministic marker exists (e.g. known message prefix on a seeded case) if you need re-seed after manual deletes; document in [docs/DEV_NOTES.md](../../docs/DEV_NOTES.md) if non-obvious.
 - **Content**: seed **2–4** demo messages across the two seeded cases (“Sample Service Request”, “In-progress Case”), using **different authors** where possible (e.g. `admin@example.com` and `case.manager@example.com`) so **hub author filter** and case detail are meaningful out of the box.
 - Use the **single** `Communication_Type` constant for `type`; **`updated_by`** NULL on insert.
 
@@ -94,11 +94,11 @@ Extend [services/SeedService.cfc](services/SeedService.cfc):
 
 - Conventions routing already covers `/:handler/:action?` in [config/Router.cfc](config/Router.cfc); no router change required unless you want a prettier path (optional).
 - **`handlers/Communications.cfc`** — `index`: GET only; read `rc` filter params (`caseId`, `type`, `authorUserId` or similar); inject `CommunicationService` + load `entityLoad("Users")` or a small user list for filter dropdowns; `prc.communications`, `prc.cases` (e.g. `CaseService.listActive()` or `listAll` for archived-case filter UX — **thread**: filter by case implies listing cases; use `listActive()` for dropdown unless you need archived).
-- **`handlers/Cases.cfc`** — extend **`view`**: load communications for `prc.caseEntity.getCaseId()` and activity (`LogEntry` for case — use `prc.caseEntity.getLogEntries()` or ordered query if collection order is undefined). Add **`addCommunication`** (or `postCommunication`): POST only; resolve author like **`cases.create`** ([handlers/Cases.cfc](handlers/Cases.cfc) lines 154–167) — `admin@example.com` fallback + `entityLoad("Users")`; call `CommunicationService.createCommunication`; on success `relocate` back to `cases.view?id=…` with flash notice; on failure re-render `cases/view` with `prc.errorMessage` and repopulate comms + activity + existing `prc` fields (mirror `update` error path).
+- **`handlers/Cases.cfc`** — extend **`view`**: load communications for `prc.caseEntity.getCaseId()` and activity (`AuditEvent` rows for the case — query `audit_events` by `case_id` or use a service helper). Add **`addCommunication`** (or `postCommunication`): POST only; resolve author like **`cases.create`** ([handlers/Cases.cfc](handlers/Cases.cfc) lines 154–167) — `admin@example.com` fallback + `entityLoad("Users")`; call `CommunicationService.createCommunication`; on success `relocate` back to `cases.view?id=…` with flash notice; on failure re-render `cases/view` with `prc.errorMessage` and repopulate comms + activity + existing `prc` fields (mirror `update` error path).
 
 ## Views
 
-- **`views/cases/view.cfm`** — after existing summary/edit card (order per taste): **Communications** card — form POST to `cases.addCommunication` (hidden `caseId`), textarea `message`, submit; list with author name, `date_created` (and `type` if useful). **Case activity** card — loop `log_entries`-backed entities: `entryText`, `type`, `date_created`, user label; no form. Use `encodeForHTML` / `encodeForHTMLAttribute` like existing markup.
+- **`views/cases/view.cfm`** — after existing summary/edit card (order per taste): **Communications** card — form POST to `cases.addCommunication` (hidden `caseId`), textarea `message`, submit; list with author name, `date_created` (and `type` if useful). **Case activity** card — loop audit-backed rows (message/summary, type, occurred time, user label); no form. Use `encodeForHTML` / `encodeForHTMLAttribute` like existing markup.
 - **`views/communications/index.cfm`** — filter form (GET to `communications.index`): case select, type select (from constant), author select (users). Results table with case link to `cases.view`, message snippet, author, timestamps, type.
 
 ## Home page
@@ -112,13 +112,13 @@ Extend [services/SeedService.cfc](services/SeedService.cfc):
   - Service: create communication on active case; reject invalid type / empty message; reject inactive/archived case if enforced.
   - Handler: `communications.index` renders; filter by case narrows rows.
   - Handler: POST `cases.addCommunication` creates row and redirects.
-  - `cases.view` includes communications + shows activity when `LogEntry` exists (optional: archive case in test and assert activity text — reuse patterns from [ArchiveRestoreSpec.cfc](tests/specs/integration/case/ArchiveRestoreSpec.cfc)).
+  - `cases.view` includes communications + shows activity when audit rows exist (optional: archive case in test and assert activity text — reuse patterns from [ArchiveRestoreSpec.cfc](tests/specs/integration/case/ArchiveRestoreSpec.cfc)).
 
 ## Design docs (workspace rule)
 
 Update in the same PR or immediately after:
 
-- [design/mermaid/data-model.md](design/mermaid/data-model.md) — ER: `cases` → `communications`, columns, indexes; clarify **`log_entries`** = activity only; note **seed** supplies demo comms in dev.
+- [design/mermaid/data-model.md](design/mermaid/data-model.md) — ER: `cases` → `communications`, columns, indexes; **`audit_events`** holds domain audit/activity for case detail; note **seed** supplies demo comms in dev.
 - [design/mermaid/class-diagram.md](design/mermaid/class-diagram.md) — `Communication`, relationships, `Communication_Type`.
 - [design/mermaid/request-lifecycle.md](design/mermaid/request-lifecycle.md) — `communications.index`, `cases.addCommunication`, case view sections.
 
@@ -127,8 +127,8 @@ Update in the same PR or immediately after:
 - Edit/delete communication UI (schema ready with `date_updated` / `updated_by`).
 - Pagination on hub.
 - RBAC beyond current demo user resolution.
-- Changing how [CaseService.archiveCase](services/CaseService.cfc) writes `LogEntry` (unchanged).
+- Changing how [CaseService.archiveCase](services/CaseService.cfc) writes audit rows (uses `AuditLoggerService`; treat as stable contract unless product asks).
 
 ## GitHub Issue #34
 
-Edit the issue body to state: staff messages live in **`communications`**; **`log_entries`** remain **case activity**; hub is comms-only; **SeedService** adds idempotent demo communications; supersede earlier “reuse LogEntry for staff notes” wording.
+Edit the issue body to state: staff messages live in **`communications`**; **case activity** on the case view comes from **`audit_events`**; hub is comms-only; **SeedService** adds idempotent demo communications.

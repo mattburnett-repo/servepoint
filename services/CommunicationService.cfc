@@ -1,7 +1,7 @@
 component singleton accessors="true" {
 
     property name="caseService" inject="CaseService";
-    property name="logEntryService" inject="LogEntryService";
+    property name="auditLoggerService" inject="AuditLoggerService";
 
     /**
      * List communications for an active (non-archived) case, newest first.
@@ -19,12 +19,12 @@ component singleton accessors="true" {
     }
 
     /**
-     * Ordered activity-style log entries for a case (newest first).
-     * @return array of LogEntry entities
+     * Ordered activity-style audit events for a case (newest first).
+     * @return array of AuditEvent entities
      */
     public array function listLogEntriesForCase( required numeric caseId ) {
         return ormExecuteQuery(
-            "FROM LogEntry le JOIN FETCH le.user JOIN FETCH le.caseRef WHERE le.caseRef.caseId = :caseId ORDER BY le.dateCreated DESC, le.logEntryId DESC",
+            "FROM AuditEvent ae LEFT JOIN FETCH ae.actorUser LEFT JOIN FETCH ae.caseRef WHERE ae.caseRef.caseId = :caseId ORDER BY ae.dateOccurred DESC, ae.auditEventId DESC",
             { caseId : arguments.caseId },
             false
         );
@@ -97,11 +97,13 @@ component singleton accessors="true" {
         if ( isNull( comm.getCommunicationId() ) || comm.getCommunicationId() <= 0 ) {
             return { success: false, error: "Communication was not persisted." };
         }
-        logEntryService.record(
-            caseId    = arguments.caseId,
-            userId    = arguments.userId,
-            type      = "Communication Create",
-            entryText = "Communication added (ID " & comm.getCommunicationId() & ") for case ID " & arguments.caseId &
+        auditLoggerService.record(
+            category    = "case",
+            eventType   = "Communication Create",
+            outcome     = "success",
+            actorUserId = arguments.userId,
+            caseId      = arguments.caseId,
+            message     = "Communication added (ID " & comm.getCommunicationId() & ") for case ID " & arguments.caseId &
                 ": " & left( body, 120 ) & ( len( body ) > 120 ? "..." : "" )
         );
         ormEvictEntity( "Communication", comm.getCommunicationId() );

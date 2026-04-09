@@ -8,7 +8,7 @@
     </div>
 
     <p class="text-muted mb-4">
-        Demo report generated from persisted <code>log_entries</code> data.
+        Demo report generated from persisted <code>audit_events</code> data.
         This view is for application demonstration and is not certified compliance reporting.
     </p>
 
@@ -61,7 +61,7 @@
 
     <div class="card shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h2 class="h6 mb-0">Log entries by type</h2>
+            <h2 class="h6 mb-0">Audit events by type</h2>
             <span class="small text-muted">#prc.auditTypeCounts.recordCount# row(s)</span>
         </div>
         <div class="card-body p-0">
@@ -76,8 +76,22 @@
                         </thead>
                         <tbody>
                             <cfloop query="prc.auditTypeCounts">
+                                <cfset detailQueryString = "eventType=" & urlEncodedFormat( prc.auditTypeCounts.type )>
+                                <cfif len( prc.filterDateFrom )>
+                                    <cfset detailQueryString &= "&dateFrom=" & urlEncodedFormat( prc.filterDateFrom )>
+                                </cfif>
+                                <cfif len( prc.filterDateTo )>
+                                    <cfset detailQueryString &= "&dateTo=" & urlEncodedFormat( prc.filterDateTo )>
+                                </cfif>
+                                <cfif prc.includeArchived>
+                                    <cfset detailQueryString &= "&includeArchived=1">
+                                </cfif>
                                 <tr>
-                                    <td>#encodeForHTML( prc.auditTypeCounts.type )#</td>
+                                    <td>
+                                        <a href="#event.buildLink( to = "reports.byType", queryString = detailQueryString )#">
+                                            #encodeForHTML( prc.auditTypeCounts.type )#
+                                        </a>
+                                    </td>
                                     <td>#prc.auditTypeCounts.entry_count#</td>
                                 </tr>
                             </cfloop>
@@ -85,7 +99,7 @@
                     </table>
                 </div>
             <cfelse>
-                <p class="p-3 text-muted mb-0">No log entries match the current filters.</p>
+                <p class="p-3 text-muted mb-0">No audit events match the current filters.</p>
             </cfif>
         </div>
     </div>

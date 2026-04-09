@@ -201,7 +201,7 @@ component {
         // ModuleNotAvailableException. This app does not use GraphQL. Redirecting
         // to the same URL causes a second request; on that request the application
         // scope is already resolved so the failing code path is not run and the
-        // app loads normally. See DEV_NOTES.md "Known issues" and GitHub issue #10.
+        // app loads normally. See docs/DEV_NOTES.md "Known issues" and GitHub issue #10.
         // -------------------------------------------------------------------------
         var isGraphQLClientWorkaround = (
             ( findNoCase( "graphqlclient", exMsg ) AND findNoCase( "not installed", exMsg ) )

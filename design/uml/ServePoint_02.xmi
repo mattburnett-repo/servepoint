@@ -569,11 +569,11 @@
           </UML:Association.connection>
         </UML:Association>
         <UML:Class xmi.id = '10--56-0-107-7468ad01:1990a61c15b:-8000:0000000000000D4A'
-          name = 'Log_Entry' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+          name = 'Audit_Event' visibility = 'public' isSpecification = 'false' isRoot = 'false'
           isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
           <UML:Classifier.feature>
             <UML:Attribute xmi.id = '10--56-0-107-7468ad01:1990a61c15b:-8000:0000000000000D89'
-              name = 'logID {PK}' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
+              name = 'audit_event_id {PK}' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
               changeability = 'changeable' targetScope = 'instance'>
               <UML:StructuralFeature.multiplicity>
                 <UML:Multiplicity xmi.id = '10--56-0-107-7468ad01:1990a61c15b:-8000:0000000000000D8A'>
@@ -760,7 +760,7 @@
           </UML:Association.connection>
         </UML:Association>
         <UML:Class xmi.id = '10--56-0-107-7468ad01:1990a61c15b:-8000:0000000000000D92'
-          name = 'Log_Entry_Type' visibility = 'public' isSpecification = 'false'
+          name = 'Audit_Event_Type' visibility = 'public' isSpecification = 'false'
           isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
           <UML:ModelElement.stereotype>
             <UML:Stereotype xmi.idref = '10--56-0-107-7468ad01:1990a61c15b:-8000:0000000000000CA8'/>
