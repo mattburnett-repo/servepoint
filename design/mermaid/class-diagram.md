@@ -17,6 +17,7 @@ classDiagram
         +lastName string
         +email string
         +password string
+        +setPassword(plain) bcrypt via generateBCryptHash
         +role string
         +cases collection
         +assignedTo collection

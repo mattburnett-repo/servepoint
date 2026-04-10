@@ -25,7 +25,9 @@ component {
         // Use an absolute path so ORM model discovery is stable for normal requests and test execution paths.
         cfclocation = [ expandPath( "./models" ) ],
         dbcreate = ormDbcreateRaw,
-        logSQL = true
+        logSQL = true,
+        // Required for entity lifecycle methods (e.g. Users preInsert/preUpdate for bcrypt).
+        eventHandling = true
     };
 
     /**

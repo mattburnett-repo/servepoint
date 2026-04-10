@@ -57,7 +57,7 @@ flowchart TB
 | CFConfig        | server.json → cfconfig.file | Path to config JSON (e.g. .cfconfig.json)                                                                                 |
 | CFConfig        | .cfconfig.json              | Datasource `servepoint`, caches, other CF settings; applied to Adobe CF at startup                                        |
 | Adobe CF        | (in-memory after CFConfig)  | Registered datasources (e.g. servepoint)                                                                                  |
-| Application.cfc | (code)                      | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (includes `ORM_DBCREATE` env, default `validate`) |
+| Application.cfc | (code)                      | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (`cfclocation`, `ORM_DBCREATE` / `dbcreate`, `eventHandling = true` for entity `preInsert`/`preUpdate`, etc.) |
 | Coldbox.cfc     | (code)                      | `moduleSettings.cborm.datasource`, cborm ORM options; `moduleSettings.cfmigrations` → `resources/database/migrations`     |
 | cfmigrations    | (startup)                   | `migrationService.up()` before `ormGetSessionFactory()`                                                                   |
 
