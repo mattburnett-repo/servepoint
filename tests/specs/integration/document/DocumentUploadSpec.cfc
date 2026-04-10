@@ -16,20 +16,27 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                 );
                 expect( created.success ).toBeTrue();
 
-                var tempFile = createTempUploadFile( "pdf" );
-                var result = documentService.persistUploadedFile(
-                    caseId = created.case.getCaseId(),
-                    title = "Intake PDF",
-                    uploadedFile = tempFile
-                );
+                var caseId = created.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var result = documentService.persistUploadedFile(
+                        caseId = caseId,
+                        title = "Intake PDF",
+                        uploadedFile = tempFile
+                    );
 
-                expect( result.success ).toBeTrue();
-                expect( isNull( result.document ) ).toBeFalse();
-                expect( result.document.getDocumentId() ).toBeGT( 0 );
+                    expect( result.success ).toBeTrue();
+                    expect( isNull( result.document ) ).toBeFalse();
+                    expect( result.document.getDocumentId() ).toBeGT( 0 );
+                    documentId = result.document.getDocumentId();
 
-                var listed = documentService.listForCase( created.case.getCaseId() );
-                expect( arrayLen( listed ) ).toBeGTE( 1 );
-                expect( listed[ 1 ].getCaseRef().getCaseId() ).toBe( created.case.getCaseId() );
+                    var listed = documentService.listForCase( caseId );
+                    expect( arrayLen( listed ) ).toBeGTE( 1 );
+                    expect( listed[ 1 ].getCaseRef().getCaseId() ).toBe( caseId );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseId, documentId );
+                }
             } );
 
             it( "rejects invalid file type", function() {
@@ -128,6 +135,19 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             } );
 
         } );
+    }
+
+    /**
+     * Removes a persisted file under uploads/documents; DB rows roll back separately in integration specs.
+     */
+    private void function deleteStoredDocumentFileIfPresent( required any documentService, required numeric caseId, required numeric documentId ) {
+        if ( arguments.documentId <= 0 ) {
+            return;
+        }
+        var resolved = arguments.documentService.resolveDownload( caseId = arguments.caseId, documentId = arguments.documentId );
+        if ( resolved.success && fileExists( resolved.path ) ) {
+            fileDelete( resolved.path );
+        }
     }
 
     private struct function createTempUploadFile( required string ext ) {

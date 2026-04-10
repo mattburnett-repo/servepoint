@@ -14,22 +14,29 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     creatorUserId = admin.getUserId(),
                     assignedToUserId = admin.getUserId()
                 );
-                var tempFile = createTempUploadFile( "pdf" );
-                var uploaded = documentService.persistUploadedFile(
-                    caseId = created.case.getCaseId(),
-                    title = "Resolve Target",
-                    uploadedFile = tempFile
-                );
-                expect( uploaded.success ).toBeTrue();
+                var caseId = created.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var uploaded = documentService.persistUploadedFile(
+                        caseId = caseId,
+                        title = "Resolve Target",
+                        uploadedFile = tempFile
+                    );
+                    expect( uploaded.success ).toBeTrue();
+                    documentId = uploaded.document.getDocumentId();
 
-                var resolved = documentService.resolveDownload(
-                    caseId = created.case.getCaseId(),
-                    documentId = uploaded.document.getDocumentId()
-                );
-                expect( resolved.success ).toBeTrue();
-                expect( fileExists( resolved.path ) ).toBeTrue();
-                expect( resolved.fileType ).toBe( "pdf" );
-                expect( len( trim( resolved.fileName ) ) ).toBeGT( 0 );
+                    var resolved = documentService.resolveDownload(
+                        caseId = caseId,
+                        documentId = documentId
+                    );
+                    expect( resolved.success ).toBeTrue();
+                    expect( fileExists( resolved.path ) ).toBeTrue();
+                    expect( resolved.fileType ).toBe( "pdf" );
+                    expect( len( trim( resolved.fileName ) ) ).toBeGT( 0 );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseId, documentId );
+                }
             } );
 
             it( "resolveDownload records a Document Download log when userId is provided", function() {
@@ -43,32 +50,39 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     creatorUserId = admin.getUserId(),
                     assignedToUserId = admin.getUserId()
                 );
-                var tempFile = createTempUploadFile( "pdf" );
-                var uploaded = documentService.persistUploadedFile(
-                    caseId = created.case.getCaseId(),
-                    title = "Download Audit Target",
-                    uploadedFile = tempFile,
-                    userId = admin.getUserId()
-                );
-                expect( uploaded.success ).toBeTrue();
+                var caseId = created.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var uploaded = documentService.persistUploadedFile(
+                        caseId = caseId,
+                        title = "Download Audit Target",
+                        uploadedFile = tempFile,
+                        userId = admin.getUserId()
+                    );
+                    expect( uploaded.success ).toBeTrue();
+                    documentId = uploaded.document.getDocumentId();
 
-                var resolved = documentService.resolveDownload(
-                    caseId = created.case.getCaseId(),
-                    documentId = uploaded.document.getDocumentId(),
-                    userId = admin.getUserId()
-                );
-                expect( resolved.success ).toBeTrue();
+                    var resolved = documentService.resolveDownload(
+                        caseId = caseId,
+                        documentId = documentId,
+                        userId = admin.getUserId()
+                    );
+                    expect( resolved.success ).toBeTrue();
 
-                var activityRows = ormExecuteQuery(
-                    "FROM AuditEvent ae WHERE ae.caseRef.caseId = :caseId AND ae.eventType = :eventType ORDER BY ae.auditEventId DESC",
-                    {
-                        caseId : created.case.getCaseId(),
-                        eventType : "Document Download"
-                    },
-                    false
-                );
-                expect( arrayLen( activityRows ) ).toBeGTE( 1 );
-                expect( activityRows[ 1 ].getEntryText() ).toInclude( "Document downloaded (ID" );
+                    var activityRows = ormExecuteQuery(
+                        "FROM AuditEvent ae WHERE ae.caseRef.caseId = :caseId AND ae.eventType = :eventType ORDER BY ae.auditEventId DESC",
+                        {
+                            caseId : caseId,
+                            eventType : "Document Download"
+                        },
+                        false
+                    );
+                    expect( arrayLen( activityRows ) ).toBeGTE( 1 );
+                    expect( activityRows[ 1 ].getEntryText() ).toInclude( "Document downloaded (ID" );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseId, documentId );
+                }
             } );
 
             it( "resolveDownload rejects document when case does not match", function() {
@@ -89,20 +103,27 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     creatorUserId = admin.getUserId(),
                     assignedToUserId = admin.getUserId()
                 );
-                var tempFile = createTempUploadFile( "pdf" );
-                var uploaded = documentService.persistUploadedFile(
-                    caseId = createdA.case.getCaseId(),
-                    title = "Mismatch Target",
-                    uploadedFile = tempFile
-                );
-                expect( uploaded.success ).toBeTrue();
+                var caseIdA = createdA.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var uploaded = documentService.persistUploadedFile(
+                        caseId = caseIdA,
+                        title = "Mismatch Target",
+                        uploadedFile = tempFile
+                    );
+                    expect( uploaded.success ).toBeTrue();
+                    documentId = uploaded.document.getDocumentId();
 
-                var resolved = documentService.resolveDownload(
-                    caseId = createdB.case.getCaseId(),
-                    documentId = uploaded.document.getDocumentId()
-                );
-                expect( resolved.success ).toBeFalse();
-                expect( resolved.error ).toInclude( "not found for this case" );
+                    var resolved = documentService.resolveDownload(
+                        caseId = createdB.case.getCaseId(),
+                        documentId = documentId
+                    );
+                    expect( resolved.success ).toBeFalse();
+                    expect( resolved.error ).toInclude( "not found for this case" );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseIdA, documentId );
+                }
             } );
 
             it( "resolveDownload reports missing file from storage", function() {
@@ -116,27 +137,34 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     creatorUserId = admin.getUserId(),
                     assignedToUserId = admin.getUserId()
                 );
-                var tempFile = createTempUploadFile( "pdf" );
-                var uploaded = documentService.persistUploadedFile(
-                    caseId = created.case.getCaseId(),
-                    title = "Delete Me",
-                    uploadedFile = tempFile
-                );
-                expect( uploaded.success ).toBeTrue();
+                var caseId = created.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var uploaded = documentService.persistUploadedFile(
+                        caseId = caseId,
+                        title = "Delete Me",
+                        uploadedFile = tempFile
+                    );
+                    expect( uploaded.success ).toBeTrue();
+                    documentId = uploaded.document.getDocumentId();
 
-                var firstResolve = documentService.resolveDownload(
-                    caseId = created.case.getCaseId(),
-                    documentId = uploaded.document.getDocumentId()
-                );
-                expect( firstResolve.success ).toBeTrue();
-                fileDelete( firstResolve.path );
+                    var firstResolve = documentService.resolveDownload(
+                        caseId = caseId,
+                        documentId = documentId
+                    );
+                    expect( firstResolve.success ).toBeTrue();
+                    fileDelete( firstResolve.path );
 
-                var missing = documentService.resolveDownload(
-                    caseId = created.case.getCaseId(),
-                    documentId = uploaded.document.getDocumentId()
-                );
-                expect( missing.success ).toBeFalse();
-                expect( missing.error ).toInclude( "missing from storage" );
+                    var missing = documentService.resolveDownload(
+                        caseId = caseId,
+                        documentId = documentId
+                    );
+                    expect( missing.success ).toBeFalse();
+                    expect( missing.error ).toInclude( "missing from storage" );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseId, documentId );
+                }
             } );
 
             it( "documents.download rejects invalid request", function() {
@@ -162,29 +190,49 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                     creatorUserId = admin.getUserId(),
                     assignedToUserId = admin.getUserId()
                 );
-                var tempFile = createTempUploadFile( "pdf" );
-                var uploaded = documentService.persistUploadedFile(
-                    caseId = createdA.case.getCaseId(),
-                    title = "Download Mismatch",
-                    uploadedFile = tempFile
-                );
-                expect( uploaded.success ).toBeTrue();
+                var caseIdA = createdA.case.getCaseId();
+                var documentId = 0;
+                try {
+                    var tempFile = createTempUploadFile( "pdf" );
+                    var uploaded = documentService.persistUploadedFile(
+                        caseId = caseIdA,
+                        title = "Download Mismatch",
+                        uploadedFile = tempFile
+                    );
+                    expect( uploaded.success ).toBeTrue();
+                    documentId = uploaded.document.getDocumentId();
 
-                var event = this.get(
-                    "documents.download",
-                    {
-                        caseId = createdB.case.getCaseId(),
-                        documentId = uploaded.document.getDocumentId()
-                    },
-                    {},
-                    false
-                );
-                // Relocate target can be represented differently in test harness; assert user-visible behavior.
-                expect( structKeyExists( session, "casesNotice" ) ).toBeTrue();
-                expect( session.casesNotice ).toInclude( "not found for this case" );
+                    var event = this.get(
+                        "documents.download",
+                        {
+                            caseId = createdB.case.getCaseId(),
+                            documentId = documentId
+                        },
+                        {},
+                        false
+                    );
+                    // Relocate target can be represented differently in test harness; assert user-visible behavior.
+                    expect( structKeyExists( session, "casesNotice" ) ).toBeTrue();
+                    expect( session.casesNotice ).toInclude( "not found for this case" );
+                } finally {
+                    deleteStoredDocumentFileIfPresent( documentService, caseIdA, documentId );
+                }
             } );
 
         } );
+    }
+
+    /**
+     * Removes a persisted file under uploads/documents; DB rows roll back separately in integration specs.
+     */
+    private void function deleteStoredDocumentFileIfPresent( required any documentService, required numeric caseId, required numeric documentId ) {
+        if ( arguments.documentId <= 0 ) {
+            return;
+        }
+        var resolved = arguments.documentService.resolveDownload( caseId = arguments.caseId, documentId = arguments.documentId );
+        if ( resolved.success && fileExists( resolved.path ) ) {
+            fileDelete( resolved.path );
+        }
     }
 
     private struct function createTempUploadFile( required string ext ) {
