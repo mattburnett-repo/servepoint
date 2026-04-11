@@ -10,15 +10,6 @@ component extends="coldbox.system.EventHandler" {
     void function index( required any event, required struct rc, required struct prc ) {
         prc.cases = caseService.listActive();
         prc.documentUploadPolicy = documentService.getUploadPolicy();
-        prc.storagePersistent = true;
-        try {
-            var settings = getSetting( "servepoint" );
-            if ( isStruct( settings ) && structKeyExists( settings, "storagePersistent" ) ) {
-                prc.storagePersistent = !!settings.storagePersistent;
-            }
-        } catch ( any e ) {
-            prc.storagePersistent = true;
-        }
         prc.selectedCaseId = structKeyExists( rc, "caseId" ) && isNumeric( rc.caseId ) ? val( rc.caseId ) : 0;
         prc.documents = [];
 
@@ -108,7 +99,19 @@ component extends="coldbox.system.EventHandler" {
 
         event.setHTTPHeader( name = "Content-Disposition", value = 'attachment; filename="#resolved.fileName#"' );
         event.setHTTPHeader( name = "X-Content-Type-Options", value = "nosniff" );
-        cfcontent( type = getMimeTypeForExtension( resolved.fileType ), file = resolved.path, deleteFile = false );
+        // Adobe CF: cfcontent variable= is picky (String vs binary, scope). Streaming from a temp file is reliable.
+        var tmpPath = getTempDirectory() & "servepoint-doc-dl-" & createUUID() & ".bin";
+        try {
+            fileWrite( tmpPath, resolved.fileContent );
+            cfcontent( type = getMimeTypeForExtension( resolved.fileType ), file = tmpPath, deleteFile = "yes" );
+        } finally {
+            if ( fileExists( tmpPath ) ) {
+                try {
+                    fileDelete( tmpPath );
+                } catch ( any delErr ) {
+                }
+            }
+        }
         event.noRender();
     }
 

@@ -31,7 +31,8 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                         documentId = documentId
                     );
                     expect( resolved.success ).toBeTrue();
-                    expect( fileExists( resolved.path ) ).toBeTrue();
+                    expect( fileExists( resolved.storagePath ) ).toBeTrue();
+                    expect( len( resolved.fileContent ) ).toBeGT( 0 );
                     expect( resolved.fileType ).toBe( "pdf" );
                     expect( len( trim( resolved.fileName ) ) ).toBeGT( 0 );
                 } finally {
@@ -154,7 +155,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
                         documentId = documentId
                     );
                     expect( firstResolve.success ).toBeTrue();
-                    fileDelete( firstResolve.path );
+                    fileDelete( firstResolve.storagePath );
 
                     var missing = documentService.resolveDownload(
                         caseId = caseId,
@@ -230,8 +231,8 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             return;
         }
         var resolved = arguments.documentService.resolveDownload( caseId = arguments.caseId, documentId = arguments.documentId );
-        if ( resolved.success && fileExists( resolved.path ) ) {
-            fileDelete( resolved.path );
+        if ( resolved.success && structKeyExists( resolved, "storagePath" ) && fileExists( resolved.storagePath ) ) {
+            fileDelete( resolved.storagePath );
         }
     }
 

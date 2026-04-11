@@ -29,9 +29,8 @@ For comprehensive design specifications, architecture decisions, and implementat
 
 Server setup, engine options (Lucee vs ColdFusion 2025), and related configuration are documented in [docs/DEV_NOTES.md](docs/DEV_NOTES.md). That file also covers **linting and formatting**: **cfformat** for CFML, **CFLint** (editor + `.cflintrc`), and **Prettier** for non-CF files — see the “Linting and formatting” section there.
 
-Document upload storage settings (`SERVEPOINT_DOCUMENT_STORAGE_ROOT`, `SERVEPOINT_DOCUMENT_TEMP_ROOT`, `SERVEPOINT_DOCUMENT_MAX_BYTES`) are also documented in `docs/DEV_NOTES.md`.
+Document upload storage settings (`SERVEPOINT_DOCUMENT_STORAGE_ROOT`, `SERVEPOINT_DOCUMENT_TEMP_ROOT`, `SERVEPOINT_DOCUMENT_MAX_BYTES`, `SERVEPOINT_DOCUMENT_ENCRYPTION_KEY`) are also documented in `docs/DEV_NOTES.md`.
 Upload handling uses `SERVEPOINT_DOCUMENT_TEMP_ROOT` as staging only; files are validated and then moved to final storage at `SERVEPOINT_DOCUMENT_STORAGE_ROOT` (for Docker local dev: `/app/uploads/documents`, backed by host `./uploads/documents`).
-For demo deployments without persistent disks, set `SERVEPOINT_STORAGE_PERSISTENT=false` and use an ephemeral storage root (for example `/tmp/servepoint/uploads/documents`) so the UI clearly indicates non-persistent behavior.
 
 **Document retention:** Accepted case documents are intentionally **not** deletable from the in-app upload/view flows; disposition is an **out-of-band**, policy-driven concern. See `docs/DESIGN_NOTES.md` and `docs/DEV_NOTES.md` (Document retention).
 

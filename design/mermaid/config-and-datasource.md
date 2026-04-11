@@ -70,7 +70,7 @@ flowchart TB
 | `SERVEPOINT_DOCUMENT_STORAGE_ROOT` | Absolute/relative root directory for persisted uploaded document files                                      |
 | `SERVEPOINT_DOCUMENT_TEMP_ROOT`    | Temporary upload directory used as staging before validation and move to `SERVEPOINT_DOCUMENT_STORAGE_ROOT` |
 | `SERVEPOINT_DOCUMENT_MAX_BYTES`    | Maximum allowed upload size in bytes; defaults to `10485760` (10 MB)                                        |
-| `SERVEPOINT_STORAGE_PERSISTENT`    | Boolean flag for storage-mode messaging (`true` persistent mode, `false` ephemeral demo mode)               |
+| `SERVEPOINT_DOCUMENT_ENCRYPTION_KEY` | Base64-encoded 32-byte AES-256 key; required for storing new uploads (encrypted at rest; decrypted in memory on download) |
 
 Persisted document files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are **retained** as part of the case record; the app does not delete accepted documents from upload/view flows. See **Document retention** in `docs/DEV_NOTES.md` / `docs/DESIGN_NOTES.md`.
 

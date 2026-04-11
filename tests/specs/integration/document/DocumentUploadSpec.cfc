@@ -145,8 +145,8 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             return;
         }
         var resolved = arguments.documentService.resolveDownload( caseId = arguments.caseId, documentId = arguments.documentId );
-        if ( resolved.success && fileExists( resolved.path ) ) {
-            fileDelete( resolved.path );
+        if ( resolved.success && structKeyExists( resolved, "storagePath" ) && fileExists( resolved.storagePath ) ) {
+            fileDelete( resolved.storagePath );
         }
     }
 
