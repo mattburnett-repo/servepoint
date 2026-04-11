@@ -3,7 +3,6 @@
 <cfset docs = structKeyExists( prc, "documents" ) ? prc.documents : [] />
 <cfset selectedCaseId = structKeyExists( prc, "selectedCaseId" ) ? prc.selectedCaseId : 0 />
 <cfset hasSelectedCase = structKeyExists( prc, "selectedCase" ) && !isNull( prc.selectedCase ) />
-<cfset storagePersistent = structKeyExists( prc, "storagePersistent" ) ? prc.storagePersistent : true />
 <cfset uploadPolicy = structKeyExists( prc, "documentUploadPolicy" ) ? prc.documentUploadPolicy : { "maxBytes" = 0, "allowedTypes" = [] } />
 <cfset maxUploadMB = int( val( uploadPolicy[ "maxBytes" ] ) / 1048576 ) />
 <cfset wholeFmt = createObject( "java", "java.text.DecimalFormat" ).init( "##,##0" ) />
@@ -23,13 +22,9 @@
 	</div>
 
 	<cfif structKeyExists( prc, "noticeMessage" ) && len( trim( prc.noticeMessage ) )>
-		<div class="alert alert-success" role="alert">
+		<cfset noticeClass = trim( prc.noticeMessage ) EQ "Document uploaded successfully." ? "alert-success" : "alert-danger" />
+		<div class="alert #noticeClass#" role="alert">
 			#encodeForHTML( prc.noticeMessage )#
-		</div>
-	</cfif>
-	<cfif !storagePersistent>
-		<div class="alert alert-warning" role="alert">
-			Demo storage mode is active: uploaded files may be cleared on restart or redeploy.
 		</div>
 	</cfif>
 

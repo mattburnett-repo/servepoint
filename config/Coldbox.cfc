@@ -15,8 +15,11 @@ component {
         var uploadTempRoot = sys.getEnv( "SERVEPOINT_DOCUMENT_TEMP_ROOT" );
         var uploadMaxBytesRaw = sys.getEnv( "SERVEPOINT_DOCUMENT_MAX_BYTES" );
         var uploadMaxBytes = 10485760;
-        var storagePersistentRaw = sys.getEnv( "SERVEPOINT_STORAGE_PERSISTENT" );
-        var storagePersistent = true;
+        var encryptionKeyRaw = sys.getEnv( "SERVEPOINT_DOCUMENT_ENCRYPTION_KEY" );
+        var encryptionKeyBase64 = "";
+        if ( !isNull( encryptionKeyRaw ) && len( trim( encryptionKeyRaw ) ) ) {
+            encryptionKeyBase64 = trim( encryptionKeyRaw );
+        }
         if ( isNull(ormDbcreateRaw) || trim(ormDbcreateRaw) == "" || listFindNoCase(ormDbcreateAllowed, trim(ormDbcreateRaw)) == 0 ) {
             ormDbcreateRaw = "validate";
         } else {
@@ -35,16 +38,13 @@ component {
         if ( !isNull( uploadMaxBytesRaw ) && isNumeric( trim( uploadMaxBytesRaw ) ) && val( trim( uploadMaxBytesRaw ) ) > 0 ) {
             uploadMaxBytes = val( trim( uploadMaxBytesRaw ) );
         }
-        if ( !isNull( storagePersistentRaw ) && len( trim( storagePersistentRaw ) ) ) {
-            storagePersistent = listFindNoCase( "1,true,yes,on", trim( storagePersistentRaw ) ) > 0;
-        }
         moduleSettings = {
             servepoint = {
-                storagePersistent = storagePersistent,
                 documentUploads = {
                     storageRoot = uploadStorageRoot,
                     tempRoot = uploadTempRoot,
-                    maxBytes = uploadMaxBytes
+                    maxBytes = uploadMaxBytes,
+                    encryptionKeyBase64 = encryptionKeyBase64
                 }
             },
             cborm = {

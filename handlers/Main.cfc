@@ -18,6 +18,14 @@ component extends="coldbox.system.EventHandler" {
 	}
 
 	/**
+	 * Short summary: document encryption at rest and TLS for traffic / database.
+	 */
+	function encryption( event, rc, prc ){
+		prc.pageTitle = "Data encryption at rest and in transit";
+		event.setView( "main/encryption" );
+	}
+
+	/**
 	 * Under Construction Page
 	 */
 	function underConstruction( event, rc, prc ){

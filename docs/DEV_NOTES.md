@@ -43,7 +43,7 @@ Document uploads are configured in `config/Coldbox.cfc` under `moduleSettings.se
 - `SERVEPOINT_DOCUMENT_STORAGE_ROOT`: persisted file storage root. For Docker, set this to `/app/uploads/documents` and bind mount host `./uploads/documents` to container `/app/uploads/documents` so files never stay container-only.
 - `SERVEPOINT_DOCUMENT_TEMP_ROOT`: temp upload root used before validation/persist (default: `../tmp/uploads/documents` from `config/`).
 - `SERVEPOINT_DOCUMENT_MAX_BYTES`: max upload size in bytes (default: `10485760`, i.e. 10 MB).
-- `SERVEPOINT_STORAGE_PERSISTENT`: UI/documentation flag for storage mode messaging. Set `true` for local persistent mode; set `false` for ephemeral demo mode (for example on Render without a persistent disk).
+- `SERVEPOINT_DOCUMENT_ENCRYPTION_KEY`: required for uploads. Base64 encoding of **32 bytes** (AES-256). Files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are stored encrypted (AES-256-GCM with a per-file nonce); downloads decrypt in memory. Legacy plaintext files on disk (no `SP1ENC01` header) still download as-is.
 
 The `DocumentService` persists files with unique UUID-based disk names and stores those names in `documents.fileName`. `documents.fileType` and `Document_File_Type` constants are used to enforce allowed extensions (`pdf`, `docx`, `png`, `jpeg`, `jpg`).
 Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_ROOT` first, then are validated (active case, allowed type, max size) and moved into `SERVEPOINT_DOCUMENT_STORAGE_ROOT`. Invalid uploads are deleted from temp and never persisted to the final storage root.
@@ -53,11 +53,6 @@ Upload flow is intentionally two-stage: files land in `SERVEPOINT_DOCUMENT_TEMP_
 - **Accepted documents** (rows in `documents` plus files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT`) are **retained** as part of the case record. There is **no in-app delete** from the documents workspace (upload / list / download only).
 - **Removing** a document from normal use—DB row, file on disk, or both—is **not** implemented in routine UI flows; it belongs to **records disposition** handled **outside** upload/view (e.g. compliance-approved process, DBA/storage ops, future admin tooling), consistent with [DESIGN_NOTES.md](DESIGN_NOTES.md) (Document retention).
 - **Case archive** soft-hides the case (and thus document access through normal active-case flows) but **does not** delete document rows or files; see “Archive / restore” below.
-
-#### Storage modes
-
-- **Persistent mode (local dev default)**: `SERVEPOINT_DOCUMENT_STORAGE_ROOT=/app/uploads/documents` and `SERVEPOINT_STORAGE_PERSISTENT=true` with Docker bind mount `./uploads/documents -> /app/uploads/documents`.
-- **Ephemeral demo mode (Render without disk)**: `SERVEPOINT_DOCUMENT_STORAGE_ROOT=/tmp/servepoint/uploads/documents` and `SERVEPOINT_STORAGE_PERSISTENT=false`. Files work during runtime but may be lost on restart/redeploy.
 
 ### Database seeding (`SERVEPOINT_AUTO_SEED`)
 
