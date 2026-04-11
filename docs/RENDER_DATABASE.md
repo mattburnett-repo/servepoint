@@ -4,7 +4,7 @@ Use these steps when you want to **reset the Render PostgreSQL database** so the
 
 If drift exists but you do **not** want a full reset, first capture current local schema/column metadata and add an explicit corrective migration, then deploy. See **[DEV_NOTES.md](DEV_NOTES.md)** → Database & migrations → Schema drift capture (quick process).
 
-**Environment variables on Render:** The repo does not commit `.env.deploy` (it is in `.gitignore`). Configure the Render **Web Service** with the same variables you use locally for the remote DB: at minimum set `DB_DRIVER`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (from your Render Postgres service), `ORM_DBCREATE=validate`, and `SERVEPOINT_AUTO_SEED` (e.g. `true`) in the Render dashboard so each deploy has the correct config.
+**Environment variables on Render:** The repo does not commit `.env.deploy` (it is in `.gitignore`). Configure the Render **Web Service** with the same variables you use locally for the remote DB: at minimum set `DB_DRIVER`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (from your Render Postgres service), **`DB_SSL_MODE=require`** (TLS to managed Postgres; wired via datasource `custom` in `.cfconfig.json`), `ORM_DBCREATE=validate`, and `SERVEPOINT_AUTO_SEED` (e.g. `true`) in the Render dashboard so each deploy has the correct config.
 
 ## 1. Connect to the Render PostgreSQL database
 

@@ -107,12 +107,13 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			it( "can create and relate core entities after migrations run", function(){
 				// Basic smoke test to ensure ORM and migrations agree on the schema:
 				// create a user, a case, a document, audit event, and communication and assert they persist.
-				var user = getInstance( "Users" )
-					.setFirstName( "Test" )
-					.setLastName( "User" )
-					.setEmail( "migrations-smoke-" & createUUID() & "@example.com" )
-					.setPassword( "password123" )
-					.setRole( "Administrator" );
+				// Do not assign Users from a fluent chain on Adobe CF: void-returning setters leave var uninitialized.
+				var user = getInstance( "Users" );
+				user.setFirstName( "Test" );
+				user.setLastName( "User" );
+				user.setEmail( "migrations-smoke-" & createUUID() & "@example.com" );
+				user.setPassword( "password123" );
+				user.setRole( "Administrator" );
 				user.save();
 
 				var caseEntity = getInstance( "Cases" )

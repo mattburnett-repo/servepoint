@@ -18,7 +18,7 @@ flowchart TB
 
     subgraph CFConfigApply["CFConfig applies to Adobe CF"]
         E[Write datasources to CF server config]
-        F[servepoint: dbdriver, host, port, database, username, password]
+        F[servepoint: dbdriver, host, port, database, user, pass, custom sslmode]
     end
 
     subgraph AppLoad["Application startup (Application.cfc)"]
@@ -55,9 +55,9 @@ flowchart TB
 | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | CommandBox      | server.json                 | Server name, engine (adobe@2025), JVM, web, **cfconfig.file**, **runwar.args** (`--log-level ERROR` suppresses noisy Runwar WARNs on stop socket), scripts |
 | CFConfig        | server.json → cfconfig.file | Path to config JSON (e.g. .cfconfig.json)                                                                                 |
-| CFConfig        | .cfconfig.json              | Datasource `servepoint`, caches, other CF settings; applied to Adobe CF at startup                                        |
+| CFConfig        | .cfconfig.json              | Datasource `servepoint` (including `custom` → `sslmode=${DB_SSL_MODE}`), caches, other CF settings; applied to Adobe CF at startup |
 | Adobe CF        | (in-memory after CFConfig)  | Registered datasources (e.g. servepoint)                                                                                  |
-| Application.cfc | (code)                      | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (includes `ORM_DBCREATE` env, default `validate`) |
+| Application.cfc | (code)                      | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (`cfclocation`, `ORM_DBCREATE` / `dbcreate`, `eventHandling = true` for entity `preInsert`/`preUpdate`, etc.) |
 | Coldbox.cfc     | (code)                      | `moduleSettings.cborm.datasource`, cborm ORM options; `moduleSettings.cfmigrations` → `resources/database/migrations`     |
 | cfmigrations    | (startup)                   | `migrationService.up()` before `ormGetSessionFactory()`                                                                   |
 
@@ -65,12 +65,13 @@ flowchart TB
 
 | Variable                           | Role                                                                                                        |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `DB_SSL_MODE`                      | PostgreSQL JDBC `sslmode` (via datasource `custom` in `.cfconfig.json`); e.g. `disable` for Compose `db`, `require` for Render external host |
 | `ORM_DBCREATE`                     | ORM schema mode (`validate`, `update`, `dropcreate`, `none`); defaults to `validate` if unset or invalid    |
 | `SERVEPOINT_AUTO_SEED`             | When truthy, `SeedService.runAll()` after ORM init; default when unset is to seed                           |
 | `SERVEPOINT_DOCUMENT_STORAGE_ROOT` | Absolute/relative root directory for persisted uploaded document files                                      |
 | `SERVEPOINT_DOCUMENT_TEMP_ROOT`    | Temporary upload directory used as staging before validation and move to `SERVEPOINT_DOCUMENT_STORAGE_ROOT` |
 | `SERVEPOINT_DOCUMENT_MAX_BYTES`    | Maximum allowed upload size in bytes; defaults to `10485760` (10 MB)                                        |
-| `SERVEPOINT_STORAGE_PERSISTENT`    | Boolean flag for storage-mode messaging (`true` persistent mode, `false` ephemeral demo mode)               |
+| `SERVEPOINT_DOCUMENT_ENCRYPTION_KEY` | Base64-encoded 32-byte AES-256 key; required for storing new uploads (encrypted at rest; decrypted in memory on download) |
 
 Persisted document files under `SERVEPOINT_DOCUMENT_STORAGE_ROOT` are **retained** as part of the case record; the app does not delete accepted documents from upload/view flows. See **Document retention** in `docs/DEV_NOTES.md` / `docs/DESIGN_NOTES.md`.
 

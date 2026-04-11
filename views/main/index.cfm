@@ -74,7 +74,9 @@
 						<div class="rounded-circle flex-shrink-0 text-success px-1">
 							<i class="bi bi-lock" aria-hidden="true"></i> 
 						</div>
-						<div class="d-flex gap-2 w-100 justify-content-between">Data encryption at rest and in transit</div>
+						<div class="d-flex gap-2 w-100 justify-content-between">
+							<a href="#event.buildLink( 'main.encryption' )#">Data encryption at rest and in transit</a>
+						</div>
 					</div>
 					<div class="list-group-item d-flex gap-2 py-3">
 						<div class="rounded-circle flex-shrink-0 text-success px-1">

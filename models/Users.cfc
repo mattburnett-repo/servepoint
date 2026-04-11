@@ -19,6 +19,25 @@ component persistent="true" extends="cborm.models.ActiveEntity" table="users" {
     property name="communicationsUpdatedBy" fieldtype="one-to-many" cfc="Communication" fkcolumn="updated_by";
 
     /**
+     * Plaintext → bcrypt; existing bcrypt unchanged. ORM reads persisted scalars from variables.* — custom setters must assign there.
+     * Null/empty: no-op. Methods belong after all property tags (Adobe ORM).
+     */
+    public void function setPassword( any password ) {
+        if ( isNull( arguments.password ) ) {
+            return;
+        }
+        var p = trim( toString( arguments.password ) );
+        if ( !len( p ) ) {
+            return;
+        }
+        if ( reFindNoCase( "^\\$2[aby]\\$", p ) ) {
+            variables.password = p;
+            return;
+        }
+        variables.password = generateBCryptHash( p );
+    }
+
+    /**
      * ColdBox ORM lifecycle method to validate the data before saving.
      */
     public void function validate() {

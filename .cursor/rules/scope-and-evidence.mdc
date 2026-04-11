@@ -17,6 +17,12 @@ Reduce **scope creep** and **over-speculation** when debugging or implementing.
 2. **Do not present guesses as facts.** If you have not read the relevant file or run the check, say **hypothesis** or ask **one** targeted question instead of listing alternatives.
 3. **Order of response:** shortest **actionable** fix or check → then optional deeper explanation **only if useful** or if asked.
 
+## Communication
+
+1. **Default to short and direct** — Answer the question first; match length to complexity. No padded intros, no stacked “alternatives” unless the user asks for options.
+2. **Stay consistent** — Do not agree to keep replies brief and then return to long, hedged, or over-engineered answers on the next turn.
+3. **No lecture mode** — Avoid multi-section essays, repetitive disclaimers, and restating the same idea. One optional follow-on paragraph is enough when extra context helps.
+
 ## Size of change
 
 1. Prefer the **smallest** diff that addresses the cause. No drive-by refactors, renames, or new abstractions unless the user asked or they are strictly required for the fix.
