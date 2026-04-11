@@ -4,12 +4,14 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
         describe( "Audit reporting", function() {
 
             it( "reports.index renders the reporting page", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var event = this.get( "reports.index" );
                 expect( event.getRenderedContent() ).toInclude( "Audit trails and reporting" );
                 expect( event.getRenderedContent() ).toInclude( "Audit events by type" );
             } );
 
             it( "reports.byType renders detail rows for a selected event type", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var event = this.get( "reports.byType?eventType=Case%20Create" );
                 expect( event.getRenderedContent() ).toInclude( "Audit events for Case Create" );
                 expect( event.getRenderedContent() ).toInclude( "Event details" );

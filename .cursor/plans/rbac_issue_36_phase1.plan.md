@@ -3,17 +3,17 @@ name: ServePoint RBAC Issue 36 — Phase 1 (Authentication)
 overview: "Milestone A: session-backed identity (session.userId), SecurityService, login/logout with return URL, ColdBox interceptor with public allowlist only (no role gates), prc current user, minimal nav. Includes Phase 1 tests and minimal DEV_NOTES + request-lifecycle mermaid. Use this plan alone for Build until Phase 1 is accepted."
 todos:
   - id: phase1-auth-security-login
-    content: "SecurityService + session.userId + Main login/logout + return URL; WireBox map; bcrypt verify on login"
-    status: pending
+    content: SecurityService + session.userId + Main login/logout + return URL; WireBox map; bcrypt verify on login
+    status: completed
   - id: phase1-auth-interceptor
-    content: "Interceptor — public allowlist only, unauthenticated → login + return URL, prc current user (no role gates)"
-    status: pending
+    content: Interceptor — public allowlist only, unauthenticated → login + return URL, prc current user (no role gates)
+    status: completed
   - id: phase1-tests-integration
-    content: "TestBox — unauthenticated → login redirect + return URL; authenticated access to protected routes; update specs broken by protected routes"
-    status: pending
+    content: TestBox — unauthenticated → login redirect + return URL; authenticated access to protected routes; update specs broken by protected routes
+    status: completed
   - id: phase1-docs-mermaid
-    content: "DEV_NOTES (session/login/seed accounts) + design/mermaid request-lifecycle for auth interceptor"
-    status: pending
+    content: DEV_NOTES (session/login/seed accounts) + design/mermaid request-lifecycle for auth interceptor
+    status: completed
 isProject: false
 ---
 

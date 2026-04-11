@@ -124,9 +124,9 @@
 				<i class="bi bi-card-checklist" aria-hidden="true"></i>
 			</div>
 			<div>
-				<h2 class="text-primary">Development Tools</h2>
+				<h2 class="text-primary">Automated tests</h2>
 				<p>
-					Comprehensive testing and development tools are available:
+					Use the TestBox browser to run the automated integration test suite (opens in a new tab).
 				</p>
 
 				<div class="d-grid gap-2 d-sm-flex justify-content-sm-center">

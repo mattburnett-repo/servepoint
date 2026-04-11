@@ -40,6 +40,7 @@ component extends="coldbox.system.ioc.config.Binder" {
 		map( "AuditLoggerService" ).to( "cbapp.services.AuditLoggerService" ).asSingleton();
 		map( "ReportsService" ).to( "cbapp.services.ReportsService" ).asSingleton();
 		map( "SeedService" ).to( "cbapp.services.SeedService" ).asSingleton();
+		map( "SecurityService" ).to( "cbapp.services.SecurityService" ).asSingleton();
 	}
 
 }

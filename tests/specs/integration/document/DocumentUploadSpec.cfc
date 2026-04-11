@@ -130,6 +130,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             } );
 
             it( "documents.upload rejects missing case id", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var event = this.post( "documents.upload", {}, {}, false );
                 expect( event.getValue( "relocate_event", "" ) ).toBe( "cases.index" );
             } );

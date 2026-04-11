@@ -9,6 +9,7 @@ sequenceDiagram
     participant AppCfc as Application.cfc
     participant ColdBox
     participant Router
+    participant Interceptor as SecurityInterceptor
     participant Handler
     participant Service as CaseService DocumentService ReportsService AuditLoggerService
     participant View
@@ -18,7 +19,8 @@ sequenceDiagram
     Runwar->>AppCfc: onRequestStart(targetPage)
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
-    Router->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType)
+    Router->>Interceptor: preProcess (public allowlist or session.userId else relocate main.login)
+    Interceptor->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType)
     Handler->>Handler: Set prc, call services / ORM
     Handler->>Service: e.g. listActive(), createCase(), listForCase(), listForHub(), createCommunication(), uploadFromForm(), getTypeCounts(), getEventsByType(), record()
     Service-->>Handler: entities / result struct
@@ -27,7 +29,7 @@ sequenceDiagram
     Layout->>Browser: HTML Response
 ```
 
-Note: handlers that do not use a service (for example `Main.index`) skip the service participant.
+Note: handlers that do not use a service (for example `Main.index`) skip the service participant. `SecurityInterceptor` only enforces **authentication** (Phase 1); role-based rules (Phase 2) are not applied here.
 
 ## Application startup (once)
 
@@ -48,7 +50,9 @@ flowchart LR
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
 - **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
-- **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
+- **interceptors/SecurityInterceptor.cfc**: `preProcess` — public route allowlist; unauthenticated users relocated to `main.login` with return target in session; sets `prc.currentUser` when `session.userId` is present.
+- **services/SecurityService.cfc**: Login verification (`VerifyBCryptHash`), session user resolution, return-target helpers for post-login redirect.
+- **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.login` / `main.doLogin` / `main.logout`; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
 - **handlers/Cases.cfc**: Case list, detail/edit, create, archive, POST `addCommunication` (staff notes on active cases).
 - **handlers/Communications.cfc**: Read-only communications hub (`communications.index`) with optional filters (case, type, author).
 - **handlers/Reports.cfc**: Reporting hub (`reports.index`) and detail drill-down (`reports.byType`) with date-range filters and optional archived-case inclusion; records report-view audit events.

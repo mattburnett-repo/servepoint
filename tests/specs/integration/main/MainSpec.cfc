@@ -47,13 +47,14 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "can render some restful data", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var event = this.post( "main.data" );
 
-				debug( event.getHandlerResults() );
 				expect( event.getRenderedContent() ).toBeJSON();
 			} );
 
 			it( "can do a relocation", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var event = execute( event = "main.doSomething" );
 				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
 			} );

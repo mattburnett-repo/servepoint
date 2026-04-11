@@ -23,6 +23,14 @@ For day‑to‑day development, **run the app inside Docker**, not via `box serv
 - **Docker Compose** (`docker/docker-compose.yml`) starts the app **and** a local PostgreSQL container. Use it with `.env.dev` when you want a **local, dev-only database** so migrations, seeds, and experiments don’t touch the remote Render database. This is the recommended setup for day‑to‑day development. The compose file maps the app to **host port 8081** (→ container 8080) so it does not conflict with other tools on your machine that use **8080** (for example nginx). Access the app at **`http://localhost:8081`** for local Compose.
 - **Remote database (e.g. Render)**: For deployment or for testing against the live DB, run only the app container (e.g. `docker build -t servepoint -f docker/Dockerfile .` then `docker run --env-file .env.deploy -p 8080:8080 servepoint`). Render builds from the Dockerfile only and does not use docker-compose. You do **not** need docker-compose for Render deployment; you **do** need it (or another local Postgres) if you want an isolated local database for development.
 
+## Authentication (Phase 1)
+
+- **Session key:** `session.userId` — numeric `users.user_id` for the signed-in user (set on successful login, cleared on logout).
+- **Service:** `SecurityService` (`services/SecurityService.cfc`) — resolves current user, `authenticate()` / `loginUser()` / `logout()`, and stores return targets (`session.auth_returnEvent`, `session.auth_returnQueryString`) when an unauthenticated user hits a protected route.
+- **Routes (public, no login):** `main.index`, `main.encryption`, `main.compliance`, `main.underConstruction`, `main.login`, `main.doLogin`, `main.logout`, and `/healthcheck`. See `interceptors/SecurityInterceptor.cfc` for the authoritative list.
+- **Protected routes:** everything else (e.g. `cases.*`, `reports.*`, `documents.*`, `communications.*`, `main.data`) requires `session.userId`. Unauthenticated requests are relocated to `main.login`; after login, ColdBox relocates to the stored event + query string (default `cases.index` if none).
+- **Demo accounts:** seeded in `SeedService` (e.g. `admin@example.com`, `case.manager@example.com`, `citizen@example.com` with password `change-me` when using default seeds).
+
 ## Config and secrets
 
 This app uses:
