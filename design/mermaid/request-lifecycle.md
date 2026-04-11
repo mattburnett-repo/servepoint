@@ -48,7 +48,7 @@ flowchart LR
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
 - **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
-- **handlers/Main.cfc**: Home, under construction, sample `data` JSON; links core features including audit/reporting entry.
+- **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
 - **handlers/Cases.cfc**: Case list, detail/edit, create, archive, POST `addCommunication` (staff notes on active cases).
 - **handlers/Communications.cfc**: Read-only communications hub (`communications.index`) with optional filters (case, type, author).
 - **handlers/Reports.cfc**: Reporting hub (`reports.index`) and detail drill-down (`reports.byType`) with date-range filters and optional archived-case inclusion; records report-view audit events.
