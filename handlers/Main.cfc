@@ -26,6 +26,14 @@ component extends="coldbox.system.EventHandler" {
 	}
 
 	/**
+	 * Demo-grade privacy/compliance posture: not legal advice; points to docs/compliance on GitHub.
+	 */
+	function compliance( event, rc, prc ){
+		prc.pageTitle = "Privacy and compliance posture";
+		event.setView( "main/compliance" );
+	}
+
+	/**
 	 * Under Construction Page
 	 */
 	function underConstruction( event, rc, prc ){
