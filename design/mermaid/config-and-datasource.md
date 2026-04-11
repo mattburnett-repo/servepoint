@@ -18,7 +18,7 @@ flowchart TB
 
     subgraph CFConfigApply["CFConfig applies to Adobe CF"]
         E[Write datasources to CF server config]
-        F[servepoint: dbdriver, host, port, database, username, password]
+        F[servepoint: dbdriver, host, port, database, user, pass, custom sslmode]
     end
 
     subgraph AppLoad["Application startup (Application.cfc)"]
@@ -55,7 +55,7 @@ flowchart TB
 | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | CommandBox      | server.json                 | Server name, engine (adobe@2025), JVM, web, **cfconfig.file**, **runwar.args** (`--log-level ERROR` suppresses noisy Runwar WARNs on stop socket), scripts |
 | CFConfig        | server.json → cfconfig.file | Path to config JSON (e.g. .cfconfig.json)                                                                                 |
-| CFConfig        | .cfconfig.json              | Datasource `servepoint`, caches, other CF settings; applied to Adobe CF at startup                                        |
+| CFConfig        | .cfconfig.json              | Datasource `servepoint` (including `custom` → `sslmode=${DB_SSL_MODE}`), caches, other CF settings; applied to Adobe CF at startup |
 | Adobe CF        | (in-memory after CFConfig)  | Registered datasources (e.g. servepoint)                                                                                  |
 | Application.cfc | (code)                      | `this.datasource = "servepoint"`, `this.ormEnabled`, `this.ormSettings` (`cfclocation`, `ORM_DBCREATE` / `dbcreate`, `eventHandling = true` for entity `preInsert`/`preUpdate`, etc.) |
 | Coldbox.cfc     | (code)                      | `moduleSettings.cborm.datasource`, cborm ORM options; `moduleSettings.cfmigrations` → `resources/database/migrations`     |
@@ -65,6 +65,7 @@ flowchart TB
 
 | Variable                           | Role                                                                                                        |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `DB_SSL_MODE`                      | PostgreSQL JDBC `sslmode` (via datasource `custom` in `.cfconfig.json`); e.g. `disable` for Compose `db`, `require` for Render external host |
 | `ORM_DBCREATE`                     | ORM schema mode (`validate`, `update`, `dropcreate`, `none`); defaults to `validate` if unset or invalid    |
 | `SERVEPOINT_AUTO_SEED`             | When truthy, `SeedService.runAll()` after ORM init; default when unset is to seed                           |
 | `SERVEPOINT_DOCUMENT_STORAGE_ROOT` | Absolute/relative root directory for persisted uploaded document files                                      |
