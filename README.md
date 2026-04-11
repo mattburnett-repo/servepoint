@@ -10,6 +10,8 @@ For detailed design specifications and requirements, see [docs/DESIGN_NOTES.md](
 
 For development notes, see [docs/DEV_NOTES.md](docs/DEV_NOTES.md).
 
+**Privacy / compliance (demo posture):** Engineering transparency and checklists—not legal advice or certification—are in [docs/compliance/README.md](docs/compliance/README.md) (GDPR, HIPAA, CCPA high-level pages and data inventory).
+
 Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).
 
 ## 🏗️ Architecture

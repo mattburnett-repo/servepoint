@@ -90,7 +90,9 @@
 						<div class="rounded-circle flex-shrink-0 text-success px-1">
 							<i class="bi bi-file-earmark-check" aria-hidden="true"></i> 
 						</div>
-						<div class="d-flex gap-2 w-100 justify-content-between">GDPR, HIPAA, CCPA compliance</div>
+						<div class="d-flex gap-2 w-100 justify-content-between">
+							<a href="#event.buildLink( 'main.compliance' )#">GDPR, HIPAA, CCPA compliance posture</a>
+						</div>
 					</div>
 				</div>
 			</div>
