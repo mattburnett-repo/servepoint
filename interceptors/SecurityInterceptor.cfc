@@ -46,7 +46,12 @@ component extends="coldbox.system.Interceptor" accessors="true" {
             return false;
         }
         var ur = new models.constants.User_Role();
-        var currentEvent = lCase( event.getCurrentHandler() ) & "." & lCase( event.getCurrentAction() );
+        var currentHandler = lCase( event.getCurrentHandler() );
+        // Admin module (Issue #47): only Administrator may access any admin.* event
+        if ( currentHandler == "admin" ) {
+            return role == ur.ROLES.ADMINISTRATOR;
+        }
+        var currentEvent = currentHandler & "." & lCase( event.getCurrentAction() );
 
         if ( role == ur.ROLES.ADMINISTRATOR ) {
             return true;

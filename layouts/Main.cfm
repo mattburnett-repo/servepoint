@@ -120,6 +120,13 @@
 							</a>
 						</li>
 						</cfif>
+						<cfif len( _navRole ) AND _navRole EQ "Administrator">
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'admin.index' )#">
+								<i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Admin
+							</a>
+						</li>
+						</cfif>
 					</ul>
 
 					<!--- About / Learn / Support: immediately after brand on lg+; below primary when menu is stacked --->

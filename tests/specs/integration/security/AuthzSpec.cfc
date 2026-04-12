@@ -23,6 +23,80 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
 			} );
 
+			it( "unauthenticated access to admin.index relocates to main.login", function() {
+				this.clearSessionAuth();
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.login" );
+			} );
+
+			it( "Citizen cannot open admin.index (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "citizen@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Case Manager cannot open admin.index (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "case.manager@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Administrator can open admin.index", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "admin@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "" );
+				expect( event.getRenderedContent() ).toInclude( "servepoint-admin-roadmap" );
+				expect( event.getRenderedContent() ).toInclude( "Manage users" );
+			} );
+
+			it( "Case Manager cannot open admin.users (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "case.manager@example.com" );
+				var event = this.get( "admin.users" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Administrator can open admin.users", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "admin@example.com" );
+				var event = this.get( "admin.users" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "" );
+				expect( event.getRenderedContent() ).toInclude( "Current role" );
+			} );
+
+			it( "Case Manager cannot open admin.cases (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "case.manager@example.com" );
+				var event = this.get( "admin.cases" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Administrator can open admin.cases", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "admin@example.com" );
+				var event = this.get( "admin.cases" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "" );
+				expect( event.getRenderedContent() ).toInclude( "All cases" );
+			} );
+
+			it( "AdminService refuses to demote the last Administrator", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "admin@example.com" );
+				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
+				expect( isNull( admin ) ).toBeFalse();
+				var adminSvc = getWireBox().getInstance( "AdminService" );
+				var r        = adminSvc.updateUserRole(
+					actorUserId  = admin.getUserId(),
+					targetUserId = admin.getUserId(),
+					newRole      = "Citizen"
+				);
+				expect( r.success ).toBeFalse();
+				expect( r.error ).toInclude( "last" );
+			} );
+
 			it( "Citizen cannot POST cases.create (relocate to main.index)", function() {
 				this.clearSessionAuth();
 				this.loginAsSeedUser( "citizen@example.com" );

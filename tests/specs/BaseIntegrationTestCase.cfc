@@ -7,6 +7,26 @@
 component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 
 	/**
+	 * Ensure the singleton Renderer has appMapping before layout/view resolution.
+	 * ColdBox VirtualApp + Adobe CF can leave Renderer.appMapping unset in variables,
+	 * which breaks locateLayout() during integration runs that render HTML.
+	 */
+	function setup() {
+		super.setup();
+		if (
+			this.loadColdbox &&
+			structKeyExists( variables, "controller" ) &&
+			!isSimpleValue( variables.controller ) &&
+			len( trim( variables.appMapping ) )
+		) {
+			try {
+				variables.controller.getRenderer().setAppMapping( trim( variables.appMapping ) );
+			} catch ( any e ) {
+			}
+		}
+	}
+
+	/**
 	 * @aroundEach
 	 */
 	public void function wrapInDbTransaction( required spec, required suite, struct data = {} ) {
