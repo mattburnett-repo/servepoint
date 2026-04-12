@@ -23,6 +23,34 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
 			} );
 
+			it( "unauthenticated access to admin.index relocates to main.login", function() {
+				this.clearSessionAuth();
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.login" );
+			} );
+
+			it( "Citizen cannot open admin.index (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "citizen@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Case Manager cannot open admin.index (relocate to main.index)", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "case.manager@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "main.index" );
+			} );
+
+			it( "Administrator can open admin.index", function() {
+				this.clearSessionAuth();
+				this.loginAsSeedUser( "admin@example.com" );
+				var event = this.get( "admin.index" );
+				expect( event.getValue( "relocate_event", "" ) ).toBe( "" );
+				expect( event.getRenderedContent() ).toInclude( "servepoint-admin-roadmap" );
+			} );
+
 			it( "Citizen cannot POST cases.create (relocate to main.index)", function() {
 				this.clearSessionAuth();
 				this.loginAsSeedUser( "citizen@example.com" );

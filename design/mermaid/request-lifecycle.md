@@ -20,7 +20,7 @@ sequenceDiagram
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
     Router->>Interceptor: preProcess (public allowlist; auth; coarse RBAC else relocate main.index or main.login)
-    Interceptor->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType)
+    Interceptor->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType admin.index)
     Handler->>Handler: Set prc, call services / ORM
     Handler->>Service: e.g. listActive(), createCase(), listForCase(), listForHub(), createCommunication(), uploadFromForm(), getTypeCounts(), getEventsByType(), record()
     Service-->>Handler: entities / result struct
@@ -29,7 +29,7 @@ sequenceDiagram
     Layout->>Browser: HTML Response
 ```
 
-Note: handlers that do not use a service (for example `Main.index`) skip the service participant. `SecurityInterceptor` enforces **authentication** (Phase 1) and **coarse RBAC** by role vs routed event (Phase 2); resource rules (assignment, case scope) live in services (`CaseService`, `DocumentService`, `CommunicationService`).
+Note: handlers that do not use a service (for example `Main.index`) skip the service participant. `SecurityInterceptor` enforces **authentication** (Phase 1) and **coarse RBAC** by role vs routed event (Phase 2); the **`admin`** handler namespace is **Administrator-only** (all `admin.*` events). Resource rules (assignment, case scope) live in services (`CaseService`, `DocumentService`, `CommunicationService`).
 
 ## Application startup (once)
 
@@ -49,13 +49,14 @@ flowchart LR
 ## Key files
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
-- **config/Router.cfc**: `/healthcheck` → `main.healthcheck` (HTML status page; DB ping), `/api/echo`, convention route `:handler/:action?`.
-- **interceptors/SecurityInterceptor.cfc**: `preProcess` — public route allowlist; unauthenticated users relocated to `main.login` with return target in session; sets `prc.currentUser` / `prc.currentUserRole` when `session.userId` is present; authenticated users denied by coarse RBAC relocate to `main.index` with flash (`session.servepointAuthzNotice`).
+- **config/Router.cfc**: `/healthcheck` → `main.healthcheck` (HTML status page; DB ping), `/admin` → `admin.index`, `/api/echo`, convention route `:handler/:action?`.
+- **interceptors/SecurityInterceptor.cfc**: `preProcess` — public route allowlist; unauthenticated users relocated to `main.login` with return target in session; sets `prc.currentUser` / `prc.currentUserRole` when `session.userId` is present; authenticated users denied by coarse RBAC relocate to `main.index` with flash (`session.servepointAuthzNotice`); **`admin.*` requires Administrator**.
 - **services/SecurityService.cfc**: Login verification (`VerifyBCryptHash`), session user resolution, return-target helpers for post-login redirect.
 - **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.login` / `main.doLogin` / `main.logout`; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
 - **handlers/Cases.cfc**: Case list, detail/edit, create, archive, POST `addCommunication` (staff notes on active cases).
 - **handlers/Communications.cfc**: Read-only communications hub (`communications.index`) with optional filters (case, type, author).
 - **handlers/Reports.cfc**: Reporting hub (`reports.index`) and detail drill-down (`reports.byType`) with date-range filters and optional archived-case inclusion; records report-view audit events.
+- **handlers/Admin.cfc**: Administrator-only admin home (`admin.index`); `/admin` route; roadmap UI for future admin features (`views/admin/index.cfm`).
 - **handlers/Documents.cfc**: Document upload and download actions, scoped to active cases. **No delete** in routine flows—see document retention in `docs/DESIGN_NOTES.md` / `docs/DEV_NOTES.md`.
 - **views/documents/index.cfm**: Standalone document workspace (select case, upload, list, download).
 - **services/CaseService.cfc**: Active-case queries, create/update/archive.

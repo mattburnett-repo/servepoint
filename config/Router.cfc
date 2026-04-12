@@ -32,6 +32,9 @@ component {
 
 		// @app_routes@
 
+		// Admin module (Issue #47): explicit URL before conventions
+		route( "/admin" ).to( "admin.index" );
+
 		// Conventions-Based Routing
 		route( ":handler/:action?" ).end();
 	}
