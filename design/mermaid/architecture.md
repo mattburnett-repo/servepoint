@@ -65,7 +65,7 @@ flowchart TB
 |----------|------------|
 | Client   | Browser |
 | Runtime  | CommandBox, Runwar, CFConfig, Adobe CF 2025 |
-| App      | Application.cfc, ColdBox, WireBox, Router, Handlers (including Administrator-only `Admin`), Services (e.g. CaseService, CommunicationService, ReportsService, SeedService), Views, Layouts |
+| App      | Application.cfc, ColdBox, WireBox, Router, Handlers (including Administrator-only `Admin`), Services (e.g. CaseService, AdminService, CommunicationService, ReportsService, SeedService), Views, Layouts |
 | Data     | cborm, cfmigrations (startup migrations), CF ORM, PostgreSQL |
 | Config   | server.json, .cfconfig.json |
 
@@ -77,7 +77,7 @@ flowchart TB
 | `Cases` | `CaseService`, `CommunicationService` | `cases/index`, `cases/view`, `cases/new`; `addCommunication` (POST) |
 | `Communications` | `CommunicationService`, `CaseService` | `communications/index` (read-only hub) |
 | `Reports` | `ReportsService`, `AuditLoggerService` | `reports/index` (audit-event aggregate reporting) |
-| `Admin` | — | `admin/index` (admin home; `/admin`; Administrator-only via `SecurityInterceptor`) |
+| `Admin` | `AdminService`, `CaseService` | `admin/index`, `admin/users`, `admin/cases` (explicit `/admin`, `/admin/users`, `/admin/cases`; POST `saveUserRole`, `restoreArchivedCase`; Administrator-only via `SecurityInterceptor`) |
 | `Documents` | `DocumentService`, `CaseService` | `documents/index`; upload/download actions (no in-app document delete—retention policy; see `docs/DESIGN_NOTES.md`) |
 
 `SeedService` runs during `onApplicationStart` when `SERVEPOINT_AUTO_SEED` allows it (see Application.cfc).

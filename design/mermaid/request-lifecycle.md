@@ -11,7 +11,7 @@ sequenceDiagram
     participant Router
     participant Interceptor as SecurityInterceptor
     participant Handler
-    participant Service as CaseService DocumentService ReportsService AuditLoggerService
+    participant Service as CaseService AdminService DocumentService ReportsService AuditLoggerService
     participant View
     participant Layout
 
@@ -20,11 +20,11 @@ sequenceDiagram
     AppCfc->>ColdBox: cbBootstrap.onRequestStart()
     ColdBox->>Router: Route request
     Router->>Interceptor: preProcess (public allowlist; auth; coarse RBAC else relocate main.index or main.login)
-    Interceptor->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType admin.index)
+    Interceptor->>Handler: Dispatch (e.g. cases.view documents.upload reports.index reports.byType admin.index admin.users admin.cases)
     Handler->>Handler: Set prc, call services / ORM
     Handler->>Service: e.g. listActive(), createCase(), listForCase(), listForHub(), createCommunication(), uploadFromForm(), getTypeCounts(), getEventsByType(), record()
     Service-->>Handler: entities / result struct
-    Handler->>View: event.setView("cases/index", "cases/view", "communications/index", "reports/index", or "documents/index")
+    Handler->>View: event.setView (cases, communications, reports, documents, admin, …)
     View->>Layout: Render view in layout
     Layout->>Browser: HTML Response
 ```
@@ -49,17 +49,18 @@ flowchart LR
 ## Key files
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
-- **config/Router.cfc**: `/healthcheck` → `main.healthcheck` (HTML status page; DB ping), `/admin` → `admin.index`, `/api/echo`, convention route `:handler/:action?`.
+- **config/Router.cfc**: `/healthcheck` → `main.healthcheck` (HTML status page; DB ping), `/admin/users` → `admin.users`, `/admin/cases` → `admin.cases`, `/admin` → `admin.index`, `/api/echo`, convention route `:handler/:action?`.
 - **interceptors/SecurityInterceptor.cfc**: `preProcess` — public route allowlist; unauthenticated users relocated to `main.login` with return target in session; sets `prc.currentUser` / `prc.currentUserRole` when `session.userId` is present; authenticated users denied by coarse RBAC relocate to `main.index` with flash (`session.servepointAuthzNotice`); **`admin.*` requires Administrator**.
 - **services/SecurityService.cfc**: Login verification (`VerifyBCryptHash`), session user resolution, return-target helpers for post-login redirect.
 - **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.login` / `main.doLogin` / `main.logout`; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
 - **handlers/Cases.cfc**: Case list, detail/edit, create, archive, POST `addCommunication` (staff notes on active cases).
 - **handlers/Communications.cfc**: Read-only communications hub (`communications.index`) with optional filters (case, type, author).
 - **handlers/Reports.cfc**: Reporting hub (`reports.index`) and detail drill-down (`reports.byType`) with date-range filters and optional archived-case inclusion; records report-view audit events.
-- **handlers/Admin.cfc**: Administrator-only admin home (`admin.index`); `/admin` route; roadmap UI for future admin features (`views/admin/index.cfm`).
+- **handlers/Admin.cfc**: Administrator-only admin home (`admin.index`), user/role management (`admin.users`, POST `admin.saveUserRole`), all cases including archived (`admin.cases`, POST `admin.restoreArchivedCase`); views under `views/admin/`.
 - **handlers/Documents.cfc**: Document upload and download actions, scoped to active cases. **No delete** in routine flows—see document retention in `docs/DESIGN_NOTES.md` / `docs/DEV_NOTES.md`.
 - **views/documents/index.cfm**: Standalone document workspace (select case, upload, list, download).
-- **services/CaseService.cfc**: Active-case queries, create/update/archive.
+- **services/CaseService.cfc**: Active-case queries, create/update/archive/restore; `listAll( includeArchived = true )` for admin case list.
+- **services/AdminService.cfc**: List users for admin UI; `updateUserRole` with last-Administrator guard; persists `audit_events` with category `admin` and LogBox `audit.admin` for role changes.
 - **services/CommunicationService.cfc**: List/create communications for active cases, ordered per-case audit activity, hub listing with filters.
 - **services/DocumentService.cfc**: Upload validation/storage, document listing by case, download resolution, and structured audit writes.
 - **services/ReportsService.cfc**: Aggregate and detail audit reporting queries (`audit_events` grouped by type, plus per-type event detail with optional date filters).
