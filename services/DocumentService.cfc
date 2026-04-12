@@ -51,6 +51,16 @@ component singleton accessors="true" {
             deleteTempUpload( arguments.uploadedFile );
             return { success: false, error: "Case not found or no longer active." };
         }
+        if ( arguments.userId > 0 ) {
+            var uploadActor = entityLoad( "Users", arguments.userId, true );
+            if (
+                isNull( uploadActor ) ||
+                !caseService.userMayMutateCase( caseEntity, uploadActor.getUserId(), trim( uploadActor.getRole() ) )
+            ) {
+                deleteTempUpload( arguments.uploadedFile );
+                return { success: false, error: "You are not allowed to upload documents for this case." };
+            }
+        }
 
         var ext = lCase( trim( arguments.uploadedFile.serverFileExt ?: "" ) );
         if ( !isAllowedExtension( ext ) ) {
@@ -145,6 +155,15 @@ component singleton accessors="true" {
         var caseEntity = caseService.getActiveCase( arguments.caseId );
         if ( isNull( caseEntity ) ) {
             return { success: false, error: "Case not found or no longer active." };
+        }
+        if ( arguments.userId > 0 ) {
+            var dlUser = entityLoad( "Users", arguments.userId, true );
+            if (
+                isNull( dlUser ) ||
+                !caseService.userCanViewCase( caseEntity, dlUser.getUserId(), trim( dlUser.getRole() ) )
+            ) {
+                return { success: false, error: "You are not allowed to access documents for this case." };
+            }
         }
 
         var doc = entityLoad( "Document", arguments.documentId, true );

@@ -5,13 +5,12 @@
 			<h1 class="h2 mb-0 text-primary">
 				<i class="bi bi-folder2-open" aria-hidden="true"></i> Cases
 			</h1>
-			<a href="#event.buildLink( "main.index" )#" class="btn btn-outline-secondary">
-				<i class="bi bi-house" aria-hidden="true"></i> Home
-			</a>
 		</div>
+		<cfif structKeyExists( prc, "canCreateAndArchive" ) && prc.canCreateAndArchive>
 		<a href="#event.buildLink( "cases.new" )#" class="btn btn-primary">
 			<i class="bi bi-plus-circle" aria-hidden="true"></i> New case
 		</a>
+		</cfif>
 	</div>
 
 	<cfif structKeyExists( prc, "noticeMessage" ) && len( trim( prc.noticeMessage ) )>
@@ -21,8 +20,10 @@
 	</cfif>
 
 	<cfif !arrayLen( prc.cases )>
-		<p class="lead text-muted">No active cases yet. Create one to get started.</p>
+		<p class="lead text-muted">No active cases yet.<cfif structKeyExists( prc, "canCreateAndArchive" ) && prc.canCreateAndArchive> Create one to get started.</cfif></p>
+		<cfif structKeyExists( prc, "canCreateAndArchive" ) && prc.canCreateAndArchive>
 		<a href="#event.buildLink( "cases.new" )#" class="btn btn-outline-primary">New case</a>
+		</cfif>
 	<cfelse>
 		<div class="table-responsive shadow-sm rounded">
 			<table class="table table-hover table-striped mb-0 align-middle">
@@ -57,11 +58,13 @@
 								</cfif>
 							</td>
 							<td class="text-end text-nowrap">
-								<a href="#event.buildLink( to = "cases.view", queryString = "id=#c.getCaseId()#" )#" class="btn btn-sm btn-outline-primary">Edit</a>
+								<a href="#event.buildLink( to = "cases.view", queryString = "id=#c.getCaseId()#" )#" class="btn btn-sm btn-outline-primary">View</a>
+								<cfif structKeyExists( prc, "canCreateAndArchive" ) && prc.canCreateAndArchive>
 								<form method="post" action="#event.buildLink( "cases.archive" )#" class="d-inline" onsubmit="return confirm('Archive this case? It will be removed from the active list.');">
 									<input type="hidden" name="id" value="#c.getCaseId()#">
 									<button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
 								</form>
+								</cfif>
 							</td>
 						</tr>
 					</cfloop>

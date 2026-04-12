@@ -4,6 +4,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
         describe( "Documents index", function() {
 
             it( "documents.index renders documents workspace for selected case", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
                 var caseService = getWireBox().getInstance( "CaseService" );
                 var created = caseService.createCase(
@@ -20,6 +21,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             } );
 
             it( "documents.index rejects unknown case selection", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var event = this.get( "documents.index", { caseId = 999999 }, {}, false );
                 expect( event.getValue( "relocate_event", "" ) ).toBe( "documents.index" );
             } );

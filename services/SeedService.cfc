@@ -99,13 +99,27 @@ component singleton accessors="true" {
         case1.setAssignedTo( adminUser );
         entitySave( case1 );
 
+        var mgrUser = entityLoad( "Users", { email : "case.manager@example.com" }, true );
+        var assign2 = !isNull( mgrUser ) ? mgrUser : adminUser;
+
         var case2 = entityNew( "Cases" );
         case2.setTitle( "In-progress Case" );
         case2.setDescription( "An example case that is currently in progress." );
         case2.setStatus( inProgressStatus );
         case2.setCreator( adminUser );
-        case2.setAssignedTo( adminUser );
+        case2.setAssignedTo( assign2 );
         entitySave( case2 );
+
+        var citizenUser = entityLoad( "Users", { email : "citizen@example.com" }, true );
+        if ( !isNull( citizenUser ) ) {
+            var case3 = entityNew( "Cases" );
+            case3.setTitle( "Citizen demo visibility" );
+            case3.setDescription( "Seeded case assigned to the demo Citizen for RBAC demos." );
+            case3.setStatus( newStatus );
+            case3.setCreator( adminUser );
+            case3.setAssignedTo( citizenUser );
+            entitySave( case3 );
+        }
     }
 
     /**
@@ -181,9 +195,11 @@ component singleton accessors="true" {
             }
         }
 
+        // Authors must pass CommunicationService / userMayMutateCase: Case Manager only on cases they are assigned to;
+        // Administrator can post on any case. Sample case is assigned to admin; In-progress case is assigned to mgr.
         var seeds = [
             { caseId : caseA.getCaseId(), userId : admin.getUserId(), message : "Initial intake notes: client prefers morning contact." },
-            { caseId : caseA.getCaseId(), userId : mgr.getUserId(), message : "Follow-up scheduled; waiting on supporting documents." },
+            { caseId : caseA.getCaseId(), userId : admin.getUserId(), message : "Follow-up scheduled; waiting on supporting documents." },
             { caseId : caseB.getCaseId(), userId : mgr.getUserId(), message : "Reviewed case file; no blockers for next step." },
             { caseId : caseB.getCaseId(), userId : admin.getUserId(), message : "Document upload received and linked to this case." }
         ];
@@ -227,12 +243,12 @@ component singleton accessors="true" {
         );
         auditLoggerService.record(
             category = "report",
-            eventType = "Report View",
+            eventType = "Report Summary View",
             outcome = "success",
             actorUserId = admin.getUserId(),
             caseId = primaryCaseId,
             reasonCode = "seed_demo",
-            message = "Seeded demo report view event.",
+            message = "Seeded demo report summary view event.",
             metadata = { seeded = true, includeArchived = false }
         );
     }

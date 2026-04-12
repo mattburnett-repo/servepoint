@@ -68,7 +68,9 @@
 						<div class="rounded-circle flex-shrink-0 text-success px-1">
 							<i class="bi bi-shield-check" aria-hidden="true"></i> 
 						</div>
-						<div class="d-flex gap-2 w-100 justify-content-between">Role-based access controls</div>
+						<div class="d-flex gap-2 w-100 justify-content-between">
+							<a href="#event.buildLink( 'main.rbac' )#">Role-based access controls</a>
+						</div>
 					</div>
 					<div class="list-group-item d-flex gap-2 py-3">
 						<div class="rounded-circle flex-shrink-0 text-success px-1">
@@ -124,9 +126,9 @@
 				<i class="bi bi-card-checklist" aria-hidden="true"></i>
 			</div>
 			<div>
-				<h2 class="text-primary">Development Tools</h2>
+				<h2 class="text-primary">Automated tests</h2>
 				<p>
-					Comprehensive testing and development tools are available:
+					Use the TestBox browser to run the automated integration test suite (opens in a new tab).
 				</p>
 
 				<div class="d-grid gap-2 d-sm-flex justify-content-sm-center">

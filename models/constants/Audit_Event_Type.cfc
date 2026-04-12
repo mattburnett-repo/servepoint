@@ -15,6 +15,7 @@ component {
         "DOCUMENT_UPLOAD"      : "Document Upload",
         "DOCUMENT_DOWNLOAD"    : "Document Download",
         "REPORT_VIEW"          : "Report View",
+        "REPORT_SUMMARY_VIEW"  : "Report Summary View",
         "ADMIN_ACTION"         : "Admin Action"
     };
 

@@ -79,6 +79,13 @@ component {
             layoutsLocation: "layouts",
             modelsLocation: "models"
         };
+
+        interceptors = [
+            {
+                class : "cbapp.interceptors.SecurityInterceptor",
+                name  : "SecurityInterceptor"
+            }
+        ];
     }
 
     function development(){

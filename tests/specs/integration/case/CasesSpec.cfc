@@ -4,12 +4,14 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 		describe( "Cases intake", function(){
 
 			it( "cases.index exposes active cases as an array", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var event = this.get( "cases.index" );
 				var cases = event.getValue( name = "cases", private = true );
 				expect( isArray( cases ) ).toBeTrue();
 			} );
 
 			it( "cases.new renders the new case form", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var event = this.get( "cases.new" );
 				expect( event.getRenderedContent() ).toInclude( "New case" );
 			} );
@@ -39,6 +41,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.create redirects to cases.index after POST", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				expect( isNull( admin ) ).toBeFalse();
 				var uniqueTitle = "CasesSpec handler " & createUUID();
@@ -65,6 +68,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.view renders detail for an active case", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				var uniqueTitle = "CasesSpec view " & createUUID();
 				var svc         = getWireBox().getInstance( "CaseService" );
@@ -108,6 +112,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.update persists changes from POST", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				var svc   = getWireBox().getInstance( "CaseService" );
 				var r     = svc.createCase(
@@ -137,6 +142,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.archive removes case from active list", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				var svc   = getWireBox().getInstance( "CaseService" );
 				var r     = svc.createCase(
