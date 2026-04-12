@@ -27,7 +27,7 @@ For day‑to‑day development, **run the app inside Docker**, not via `box serv
 
 - **Session key:** `session.userId` — numeric `users.user_id` for the signed-in user (set on successful login, cleared on logout).
 - **Service:** `SecurityService` (`services/SecurityService.cfc`) — resolves current user, `authenticate()` / `loginUser()` / `logout()`, and stores return targets (`session.auth_returnEvent`, `session.auth_returnQueryString`) when an unauthenticated user hits a protected route.
-- **Routes (public, no login):** `main.index`, `main.encryption`, `main.compliance`, `main.underConstruction`, `main.login`, `main.doLogin`, `main.logout`, `main.rbac`, and `/healthcheck`. See `interceptors/SecurityInterceptor.cfc` for the authoritative list.
+- **Routes (public, no login):** `main.index`, `main.encryption`, `main.compliance`, `main.underConstruction`, `main.healthcheck` (mapped from `/healthcheck`), `main.login`, `main.doLogin`, `main.logout`, `main.rbac`. See `interceptors/SecurityInterceptor.cfc` for the authoritative list.
 - **Protected routes:** everything else (e.g. `cases.*`, `reports.*`, `documents.*`, `communications.*`, `main.data`) requires `session.userId`. Unauthenticated requests are relocated to `main.login`; after login, ColdBox relocates to the stored event + query string (default `cases.index` if none).
 - **Demo accounts:** seeded in `SeedService` (e.g. `admin@example.com`, `case.manager@example.com`, `citizen@example.com` with password `change-me` when using default seeds).
 

@@ -73,7 +73,7 @@ flowchart TB
 
 | Handler | Injected / used services | Primary views |
 |---------|---------------------------|----------------|
-| `Main` | — | `main/index`, `main/encryption` (summary: TLS + document encryption), `main/compliance` (demo privacy/compliance posture; links to `docs/compliance/`), `main/underConstruction` |
+| `Main` | — | `main/index`, `main/encryption` (summary: TLS + document encryption), `main/compliance` (demo privacy/compliance posture; links to `docs/compliance/`), `main/underConstruction`, `main/healthcheck` → `main/healthcheckOk` / `main/healthcheckDown` (no layout; `/healthcheck` route) |
 | `Cases` | `CaseService`, `CommunicationService` | `cases/index`, `cases/view`, `cases/new`; `addCommunication` (POST) |
 | `Communications` | `CommunicationService`, `CaseService` | `communications/index` (read-only hub) |
 | `Reports` | `ReportsService`, `AuditLoggerService` | `reports/index` (audit-event aggregate reporting) |

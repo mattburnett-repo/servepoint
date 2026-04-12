@@ -140,17 +140,17 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+									<a href="#event.buildLink( 'main.index' ) & "##overview"#" class="dropdown-item">
 										<i class="bi bi-info-circle"></i> System Overview
 									</a>
 								</li>
 								<li>
-									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+									<a href="#event.buildLink( 'main.index' ) & "##core-features"#" class="dropdown-item">
 										<i class="bi bi-gear"></i> Features
 									</a>
 								</li>
 								<li>
-									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+									<a href="#event.buildLink( 'main.compliance' )#" class="dropdown-item">
 										<i class="bi bi-shield-check"></i> Security & Privacy
 									</a>
 								</li>
@@ -158,7 +158,7 @@
 									<hr class="dropdown-divider">
 								</li>
 								<li>
-									<a href="#event.buildLink( 'main.underConstruction' )#" class="dropdown-item">
+									<a href="https://github.com/mattburnett-repo/servepoint/issues" class="dropdown-item" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-envelope"></i> Contact Support
 									</a>
 								</li>
@@ -181,22 +181,22 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint##readme" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-book"></i> User Guide
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
-										<i class="bi bi-mortarboard"></i> Training Videos
+									<a class="dropdown-item" href="https://coldbox.ortusbooks.com/getting-started/first-steps/my-first-coldbox-application" target="_blank" rel="noopener noreferrer">
+										<i class="bi bi-mortarboard"></i> ColdBox walkthrough
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint/blob/main/docs/logging.md" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-lightbulb"></i> Best Practices
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint/blob/main/docs/DEV_NOTES.md" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-question-circle"></i> FAQ
 									</a>
 								</li>
@@ -219,22 +219,22 @@
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint/issues" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-headset"></i> Help Desk
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint/issues/new" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-ticket"></i> Submit Ticket
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="https://github.com/mattburnett-repo/servepoint/issues/new?title=Urgent%20support%20request" target="_blank" rel="noopener noreferrer">
 										<i class="bi bi-exclamation-triangle"></i> Emergency Contact
 									</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#event.buildLink( 'main.underConstruction' )#">
+									<a class="dropdown-item" href="#event.getHTMLBaseURL()#healthcheck">
 										<i class="bi bi-activity"></i> System Status
 									</a>
 								</li>

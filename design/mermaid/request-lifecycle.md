@@ -49,7 +49,7 @@ flowchart LR
 ## Key files
 
 - **Application.cfc**: `onRequestStart` delegates to ColdBox; `onApplicationStart` loads ColdBox, runs DB migrations, initializes ORM, optionally runs `SeedService`.
-- **config/Router.cfc**: `/healthcheck`, `/api/echo`, convention route `:handler/:action?`.
+- **config/Router.cfc**: `/healthcheck` → `main.healthcheck` (HTML status page; DB ping), `/api/echo`, convention route `:handler/:action?`.
 - **interceptors/SecurityInterceptor.cfc**: `preProcess` — public route allowlist; unauthenticated users relocated to `main.login` with return target in session; sets `prc.currentUser` / `prc.currentUserRole` when `session.userId` is present; authenticated users denied by coarse RBAC relocate to `main.index` with flash (`session.servepointAuthzNotice`).
 - **services/SecurityService.cfc**: Login verification (`VerifyBCryptHash`), session user resolution, return-target helpers for post-login redirect.
 - **handlers/Main.cfc**: Home, under construction, sample `data` JSON; `main.login` / `main.doLogin` / `main.logout`; `main.encryption` (TLS + document encryption summary), `main.compliance` (demo privacy/compliance posture; links to `docs/compliance/` on GitHub); links core features including audit/reporting entry.
@@ -67,4 +67,4 @@ flowchart LR
 ## Document retention (design)
 
 Accepted documents are **retained** as part of the case record. Upload/view/download paths do **not** implement user-facing **deletion**; disposition is **out of band** (policy, admin process, or future controlled tooling). Case **archive** limits visibility for active workflows but does **not** remove `documents` rows or stored files.
-- **views/cases/\*.cfm**, **views/communications/index.cfm**, **views/main/\*.cfm**, **layouts/Main.cfm**: View and layout rendering.
+- **views/cases/\*.cfm**, **views/communications/index.cfm**, **views/main/\*.cfm**, **layouts/Main.cfm**: View and layout rendering. **layouts/Main.cfm** navbar About/Learn/Support items point at home anchors (`#overview`, `#core-features`), `main.compliance`, GitHub README/docs/issues (new tab), Ortus ColdBox walkthrough, and `/healthcheck` for status.

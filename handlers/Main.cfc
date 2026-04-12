@@ -53,6 +53,23 @@ component extends="coldbox.system.EventHandler" {
 	}
 
 	/**
+	 * Human-friendly /healthcheck page. Pings the app datasource; full HTML, no layout.
+	 */
+	function healthcheck( event, rc, prc ){
+		prc.checkedAt = dateTimeFormat( now(), "yyyy-mm-dd HH:nn:ss" );
+		try {
+			queryExecute( "SELECT 1 AS ok", [], { datasource: "servepoint" } );
+			event.setHTTPHeader( name = "Content-Type", value = "text/html; charset=utf-8" );
+			event.setView( view = "main/healthcheckOk", noLayout = true );
+		} catch ( any e ) {
+			prc.healthMessage = left( trim( toString( e.message ?: "" ) ), 400 );
+			event.setHTTPHeader( statusCode = 503 );
+			event.setHTTPHeader( name = "Content-Type", value = "text/html; charset=utf-8" );
+			event.setView( view = "main/healthcheckDown", noLayout = true );
+		}
+	}
+
+	/**
 	 * Produce some restfulf data
 	 */
 	function data( event, rc, prc ){

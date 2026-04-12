@@ -74,7 +74,7 @@ component extends="coldbox.system.Interceptor" accessors="true" {
         }
         var currentEvent = lCase( event.getCurrentHandler() ) & "." & lCase( event.getCurrentAction() );
         var publicEvents =
-            "main.index,main.encryption,main.compliance,main.underconstruction,main.login,main.dologin,main.logout,main.rbac";
+            "main.index,main.encryption,main.compliance,main.underconstruction,main.healthcheck,main.login,main.dologin,main.logout,main.rbac";
         return listFindNoCase( publicEvents, currentEvent ) > 0;
     }
 
