@@ -9,16 +9,10 @@
 <cfset decFmt = createObject( "java", "java.text.DecimalFormat" ).init( "##,##0.0" ) />
 
 <div class="container py-4 col-lg-10">
-	<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-		<div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">
-			<h1 class="h2 mb-0 text-primary">
-				<i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> Documents
-			</h1>
-			<a href="#event.buildLink( "main.index" )#" class="btn btn-outline-secondary">
-				<i class="bi bi-house" aria-hidden="true"></i> Home
-			</a>
-		</div>
-		<a href="#event.buildLink( "cases.index" )#" class="btn btn-outline-secondary">Back to cases</a>
+	<div class="mb-4">
+		<h1 class="h2 mb-0 text-primary">
+			<i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> Documents
+		</h1>
 	</div>
 
 	<cfif structKeyExists( prc, "noticeMessage" ) && len( trim( prc.noticeMessage ) )>
@@ -53,6 +47,7 @@
 	</div>
 
 	<cfif hasSelectedCase>
+		<cfif structKeyExists( prc, "canUploadDocuments" ) && prc.canUploadDocuments>
 		<div class="card shadow-sm mb-4">
 			<div class="card-header bg-light">
 				<h2 class="h5 mb-0">Upload document</h2>
@@ -77,6 +72,7 @@
 				</form>
 			</div>
 		</div>
+		</cfif>
 
 		<div class="card shadow-sm">
 			<div class="card-header bg-light">

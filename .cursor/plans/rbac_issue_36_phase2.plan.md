@@ -3,11 +3,11 @@ name: ServePoint RBAC Issue 36 — Phase 2 (Authorization)
 overview: "Milestone B: RBAC matrix, interceptor role gates, SecurityService role helpers, CaseService and related services for resource-level checks, replace admin@example.com, views, Core Feature RBAC link, authorization tests, full DEV_NOTES matrix. Prerequisite — Phase 1 plan implemented and accepted."
 todos:
   - id: phase2-authz-matrix-enforce
-    content: "Matrix in DEV_NOTES; interceptor coarse role rules; CaseService + docs/reports resource checks; replace admin@example.com"
-    status: pending
+    content: Matrix in DEV_NOTES; interceptor coarse role rules; CaseService + docs/reports resource checks; replace admin@example.com
+    status: completed
   - id: phase2-authz-ui-nav-rbac-link
-    content: "Hide/disable by role; Core Feature RBAC href + help view; authorization integration tests"
-    status: pending
+    content: Hide/disable by role; Core Feature RBAC href + help view; authorization integration tests
+    status: completed
 isProject: false
 ---
 

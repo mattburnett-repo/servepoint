@@ -23,6 +23,17 @@ component singleton accessors="true" {
     }
 
     /**
+     * @returns Users.role string (e.g. Citizen, Case Manager, Administrator) or empty when not logged in
+     */
+    public string function getCurrentUserRole() {
+        var u = getCurrentUser();
+        if ( isNull( u ) ) {
+            return "";
+        }
+        return trim( toString( u.getRole() ) );
+    }
+
+    /**
      * Verify credentials; does not set session (caller calls loginUser on success).
      */
     public struct function authenticate( required string email, required string password ) {

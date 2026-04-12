@@ -38,12 +38,17 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 				expect( event.getValue( name = "welcomemessage", private = true ) ).toBe( "Welcome to ServePoint" );
 				var features = event.getValue( name = "projectFeatures", private = true );
 				var hasAuditLink = false;
+				var hasRbacLink = false;
 				for ( var feature in features ) {
 					if ( feature.label == "Audit trails and reporting" && len( trim( feature.href ) ) ) {
 						hasAuditLink = true;
 					}
+					if ( feature.label == "Role-based access controls" && len( trim( feature.href ) ) ) {
+						hasRbacLink = true;
+					}
 				}
 				expect( hasAuditLink ).toBeTrue();
+				expect( hasRbacLink ).toBeTrue();
 			} );
 
 			it( "can render some restful data", function(){

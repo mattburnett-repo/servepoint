@@ -13,7 +13,7 @@ component extends="coldbox.system.EventHandler" {
 			{ "label" : "Document upload and storage", "href" : event.buildLink( "documents.index" ) },
 			{ "label" : "Staff communication tools", "href" : event.buildLink( "communications.index" ) },
 			{ "label" : "Audit trails and reporting", "href" : event.buildLink( "reports.index" ) },
-			{ "label" : "Role-based access controls", "href" : "" }
+			{ "label" : "Role-based access controls", "href" : event.buildLink( "main.rbac" ) }
 		];
 		prc.targetAudience = "US Federal Government and public-sector agencies";
 		event.setView( "main/index" );
@@ -33,6 +33,14 @@ component extends="coldbox.system.EventHandler" {
 	function compliance( event, rc, prc ){
 		prc.pageTitle = "Privacy and compliance posture";
 		event.setView( "main/compliance" );
+	}
+
+	/**
+	 * RBAC matrix summary (public): demo roles, seed accounts, link to sign in.
+	 */
+	function rbac( event, rc, prc ){
+		prc.pageTitle = "Role-based access controls";
+		event.setView( "main/rbac" );
 	}
 
 	/**

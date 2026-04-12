@@ -1,6 +1,6 @@
 /**
- * Phase 1: require authentication for non-public routes; set prc.currentUser when session present.
- * No role-based rules (Phase 2).
+ * Phase 1: authentication for non-public routes; prc.currentUser when session present.
+ * Phase 2: coarse role gates (handler.action); public allowlist includes main.rbac.
  */
 component extends="coldbox.system.Interceptor" accessors="true" {
 
@@ -12,7 +12,13 @@ component extends="coldbox.system.Interceptor" accessors="true" {
     function preProcess( required any event, required struct interceptData ) {
 
         if ( securityService.isAuthenticated() ) {
-            event.setValue( name = "currentUser", value = securityService.getCurrentUser(), private = true );
+            var cu = securityService.getCurrentUser();
+            event.setValue( name = "currentUser", value = cu, private = true );
+            event.setValue(
+                name = "currentUserRole",
+                value = isNull( cu ) ? "" : trim( toString( cu.getRole() ) ),
+                private = true
+            );
         }
 
         if ( isPublicRequest( event ) ) {
@@ -22,18 +28,53 @@ component extends="coldbox.system.Interceptor" accessors="true" {
         if ( !securityService.isAuthenticated() ) {
             securityService.persistReturnTarget( event );
             relocate( "main.login" );
+            return;
+        }
+
+        if ( !isAuthorizedForRole( event ) ) {
+            session.servepointAuthzNotice = "You do not have permission to access that.";
+            relocate( "main.index" );
         }
     }
 
     /**
-     * Public routes: info pages, login flow, and non-ColdBox-module paths like /healthcheck.
+     * Minimum role per routed event (coarse). Fine-grained checks live in services.
+     */
+    private boolean function isAuthorizedForRole( required any event ) {
+        var role = trim( toString( event.getValue( name = "currentUserRole", private = true ) ?: "" ) );
+        if ( !len( role ) ) {
+            return false;
+        }
+        var ur = new models.constants.User_Role();
+        var currentEvent = lCase( event.getCurrentHandler() ) & "." & lCase( event.getCurrentAction() );
+
+        if ( role == ur.ROLES.ADMINISTRATOR ) {
+            return true;
+        }
+
+        if ( role == ur.ROLES.CASE_MANAGER ) {
+            return listFindNoCase( "reports.index,reports.bytype", currentEvent ) == 0;
+        }
+
+        if ( role == ur.ROLES.CITIZEN ) {
+            var citizenAllowed =
+                "cases.index,cases.view,documents.index,documents.download,main.rbac";
+            return listFindNoCase( citizenAllowed, currentEvent ) > 0;
+        }
+
+        return false;
+    }
+
+    /**
+     * Public routes: info pages, login flow, RBAC help, and non-ColdBox-module paths like /healthcheck.
      */
     private boolean function isPublicRequest( required any event ) {
         if ( isHealthcheckRequest() ) {
             return true;
         }
         var currentEvent = lCase( event.getCurrentHandler() ) & "." & lCase( event.getCurrentAction() );
-        var publicEvents = "main.index,main.encryption,main.compliance,main.underconstruction,main.login,main.dologin,main.logout";
+        var publicEvents =
+            "main.index,main.encryption,main.compliance,main.underconstruction,main.login,main.dologin,main.logout,main.rbac";
         return listFindNoCase( publicEvents, currentEvent ) > 0;
     }
 

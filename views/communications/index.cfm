@@ -1,10 +1,9 @@
 <cfoutput>
 <div class="container py-4">
-	<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+	<div class="mb-4">
 		<h1 class="h2 mb-0 text-primary">
 			<i class="bi bi-chat-left-text" aria-hidden="true"></i> Staff communications
 		</h1>
-		<a href="#event.buildLink( "main.index" )#" class="btn btn-outline-secondary">Home</a>
 	</div>
 	<p class="text-muted mb-4">Read-only index of case communications. Use filters to narrow the list.</p>
 
@@ -70,7 +69,7 @@
 								<tr>
 									<td>
 										<cfif !isNull( commRow.getCaseRef() )>
-											<a href="#event.buildLink( to = "cases.view", queryString = "id=" & commRow.getCaseRef().getCaseId() )#">#encodeForHTML( commRow.getCaseRef().getTitle() )#</a>
+											<a href="#event.buildLink( to = "communications.index", queryString = "caseId=" & commRow.getCaseRef().getCaseId() )#">#encodeForHTML( commRow.getCaseRef().getTitle() )#</a>
 										</cfif>
 									</td>
 									<td>#encodeForHTML( left( commRow.getMessage(), 200 ) )#<cfif len( commRow.getMessage() ) gt 200>...</cfif></td>

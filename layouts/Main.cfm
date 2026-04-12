@@ -105,16 +105,21 @@
 								<i class="bi bi-file-earmark-text" aria-hidden="true"></i> Documents
 							</a>
 						</li>
+						<cfif NOT structKeyExists( prc, "currentUserRole" ) OR !len( trim( prc.currentUserRole ) ) OR prc.currentUserRole NEQ "Citizen">
 						<li class="nav-item">
 							<a class="nav-link" href="#event.buildLink( 'communications.index' )#">
 								<i class="bi bi-chat-dots" aria-hidden="true"></i> Communications
 							</a>
 						</li>
+						</cfif>
+						<cfset _navRole = structKeyExists( prc, "currentUserRole" ) ? trim( prc.currentUserRole ) : "" />
+						<cfif !len( _navRole ) OR _navRole EQ "Administrator">
 						<li class="nav-item">
 							<a class="nav-link" href="#event.buildLink( 'reports.index' )#">
 								<i class="bi bi-clipboard-data" aria-hidden="true"></i> Reports
 							</a>
 						</li>
+						</cfif>
 					</ul>
 
 					<!--- About / Learn / Support: immediately after brand on lg+; below primary when menu is stacked --->
@@ -266,6 +271,15 @@
 
 	<!---Container And Views --->
 	<main class="flex-shrink-0">
+		<cfif structKeyExists( session, "servepointAuthzNotice" ) && len( trim( session.servepointAuthzNotice ) )>
+			<div class="container pt-2">
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+					#encodeForHTML( session.servepointAuthzNotice )#
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			</div>
+			<cfset structDelete( session, "servepointAuthzNotice" ) />
+		</cfif>
 		#view()#
 	</main>
 

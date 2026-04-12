@@ -13,7 +13,7 @@ Core fields:
 
 - `date_occurred`: event timestamp (DB default).
 - `category`: audit domain (`security`, `case`, `document`, `report`, `admin`).
-- `event_type`: normalized event label (`Case Create`, `Document Download`, `Report View`, etc.).
+- `event_type`: normalized event label (`Case Create`, `Document Download`, `Report Summary View`, `Report View`, etc.).
 - `outcome`: `success`, `failure`, or `denied`.
 - `user_id`: actor user when known (nullable for pre-auth/system paths).
 - `case_id`, `document_id`: optional resource references.
@@ -53,7 +53,8 @@ Current event type constants:
 - `Communication Create`
 - `Document Upload`
 - `Document Download`
-- `Report View`
+- `Report Summary View` (reports hub / `reports.index`)
+- `Report View` (per-type drill-down / `reports.byType`)
 - `Admin Action`
 
 ## LogBox categories

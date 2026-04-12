@@ -70,6 +70,9 @@ component singleton accessors="true" {
         if ( isNull( author ) ) {
             return { success: false, error: "Author user not found." };
         }
+        if ( !caseService.userMayMutateCase( caseEntity, author.getUserId(), trim( author.getRole() ) ) ) {
+            return { success: false, error: "You are not allowed to add a communication on this case." };
+        }
         var typeConstants = new models.constants.Communication_Type();
         if ( !arrayFind( typeConstants.getValues(), arguments.type ) ) {
             return { success: false, error: "Invalid communication type." };

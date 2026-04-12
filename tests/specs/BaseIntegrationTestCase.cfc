@@ -32,6 +32,7 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 		structDelete( session, "userId" );
 		structDelete( session, "auth_returnEvent" );
 		structDelete( session, "auth_returnQueryString" );
+		structDelete( session, "servepointAuthzNotice" );
 	}
 
 }

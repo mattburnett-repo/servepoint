@@ -2,21 +2,24 @@ component extends="coldbox.system.EventHandler" {
 
     property name="caseService" inject="CaseService";
     property name="documentService" inject="DocumentService";
+    property name="securityService" inject="SecurityService";
 
     /**
      * Documents landing page. Optionally scoped to a specific active case.
      */
     // ColdBox passes this third argument as `prc`; keep this name for runtime compatibility.
     void function index( required any event, required struct rc, required struct prc ) {
-        prc.cases = caseService.listActive();
+        var u    = securityService.getCurrentUser();
+        var role = securityService.getCurrentUserRole();
+        prc.cases = caseService.listCasesForActor( u.getUserId(), role );
         prc.documentUploadPolicy = documentService.getUploadPolicy();
         prc.selectedCaseId = structKeyExists( rc, "caseId" ) && isNumeric( rc.caseId ) ? val( rc.caseId ) : 0;
         prc.documents = [];
 
         if ( prc.selectedCaseId > 0 ) {
-            var caseEntity = caseService.getActiveCase( prc.selectedCaseId );
+            var caseEntity = caseService.getActiveCaseForActor( prc.selectedCaseId, u.getUserId(), role );
             if ( isNull( caseEntity ) ) {
-                session.casesNotice = "Case not found or no longer active.";
+                session.casesNotice = "Case not found or you do not have access.";
                 relocate( "documents.index" );
                 return;
             }
@@ -24,6 +27,7 @@ component extends="coldbox.system.EventHandler" {
             prc.documents = documentService.listForCase( prc.selectedCaseId );
         }
 
+        prc.canUploadDocuments = ( role != "Citizen" );
         if ( structKeyExists( session, "casesNotice" ) && len( trim( session.casesNotice ) ) ) {
             prc.noticeMessage = session.casesNotice;
             structDelete( session, "casesNotice" );
@@ -47,14 +51,8 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
 
-        var author = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( author ) ) {
-            var allUsers = entityLoad( "Users" );
-            if ( arrayLen( allUsers ) ) {
-                author = allUsers[ 1 ];
-            }
-        }
-        var uploadUserId = !isNull( author ) ? author.getUserId() : 0;
+        var u            = securityService.getCurrentUser();
+        var uploadUserId = u.getUserId();
 
         var result = documentService.uploadFromForm(
             caseId = caseId,
@@ -79,17 +77,11 @@ component extends="coldbox.system.EventHandler" {
             return;
         }
 
-        var downloadUser = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( downloadUser ) ) {
-            var downloadUsers = entityLoad( "Users" );
-            if ( arrayLen( downloadUsers ) ) {
-                downloadUser = downloadUsers[ 1 ];
-            }
-        }
+        var u        = securityService.getCurrentUser();
         var resolved = documentService.resolveDownload(
             caseId = caseId,
             documentId = documentId,
-            userId = !isNull( downloadUser ) ? downloadUser.getUserId() : 0
+            userId = u.getUserId()
         );
         if ( !resolved.success ) {
             session.casesNotice = resolved.error ?: "Document not found.";

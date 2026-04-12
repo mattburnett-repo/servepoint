@@ -2,12 +2,16 @@ component extends="coldbox.system.EventHandler" {
 
     property name="caseService"          inject="CaseService";
     property name="communicationService" inject="CommunicationService";
+    property name="securityService"    inject="SecurityService";
 
     /**
-     * List active (non-archived) cases.
+     * List active (non-archived) cases (scoped by role).
      */
     function index( event, rc, prc ){
-        prc.cases = caseService.listActive();
+        var u    = securityService.getCurrentUser();
+        var role = securityService.getCurrentUserRole();
+        prc.cases = caseService.listCasesForActor( u.getUserId(), role );
+        prc.canCreateAndArchive = ( role != "Citizen" );
         if ( structKeyExists( session, "casesNotice" ) && len( trim( session.casesNotice ) ) ) {
             prc.noticeMessage = session.casesNotice;
             structDelete( session, "casesNotice" );
@@ -23,13 +27,16 @@ component extends="coldbox.system.EventHandler" {
             relocate( "cases.index" );
             return;
         }
-        var caseEntity = caseService.getActiveCase( val( rc.id ) );
+        var u    = securityService.getCurrentUser();
+        var role = securityService.getCurrentUserRole();
+        var caseEntity = caseService.getActiveCaseForActor( val( rc.id ), u.getUserId(), role );
         if ( isNull( caseEntity ) ) {
-            session.casesNotice = "Case not found or no longer active.";
+            session.casesNotice = "Case not found or you do not have access.";
             relocate( "cases.index" );
             return;
         }
         prc.caseEntity = caseEntity;
+        prc.canMutateThisCase = caseService.userMayMutateCase( caseEntity, u.getUserId(), role );
         if ( structKeyExists( session, "casesNotice" ) && len( trim( session.casesNotice ) ) ) {
             prc.noticeMessage = session.casesNotice;
             structDelete( session, "casesNotice" );
@@ -52,35 +59,27 @@ component extends="coldbox.system.EventHandler" {
             relocate( "cases.index" );
             return;
         }
-        var author = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( author ) ) {
-            var allUsers = entityLoad( "Users" );
-            if ( arrayLen( allUsers ) ) {
-                author = allUsers[ 1 ];
-            } else {
-                session.casesNotice = "No users available to post a communication.";
-                relocate( event = "cases.view", queryString = "id=" & caseId );
-                return;
-            }
-        }
+        var u    = securityService.getCurrentUser();
+        var role = securityService.getCurrentUserRole();
         var typeConstants = new models.constants.Communication_Type().getValues();
         var commType      = arrayLen( typeConstants ) ? typeConstants[ 1 ] : "";
         var message       = structKeyExists( rc, "message" ) ? trim( rc.message ) : "";
         var result        = communicationService.createCommunication(
             caseId  = caseId,
-            userId  = author.getUserId(),
+            userId  = u.getUserId(),
             message = message,
             type    = commType
         );
         if ( !result.success ) {
             prc.errorMessage = result.error;
-            var ce = caseService.getActiveCase( caseId );
+            var ce = caseService.getActiveCaseForActor( caseId, u.getUserId(), role );
             if ( isNull( ce ) ) {
-                session.casesNotice = "Case not found or no longer active.";
+                session.casesNotice = "Case not found or you do not have access.";
                 relocate( "cases.index" );
                 return;
             }
             prc.caseEntity = ce;
+            prc.canMutateThisCase = caseService.userMayMutateCase( ce, u.getUserId(), role );
             loadCaseDetailContext( prc, caseId );
             event.setView( "cases/view" );
             return;
@@ -118,15 +117,18 @@ component extends="coldbox.system.EventHandler" {
             relocate( "cases.index" );
             return;
         }
+        var u    = securityService.getCurrentUser();
+        var role = securityService.getCurrentUserRole();
         var title = structKeyExists( rc, "title" ) ? trim( rc.title ) : "";
         if ( !len( title ) ) {
             prc.errorMessage = "Title is required.";
-            var ce = caseService.getActiveCase( caseId );
+            var ce = caseService.getActiveCaseForActor( caseId, u.getUserId(), role );
             if ( isNull( ce ) ) {
                 relocate( "cases.index" );
                 return;
             }
             prc.caseEntity = ce;
+            prc.canMutateThisCase = caseService.userMayMutateCase( ce, u.getUserId(), role );
             loadCaseDetailContext( prc, caseId );
             event.setView( "cases/view" );
             return;
@@ -141,11 +143,14 @@ component extends="coldbox.system.EventHandler" {
             title            = title,
             description      = structKeyExists( rc, "description" ) ? trim( rc.description ) : "",
             status           = status,
-            assignedToUserId = assignedId
+            assignedToUserId = assignedId,
+            actorUserId      = u.getUserId(),
+            actorRole        = role
         );
         if ( !result.success ) {
             prc.errorMessage = result.error;
-            prc.caseEntity   = caseService.getActiveCase( caseId );
+            prc.caseEntity   = caseService.getActiveCaseForActor( caseId, u.getUserId(), role );
+            prc.canMutateThisCase = caseService.userMayMutateCase( prc.caseEntity, u.getUserId(), role );
             loadCaseDetailContext( prc, caseId );
             event.setView( "cases/view" );
             return;
@@ -168,20 +173,10 @@ component extends="coldbox.system.EventHandler" {
             relocate( "cases.index" );
             return;
         }
-        var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( admin ) ) {
-            var allUsers = entityLoad( "Users" );
-            if ( arrayLen( allUsers ) ) {
-                admin = allUsers[ 1 ];
-            } else {
-                session.casesNotice = "Unable to archive case.";
-                relocate( "cases.index" );
-                return;
-            }
-        }
+        var u = securityService.getCurrentUser();
         var result = caseService.archiveCase(
             caseId   = caseId,
-            userId   = admin.getUserId(),
+            userId   = u.getUserId(),
             reason   = "Archived from case list."
         );
         session.casesNotice = result.success ? "Case archived." : ( result.error ?: "Could not archive case." );
@@ -205,6 +200,7 @@ component extends="coldbox.system.EventHandler" {
             relocate( "cases.new" );
             return;
         }
+        var u    = securityService.getCurrentUser();
         var title = structKeyExists( rc, "title" ) ? trim( rc.title ) : "";
         if ( !len( title ) ) {
             prc.errorMessage    = "Title is required.";
@@ -215,21 +211,6 @@ component extends="coldbox.system.EventHandler" {
             event.setView( "cases/new" );
             return;
         }
-        var creator = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( creator ) ) {
-            var allUsers = entityLoad( "Users" );
-            if ( arrayLen( allUsers ) ) {
-                creator = allUsers[ 1 ];
-            } else {
-                prc.errorMessage     = "No users available to own the case.";
-                prc.titleValue       = title;
-                prc.descriptionValue = structKeyExists( rc, "description" ) ? trim( rc.description ) : "";
-                prc.statusOptions    = new models.constants.Case_Status().getValues();
-                prc.users            = allUsers;
-                event.setView( "cases/new" );
-                return;
-            }
-        }
         var status = structKeyExists( rc, "status" ) && len( trim( rc.status ) ) ? trim( rc.status ) : "New";
         var assignedId = 0;
         if ( structKeyExists( rc, "assignedToUserId" ) && isNumeric( rc.assignedToUserId ) && val( rc.assignedToUserId ) > 0 ) {
@@ -239,7 +220,7 @@ component extends="coldbox.system.EventHandler" {
             title            = title,
             description      = structKeyExists( rc, "description" ) ? trim( rc.description ) : "",
             status           = status,
-            creatorUserId    = creator.getUserId(),
+            creatorUserId    = u.getUserId(),
             assignedToUserId = assignedId
         );
         if ( !result.success ) {

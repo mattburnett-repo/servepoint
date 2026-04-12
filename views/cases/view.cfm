@@ -4,15 +4,15 @@
 <cfset assignId = !isNull( c.getAssignedTo() ) ? c.getAssignedTo().getUserId() : creatorId />
 <div class="container py-4 col-lg-8">
 	<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-		<div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">
-			<h1 class="h2 mb-0 text-primary">
-				<i class="bi bi-folder2-open" aria-hidden="true"></i> Case
-			</h1>
-			<a href="#event.buildLink( "main.index" )#" class="btn btn-outline-secondary">
-				<i class="bi bi-house" aria-hidden="true"></i> Home
-			</a>
-		</div>
-		<a href="#event.buildLink( "cases.index" )#" class="btn btn-outline-secondary">Back to cases</a>
+		<h1 class="h2 mb-0 text-primary">
+			<i class="bi bi-folder2-open" aria-hidden="true"></i> Case
+		</h1>
+		<a
+			href="#event.buildLink( "cases.index" )#"
+			class="btn btn-outline-secondary"
+		>
+			Back to summary
+		</a>
 	</div>
 
 	<cfif structKeyExists( prc, "noticeMessage" ) && len( trim( prc.noticeMessage ) )>
@@ -56,6 +56,7 @@
 	</div>
 
 	<h2 class="h4 mb-3 text-primary">Edit case</h2>
+	<cfif structKeyExists( prc, "canMutateThisCase" ) && prc.canMutateThisCase>
 	<form method="post" action="#event.buildLink( "cases.update" )#" class="card shadow-sm">
 		<input type="hidden" name="caseId" value="#c.getCaseId()#">
 		<div class="card-body">
@@ -91,12 +92,16 @@
 			<a href="#event.buildLink( "cases.index" )#" class="btn btn-outline-secondary">Cancel</a>
 		</div>
 	</form>
+	<cfelse>
+		<p class="text-muted mb-4">You have read-only access to this case.</p>
+	</cfif>
 
 	<div class="card shadow-sm mb-4">
 		<div class="card-header bg-light">
 			<h2 class="h5 mb-0">Communications</h2>
 		</div>
 		<div class="card-body">
+			<cfif structKeyExists( prc, "canMutateThisCase" ) && prc.canMutateThisCase>
 			<form method="post" action="#event.buildLink( "cases.addCommunication" )#" class="mb-4">
 				<input type="hidden" name="caseId" value="#c.getCaseId()#">
 				<div class="mb-3">
@@ -105,6 +110,7 @@
 				</div>
 				<button type="submit" class="btn btn-primary">Post communication</button>
 			</form>
+			</cfif>
 			<cfif structKeyExists( prc, "communications" ) && isArray( prc.communications ) && arrayLen( prc.communications )>
 				<ul class="list-group list-group-flush border rounded">
 					<cfloop array="#prc.communications#" index="comm">
