@@ -1,5 +1,7 @@
 component extends="coldbox.system.EventHandler" {
 
+	property name="securityService" inject="SecurityService";
+
 	/**
 	 * Default Action - ServePoint Home Page
 	 */
@@ -11,7 +13,7 @@ component extends="coldbox.system.EventHandler" {
 			{ "label" : "Document upload and storage", "href" : event.buildLink( "documents.index" ) },
 			{ "label" : "Staff communication tools", "href" : event.buildLink( "communications.index" ) },
 			{ "label" : "Audit trails and reporting", "href" : event.buildLink( "reports.index" ) },
-			{ "label" : "Role-based access controls", "href" : "" }
+			{ "label" : "Role-based access controls", "href" : event.buildLink( "main.rbac" ) }
 		];
 		prc.targetAudience = "US Federal Government and public-sector agencies";
 		event.setView( "main/index" );
@@ -31,6 +33,14 @@ component extends="coldbox.system.EventHandler" {
 	function compliance( event, rc, prc ){
 		prc.pageTitle = "Privacy and compliance posture";
 		event.setView( "main/compliance" );
+	}
+
+	/**
+	 * RBAC matrix summary (public): demo roles, seed accounts, link to sign in.
+	 */
+	function rbac( event, rc, prc ){
+		prc.pageTitle = "Role-based access controls";
+		event.setView( "main/rbac" );
 	}
 
 	/**
@@ -58,6 +68,49 @@ component extends="coldbox.system.EventHandler" {
 	 * Relocation example
 	 */
 	function doSomething( event, rc, prc ){
+		relocate( "main.index" );
+	}
+
+	/**
+	 * Sign-in form (public). Post to doLogin.
+	 */
+	function login( event, rc, prc ){
+		prc.pageTitle = "Sign in";
+		event.setView( "main/login" );
+	}
+
+	/**
+	 * POST: validate credentials, set session.userId, relocate to return target or cases.index.
+	 */
+	function doLogin( event, rc, prc ){
+		if ( event.getHTTPMethod() != "POST" ) {
+			relocate( "main.login" );
+			return;
+		}
+		var email = structKeyExists( rc, "email" ) ? trim( rc.email ) : "";
+		var password = structKeyExists( rc, "password" ) ? rc.password : "";
+		var result = securityService.authenticate( email = email, password = password );
+		if ( !result.success ) {
+			prc.errorMessage = result.error;
+			prc.emailValue = email;
+			prc.pageTitle = "Sign in";
+			event.setView( "main/login" );
+			return;
+		}
+		securityService.loginUser( result.user.getUserId() );
+		var target = securityService.getAndClearReturnTarget();
+		if ( len( trim( target.queryString ) ) ) {
+			relocate( event = target.event, queryString = target.queryString );
+		} else {
+			relocate( event = target.event );
+		}
+	}
+
+	/**
+	 * Clear session identity and return to home.
+	 */
+	function logout( event, rc, prc ){
+		securityService.logout();
 		relocate( "main.index" );
 	}
 

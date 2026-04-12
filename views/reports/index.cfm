@@ -1,10 +1,9 @@
 <cfoutput>
 <div class="container py-4">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div class="mb-4">
         <h1 class="h2 mb-0 text-primary">
             <i class="bi bi-clipboard-data" aria-hidden="true"></i> Audit trails and reporting
         </h1>
-        <a href="#event.buildLink( "main.index" )#" class="btn btn-outline-secondary">Home</a>
     </div>
 
     <p class="text-muted mb-4">

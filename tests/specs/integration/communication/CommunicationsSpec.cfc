@@ -112,6 +112,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "communications.index renders hub", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var event = this.get( "communications.index" );
 				expect( event.getRenderedContent() ).toInclude( "Staff communications" );
 			} );
@@ -151,6 +152,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.addCommunication POST redirects to case view", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				var svcCase = getWireBox().getInstance( "CaseService" );
 				var cr      = svcCase.createCase(
@@ -172,6 +174,7 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
 			} );
 
 			it( "cases.view shows Communications section", function(){
+				this.loginAsSeedUser( "admin@example.com" );
 				var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
 				var svcCase = getWireBox().getInstance( "CaseService" );
 				var cr      = svcCase.createCase(

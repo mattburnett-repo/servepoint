@@ -23,6 +23,29 @@ For day‑to‑day development, **run the app inside Docker**, not via `box serv
 - **Docker Compose** (`docker/docker-compose.yml`) starts the app **and** a local PostgreSQL container. Use it with `.env.dev` when you want a **local, dev-only database** so migrations, seeds, and experiments don’t touch the remote Render database. This is the recommended setup for day‑to‑day development. The compose file maps the app to **host port 8081** (→ container 8080) so it does not conflict with other tools on your machine that use **8080** (for example nginx). Access the app at **`http://localhost:8081`** for local Compose.
 - **Remote database (e.g. Render)**: For deployment or for testing against the live DB, run only the app container (e.g. `docker build -t servepoint -f docker/Dockerfile .` then `docker run --env-file .env.deploy -p 8080:8080 servepoint`). Render builds from the Dockerfile only and does not use docker-compose. You do **not** need docker-compose for Render deployment; you **do** need it (or another local Postgres) if you want an isolated local database for development.
 
+## Authentication (Phase 1)
+
+- **Session key:** `session.userId` — numeric `users.user_id` for the signed-in user (set on successful login, cleared on logout).
+- **Service:** `SecurityService` (`services/SecurityService.cfc`) — resolves current user, `authenticate()` / `loginUser()` / `logout()`, and stores return targets (`session.auth_returnEvent`, `session.auth_returnQueryString`) when an unauthenticated user hits a protected route.
+- **Routes (public, no login):** `main.index`, `main.encryption`, `main.compliance`, `main.underConstruction`, `main.login`, `main.doLogin`, `main.logout`, `main.rbac`, and `/healthcheck`. See `interceptors/SecurityInterceptor.cfc` for the authoritative list.
+- **Protected routes:** everything else (e.g. `cases.*`, `reports.*`, `documents.*`, `communications.*`, `main.data`) requires `session.userId`. Unauthenticated requests are relocated to `main.login`; after login, ColdBox relocates to the stored event + query string (default `cases.index` if none).
+- **Demo accounts:** seeded in `SeedService` (e.g. `admin@example.com`, `case.manager@example.com`, `citizen@example.com` with password `change-me` when using default seeds).
+
+## Authorization / RBAC (Phase 2)
+
+- **Coarse (interceptor):** `interceptors/SecurityInterceptor.cfc` — after authentication, `preProcess` checks `Users.role` against the routed event. **Administrator:** all routes. **Case Manager:** all except `reports.index` / `reports.byType`. **Citizen:** only `cases.index`, `cases.view`, `documents.index`, `documents.download`, plus public routes (including `main.rbac`). Unauthenticated-but-not-allowed is N/A; **authenticated but denied** → `relocate( main.index )` and `session.servepointAuthzNotice` (shown once in `layouts/Main.cfm`).
+- **Fine-grained (services):** `CaseService` — `userCanViewCase` / `userMayMutateCase`, `listCasesForActor`, `getActiveCaseForActor`; **Citizen** sees cases where they are creator or assignee; **Case Manager** may edit/archive/communicate/upload only when **assigned** to the case; **Administrator** may mutate any case. `DocumentService` upload uses `userMayMutateCase`; download uses `userCanViewCase`. `CommunicationService.createCommunication` uses `userMayMutateCase`. `CaseService.updateCase` audit **`actorUserId`** uses the acting user when `actorUserId` / `actorRole` are passed from handlers.
+- **UI:** `layouts/Main.cfm` hides **Reports** unless the user is an Administrator or is not signed in (anonymous users still see the nav link; they are sent to login on access). **Communications** is hidden for **Citizen** when signed in. Case and document views hide create/archive/upload when the role does not allow it; server-side checks remain authoritative.
+- **Help page:** `main.rbac` + `views/main/rbac.cfm` — matrix summary and seed accounts (public).
+
+| Rule | Interceptor | Service |
+|------|-------------|---------|
+| Reports (audit UI) | Admin only | — |
+| Communications hub | Blocks Citizen | — |
+| Create / archive case routes | Blocks Citizen | `createCase` rejects Citizen creator; `archiveCase` uses `userMayMutateCase` |
+| Edit case, comms, upload | — | Assignment / role rules above |
+| List/view cases, download docs | — | Scoped queries / `userCanViewCase` |
+
 ## Config and secrets
 
 This app uses:

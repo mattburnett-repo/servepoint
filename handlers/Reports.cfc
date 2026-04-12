@@ -2,6 +2,7 @@ component extends="coldbox.system.EventHandler" {
 
     property name="reportsService" inject="ReportsService";
     property name="auditLoggerService" inject="AuditLoggerService";
+    property name="securityService" inject="SecurityService";
 
     /**
      * Audit/reporting entry point.
@@ -26,19 +27,13 @@ component extends="coldbox.system.EventHandler" {
             includeArchived = includeArchived
         );
 
-        var actor = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( actor ) ) {
-            var users = entityLoad( "Users" );
-            if ( arrayLen( users ) ) {
-                actor = users[ 1 ];
-            }
-        }
+        var actor = securityService.getCurrentUser();
         auditLoggerService.record(
             category = "report",
-            eventType = "Report View",
+            eventType = "Report Summary View",
             outcome = "success",
             actorUserId = isNull( actor ) ? 0 : actor.getUserId(),
-            message = "Audit report viewed (reports.index).",
+            message = "Audit report summary viewed (reports.index).",
             metadata = {
                 dateFrom = filterDateFrom,
                 dateTo = filterDateTo,
@@ -80,19 +75,13 @@ component extends="coldbox.system.EventHandler" {
             includeArchived = includeArchived
         );
 
-        var actor = entityLoad( "Users", { email : "admin@example.com" }, true );
-        if ( isNull( actor ) ) {
-            var users = entityLoad( "Users" );
-            if ( arrayLen( users ) ) {
-                actor = users[ 1 ];
-            }
-        }
+        var actor = securityService.getCurrentUser();
         auditLoggerService.record(
             category = "report",
             eventType = "Report View",
             outcome = "success",
             actorUserId = isNull( actor ) ? 0 : actor.getUserId(),
-            message = "Audit report detail viewed (reports.byType).",
+            message = "Audit report type detail viewed (reports.byType).",
             metadata = {
                 eventType = eventType,
                 dateFrom = filterDateFrom,

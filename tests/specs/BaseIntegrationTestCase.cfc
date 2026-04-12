@@ -19,4 +19,20 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 		ormClearSession();
 	}
 
+	/**
+	 * Sets session.userId for integration tests that hit authenticated routes (Phase 1 security).
+	 */
+	public void function loginAsSeedUser( required string email ) {
+		var u = entityLoad( "Users", { email : arguments.email }, true );
+		expect( isNull( u ) ).toBeFalse();
+		session.userId = u.getUserId();
+	}
+
+	public void function clearSessionAuth() {
+		structDelete( session, "userId" );
+		structDelete( session, "auth_returnEvent" );
+		structDelete( session, "auth_returnQueryString" );
+		structDelete( session, "servepointAuthzNotice" );
+	}
+
 }

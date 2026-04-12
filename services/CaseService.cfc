@@ -1,6 +1,85 @@
 component singleton accessors="true" {
     property name="auditLoggerService" inject="AuditLoggerService";
 
+    private any function userRoleConstants() {
+        return new models.constants.User_Role();
+    }
+
+    /**
+     * Administrator and Case Manager: any active case. Citizen: creator or assignee only.
+     */
+    public boolean function userCanViewCase( required any caseEntity, required numeric actorUserId, required string actorRole ) {
+        var ur = userRoleConstants();
+        if ( arguments.actorRole == ur.ROLES.ADMINISTRATOR || arguments.actorRole == ur.ROLES.CASE_MANAGER ) {
+            return true;
+        }
+        if ( arguments.actorRole != ur.ROLES.CITIZEN ) {
+            return false;
+        }
+        if ( isNull( arguments.caseEntity ) ) {
+            return false;
+        }
+        if ( arguments.caseEntity.getCreator().getUserId() == arguments.actorUserId ) {
+            return true;
+        }
+        if (
+            !isNull( arguments.caseEntity.getAssignedTo() ) &&
+            arguments.caseEntity.getAssignedTo().getUserId() == arguments.actorUserId
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Administrator: any. Case Manager: must be assigned to the case. Citizen: never.
+     */
+    public boolean function userMayMutateCase( required any caseEntity, required numeric actorUserId, required string actorRole ) {
+        var ur = userRoleConstants();
+        if ( arguments.actorRole == ur.ROLES.ADMINISTRATOR ) {
+            return true;
+        }
+        if ( arguments.actorRole == ur.ROLES.CASE_MANAGER ) {
+            return (
+                !isNull( arguments.caseEntity.getAssignedTo() ) &&
+                arguments.caseEntity.getAssignedTo().getUserId() == arguments.actorUserId
+            );
+        }
+        return false;
+    }
+
+    /**
+     * Role-scoped list: staff see all active cases; citizens see only cases they created or are assigned to.
+     */
+    public array function listCasesForActor( required numeric actorUserId, required string actorRole ) {
+        var ur = userRoleConstants();
+        if ( arguments.actorRole == ur.ROLES.ADMINISTRATOR || arguments.actorRole == ur.ROLES.CASE_MANAGER ) {
+            return listActive();
+        }
+        if ( arguments.actorRole != ur.ROLES.CITIZEN ) {
+            return [];
+        }
+        return ormExecuteQuery(
+            "FROM Cases c WHERE c.archivedAt IS NULL AND ( c.creator.userId = :uid OR ( c.assignedTo IS NOT NULL AND c.assignedTo.userId = :uid ) ) ORDER BY c.dateCreated DESC",
+            { uid : arguments.actorUserId },
+            false
+        );
+    }
+
+    /**
+     * Same as getActiveCase when the actor may view the case; otherwise null (not found for this user).
+     */
+    public any function getActiveCaseForActor( required numeric caseId, required numeric actorUserId, required string actorRole ) {
+        var caseEntity = getActiveCase( arguments.caseId );
+        if ( isNull( caseEntity ) ) {
+            return;
+        }
+        if ( !userCanViewCase( caseEntity, arguments.actorUserId, arguments.actorRole ) ) {
+            return;
+        }
+        return caseEntity;
+    }
+
     /**
      * Restore all archived cases in one go (bulk UPDATE). Use for test isolation so specs see all cases as active.
      * Clears the ORM session so subsequent queries see the updated DB state.
@@ -54,6 +133,10 @@ component singleton accessors="true" {
         var creator = entityLoad( "Users", arguments.creatorUserId, true );
         if ( isNull( creator ) ) {
             return { success: false, error: "Creator user not found." };
+        }
+        var urCreate = userRoleConstants();
+        if ( trim( creator.getRole() ) == urCreate.ROLES.CITIZEN ) {
+            return { success: false, error: "Citizens cannot create cases." };
         }
         var assignee = creator;
         if ( arguments.assignedToUserId > 0 ) {
@@ -116,11 +199,18 @@ component singleton accessors="true" {
         required string title,
         string description = "",
         required string status,
-        numeric assignedToUserId = 0
+        numeric assignedToUserId = 0,
+        numeric actorUserId = 0,
+        string actorRole = ""
     ) {
         var caseEntity = entityLoad( "Cases", arguments.caseId, true );
         if ( isNull( caseEntity ) || caseEntity.isArchived() ) {
             return { success: false, error: "Case not found." };
+        }
+        if ( arguments.actorUserId > 0 && len( trim( arguments.actorRole ) ) ) {
+            if ( !userMayMutateCase( caseEntity, arguments.actorUserId, trim( arguments.actorRole ) ) ) {
+                return { success: false, error: "You are not allowed to update this case." };
+            }
         }
         var previousTitle = caseEntity.getTitle();
         var previousStatus = caseEntity.getStatus();
@@ -144,11 +234,15 @@ component singleton accessors="true" {
         } catch ( any e ) {
             return { success: false, error: "Unable to update case: " & ( e.message ?: "unknown error" ) };
         }
+        var auditActorId = caseEntity.getCreator().getUserId();
+        if ( arguments.actorUserId > 0 ) {
+            auditActorId = arguments.actorUserId;
+        }
         auditLoggerService.record(
             category    = "case",
             eventType   = "Case Update",
             outcome     = "success",
-            actorUserId = caseEntity.getCreator().getUserId(),
+            actorUserId = auditActorId,
             caseId      = arguments.caseId,
             message     = "Case updated (ID " & arguments.caseId & "): title '" & previousTitle & "' to '" & caseEntity.getTitle() &
                 "', status '" & previousStatus & "' to '" & caseEntity.getStatus() & "'."
@@ -179,6 +273,9 @@ component singleton accessors="true" {
         var userEntity = entityLoad( "Users", arguments.userId, true );
         if ( isNull( userEntity ) ) {
             return { success: false, error: "User not found." };
+        }
+        if ( !userMayMutateCase( caseEntity, arguments.userId, trim( userEntity.getRole() ) ) ) {
+            return { success: false, error: "You are not allowed to archive this case." };
         }
         var datasource = "servepoint";
         transaction {
@@ -224,6 +321,9 @@ component singleton accessors="true" {
         var userEntity = entityLoad( "Users", arguments.userId, true );
         if ( isNull( userEntity ) ) {
             return { success: false, error: "User not found." };
+        }
+        if ( !userMayMutateCase( caseEntity, arguments.userId, trim( userEntity.getRole() ) ) ) {
+            return { success: false, error: "You are not allowed to restore this case." };
         }
         var datasource = "servepoint";
         transaction {

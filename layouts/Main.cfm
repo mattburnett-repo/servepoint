@@ -20,6 +20,34 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<style>
 		.text-blue { color:##379BC1; }
+		/* Lighter steel blue — aligned with .text-blue / primary, less muddy than the old navy */
+		.navbar-servepoint {
+			background: linear-gradient(180deg, ##3a7eb8 0%, ##2a6499 100%);
+			box-shadow: 0 2px 10px rgba(25, 85, 140, 0.28);
+		}
+		/* Center primary nav in full bar width (lg+); keep brand left, utilities right */
+		@media (min-width: 992px) {
+			.navbar-servepoint .navbar-primary-nav {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				margin: 0;
+				z-index: 1;
+			}
+			.navbar-servepoint .navbar-brand,
+			.navbar-servepoint .navbar-left-cluster,
+			.navbar-servepoint .navbar-end-cluster {
+				position: relative;
+				z-index: 2;
+			}
+		}
+		@media (max-width: 991.98px) {
+			.navbar-servepoint .navbar-primary-nav {
+				position: static;
+				transform: none;
+			}
+		}
 	</style>
 
 	<!--- Favicon (shield-check, matches index iconography) --->
@@ -37,10 +65,11 @@
 >
 	<!---Top NavBar --->
 	<header>
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-			<div class="container-fluid">
-				<!---Brand --->
-				<a class="navbar-brand" href="#event.buildLink( 'main' )#">
+		<nav class="navbar navbar-expand-lg navbar-dark navbar-servepoint fixed-top">
+			<div class="container-fluid position-lg-relative">
+				<!---Brand (icon matches views/main/index.cfm hero) --->
+				<a class="navbar-brand d-flex align-items-center gap-2 py-1" href="#event.buildLink( 'main' )#">
+					<i class="bi bi-shield-check fs-4" aria-hidden="true"></i>
 					<strong>ServePoint</strong>
 				</a>
 
@@ -57,18 +86,47 @@
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
-				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<div class="collapse navbar-collapse d-lg-flex flex-lg-row flex-lg-grow-1 align-items-lg-center" id="navbarSupportedContent">
 
-					<ul class="navbar-nav mb-2 mb-lg-0">
+					<!--- Primary first in DOM so the collapsed menu lists app links before About/Learn/Support --->
+					<ul class="navbar-nav navbar-primary-nav flex-row flex-wrap justify-content-center mb-2 mb-lg-0 order-lg-2">
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'main.index' )#">
+								<i class="bi bi-house-door" aria-hidden="true"></i> Home
+							</a>
+						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="#event.buildLink( 'cases.index' )#">
 								<i class="bi bi-folder2-open" aria-hidden="true"></i> Cases
 							</a>
 						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'documents.index' )#">
+								<i class="bi bi-file-earmark-text" aria-hidden="true"></i> Documents
+							</a>
+						</li>
+						<cfif NOT structKeyExists( prc, "currentUserRole" ) OR !len( trim( prc.currentUserRole ) ) OR prc.currentUserRole NEQ "Citizen">
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'communications.index' )#">
+								<i class="bi bi-chat-dots" aria-hidden="true"></i> Communications
+							</a>
+						</li>
+						</cfif>
+						<cfset _navRole = structKeyExists( prc, "currentUserRole" ) ? trim( prc.currentUserRole ) : "" />
+						<cfif !len( _navRole ) OR _navRole EQ "Administrator">
+						<li class="nav-item">
+							<a class="nav-link" href="#event.buildLink( 'reports.index' )#">
+								<i class="bi bi-clipboard-data" aria-hidden="true"></i> Reports
+							</a>
+						</li>
+						</cfif>
 					</ul>
 
+					<!--- About / Learn / Support: immediately after brand on lg+; below primary when menu is stacked --->
+					<div class="navbar-left-cluster d-flex flex-column flex-lg-row align-items-lg-center gap-1 gap-lg-2 mb-2 mb-lg-0 order-lg-1">
+
 					<!---About --->
-					<ul class="navbar-nav ms-5 mb-2 mb-lg-0">
+					<ul class="navbar-nav mb-2 mb-lg-0">
 						<li class="nav-item dropdown">
 							<a
 								class="nav-link dropdown-toggle"
@@ -184,11 +242,27 @@
 						</li>
 					</ul>
 
-					<form class="ms-auto d-flex">
+					</div><!--- end navbar-left-cluster --->
+
+					<div class="navbar-end-cluster d-flex flex-column flex-lg-row align-items-lg-center gap-2 gap-lg-3 ms-lg-auto order-lg-3">
+						<ul class="navbar-nav flex-row align-items-center mb-0">
+							<cfif structKeyExists( prc, "currentUser" ) AND isObject( prc.currentUser )>
+								<li class="nav-item d-flex align-items-center">
+									<span class="text-white-50 small px-2 py-2 text-nowrap">#encodeForHTML( prc.currentUser.getEmail() )#</span>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#event.buildLink( 'main.logout' )#">Sign out</a>
+								</li>
+							<cfelse>
+								<li class="nav-item">
+									<a class="nav-link" href="#event.buildLink( 'main.login' )#">Sign in</a>
+								</li>
+							</cfif>
+						</ul>
 						<a href="https://github.com/mattburnett-repo/servepoint.git" class="btn btn-outline-light btn-sm" target="_blank">
 							<i class="bi bi-github"></i> View the code on GitHub
 						</a>
-					</form>
+					</div><!--- end navbar-end-cluster --->
 
 				</div>
 			</div>
@@ -197,6 +271,15 @@
 
 	<!---Container And Views --->
 	<main class="flex-shrink-0">
+		<cfif structKeyExists( session, "servepointAuthzNotice" ) && len( trim( session.servepointAuthzNotice ) )>
+			<div class="container pt-2">
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+					#encodeForHTML( session.servepointAuthzNotice )#
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			</div>
+			<cfset structDelete( session, "servepointAuthzNotice" ) />
+		</cfif>
 		#view()#
 	</main>
 

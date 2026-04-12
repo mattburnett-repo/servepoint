@@ -10,6 +10,8 @@ For detailed design specifications and requirements, see [docs/DESIGN_NOTES.md](
 
 For development notes, see [docs/DEV_NOTES.md](docs/DEV_NOTES.md).
 
+**Authentication & authorization (demo):** Session login, public routes, return-after-login, and RBAC (coarse interceptor rules plus service-level checks for cases/documents/communications) are documented in [docs/DEV_NOTES.md](docs/DEV_NOTES.md) under **Authentication (Phase 1)** and **Authorization / RBAC (Phase 2)**. Persisted audit labels (`event_type`) are summarized in [docs/logging.md](docs/logging.md).
+
 **Privacy / compliance (demo posture):** Engineering transparency and checklists—not legal advice or certification—are in [docs/compliance/README.md](docs/compliance/README.md) (GDPR, HIPAA, CCPA high-level pages and data inventory).
 
 Agent rules for Cursor (agentic coding): [.cursor/rules/](.cursor/rules/).

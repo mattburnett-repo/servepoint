@@ -169,11 +169,13 @@ component extends="tests.specs.BaseIntegrationTestCase" appMapping="/root" {
             } );
 
             it( "documents.download rejects invalid request", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var event = this.get( "documents.download", { caseId = 0, documentId = 0 }, {}, false );
                 expect( event.getValue( "relocate_event", "" ) ).toBe( "cases.index" );
             } );
 
             it( "documents.download relocates when document is not in selected case", function() {
+                this.loginAsSeedUser( "admin@example.com" );
                 var admin = entityLoad( "Users", { email : "admin@example.com" }, true );
                 var caseService = getWireBox().getInstance( "CaseService" );
                 var documentService = getWireBox().getInstance( "DocumentService" );
