@@ -22,10 +22,8 @@ component {
 		 * Go get Funky!
 		 */
 
-		// A nice healthcheck route example
-		route( "/healthcheck", function( event, rc, prc ){
-			return "Ok!";
-		} );
+		// HTML status page (200 + vibrant UI when DB responds; 503 + hopeful UI if not)
+		route( "/healthcheck" ).to( "main.healthcheck" );
 
 		// A nice RESTFul Route example
 		route( "/api/echo", function( event, rc, prc ){

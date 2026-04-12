@@ -1,5 +1,5 @@
 <cfoutput>
-<div class="text-center card shadow-sm bg-light border border-5 border-white">
+<div id="overview" class="text-center card shadow-sm bg-light border border-5 border-white">
 	<div class="card-body">
 		<div>
 			<h1 class="display-4 fw-bold text-primary mb-3">
@@ -31,7 +31,7 @@
 				<i class="bi bi-gear-fill" aria-hidden="true"></i>
 			</div>
 			<div>
-				<h2 class="text-primary">Core Features</h2>
+				<h2 id="core-features" class="text-primary">Core Features</h2>
 				<p>
 					ServePoint provides comprehensive case management capabilities:
 				</p>
